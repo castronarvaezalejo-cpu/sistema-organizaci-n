@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
 import { supabase } from "@/lib/supabase"
 
 export default function CalendarioPage() {
@@ -34,8 +33,6 @@ export default function CalendarioPage() {
 
     setTareas(data || [])
   }
-
-  // AGRUPAR TAREAS
 
   const tareasAgrupadas = tareas.reduce(
     (
@@ -82,7 +79,6 @@ export default function CalendarioPage() {
                 border-zinc-800
                 rounded-3xl
                 p-8
-                backdrop-blur-xl
               "
             >
 
@@ -101,32 +97,15 @@ export default function CalendarioPage() {
 
                     <div
                       key={tarea.id}
-                      className={`
+                      className="
                         border
+                        border-zinc-800
                         rounded-2xl
                         p-5
                         flex
                         items-center
                         justify-between
-                        transition
-                        hover:scale-[1.01]
-
-                        ${
-                          tarea.estado === "completada"
-
-                            ? "border-green-500/30 bg-green-500/10"
-
-                            : tarea.prioridad === "alta"
-
-                            ? "border-red-500/30 bg-red-500/10"
-
-                            : tarea.prioridad === "media"
-
-                            ? "border-yellow-500/30 bg-yellow-500/10"
-
-                            : "border-blue-500/30 bg-blue-500/10"
-                        }
-                      `}
+                      "
                     >
 
                       <div>

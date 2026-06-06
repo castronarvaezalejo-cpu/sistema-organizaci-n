@@ -35,7 +35,7 @@ export default function CalendarioPage() {
     setTareas(data || [])
   }
 
-  // AGRUPAR POR FECHA
+  // AGRUPAR TAREAS
 
   const tareasAgrupadas = tareas.reduce(
     (
@@ -129,8 +129,6 @@ export default function CalendarioPage() {
                       `}
                     >
 
-                      {/* LEFT */}
-
                       <div>
 
                         <h3 className="
@@ -149,8 +147,6 @@ export default function CalendarioPage() {
                         </p>
 
                       </div>
-
-                      {/* RIGHT */}
 
                       <div className="text-right">
 

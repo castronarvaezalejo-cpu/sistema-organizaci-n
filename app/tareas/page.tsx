@@ -19,12 +19,19 @@ export default function TareasPage() {
 
   const [titulo, setTitulo] = useState("")
   const [empresaId, setEmpresaId] = useState("")
+  const [colaboradorId, setColaboradorId] = useState("")
   const [prioridad, setPrioridad] = useState("media")
   const [fechaLimite, setFechaLimite] = useState("")
   const [editandoId, setEditandoId] = useState<string | null>(null)
 
   const [tareas, setTareas] = useState<any[]>([])
   const [empresas, setEmpresas] = useState<any[]>([])
+  const [colaboradores, setColaboradores] = useState<any[]>([])
+
+  // FILTROS Y BUSCADOR
+
+  const [filtro, setFiltro] = useState("todas")
+  const [busqueda, setBusqueda] = useState("")
 
   async function obtenerEmpresas() {
 
@@ -38,6 +45,18 @@ export default function TareasPage() {
     }
   }
 
+  async function obtenerColaboradores() {
+
+    const { data } = await supabase
+      .from("colaboradores")
+      .select("*")
+      .order("nombre")
+
+    if (data) {
+      setColaboradores(data)
+    }
+  }
+
   async function obtenerTareas() {
 
     const { data } = await supabase
@@ -45,6 +64,9 @@ export default function TareasPage() {
       .select(`
         *,
         empresas (
+          nombre
+        ),
+        colaboradores (
           nombre
         )
       `)
@@ -55,118 +77,159 @@ export default function TareasPage() {
     }
   }
 
-async function crearTarea() {
+  async function crearTarea() {
 
-  if (!titulo || !empresaId) return
+    if (!titulo || !empresaId) return
 
-let error
+    let error
 
-if (editandoId) {
+    if (editandoId) {
 
-  const response = await supabase
-    .from("tareas")
-    .update({
-      titulo,
-      empresa_id: empresaId,
-      prioridad,
-      fecha_limite: fechaLimite,
-    })
-    .eq("id", editandoId)
+      const response = await supabase
+        .from("tareas")
+        .update({
+          titulo,
+          empresa_id: empresaId,
+          colaborador_id: colaboradorId,
+          prioridad,
+          fecha_limite: fechaLimite,
+        })
+        .eq("id", editandoId)
 
-  error = response.error
+      error = response.error
 
-} else {
+    } else {
 
-  const response = await supabase
-    .from("tareas")
-    .insert([
-      {
-        titulo,
-        empresa_id: empresaId,
-        prioridad,
-        fecha_limite: fechaLimite,
-      },
-    ])
+      const response = await supabase
+        .from("tareas")
+        .insert([
+          {
+            titulo,
+            empresa_id: empresaId,
+            colaborador_id: colaboradorId,
+            prioridad,
+            fecha_limite: fechaLimite,
+          },
+        ])
 
-  error = response.error
-}
+      error = response.error
+    }
 
-  if (error) {
-    console.error(error)
-    alert(JSON.stringify(error))
-    return
+    if (error) {
+      console.error(error)
+      alert(JSON.stringify(error))
+      return
+    }
+
+    alert(editandoId ? "Tarea actualizada" : "Tarea creada")
+
+    setTitulo("")
+    setEmpresaId("")
+    setColaboradorId("")
+    setPrioridad("media")
+    setFechaLimite("")
+
+    setEditandoId(null)
+
+    setOpen(false)
+
+    obtenerTareas()
   }
 
-  alert("Tarea creada")
+  async function completarTarea(id: string) {
 
-  setTitulo("")
-  setEmpresaId("")
-  setPrioridad("media")
-  setFechaLimite("")
+    const { error } = await supabase
+      .from("tareas")
+      .update({
+        estado: "completada",
+      })
+      .eq("id", id)
 
-  setEditandoId(null)
+    if (error) {
+      console.error(error)
+      return
+    }
 
-  setOpen(false)
-
-  obtenerTareas()
-}
-
-async function completarTarea(id: string) {
-
-  const { error } = await supabase
-    .from("tareas")
-    .update({
-      estado: "completada",
-    })
-    .eq("id", id)
-
-  if (error) {
-    console.error(error)
-    return
+    obtenerTareas()
   }
 
-  obtenerTareas()
-}
+  useEffect(() => {
 
-useEffect(() => {
-  obtenerTareas()
-  obtenerEmpresas()
-}, [])
+    obtenerTareas()
+    obtenerEmpresas()
+    obtenerColaboradores()
 
-function editarTarea(tarea: any) {
+  }, [])
 
-  setTitulo(tarea.titulo)
-  setEmpresaId(tarea.empresa_id)
-  setPrioridad(tarea.prioridad)
-  setFechaLimite(tarea.fecha_limite || "")
+  function editarTarea(tarea: any) {
 
-  setEditandoId(tarea.id)
+    setTitulo(tarea.titulo)
+    setEmpresaId(tarea.empresa_id)
+    setColaboradorId(tarea.colaborador_id || "")
+    setPrioridad(tarea.prioridad)
+    setFechaLimite(tarea.fecha_limite || "")
 
-  setOpen(true)
-}
+    setEditandoId(tarea.id)
 
-async function eliminarTarea(id: string) {
-
-  const confirmar = confirm(
-    "¿Eliminar esta tarea?"
-  )
-
-  if (!confirmar) return
-
-  const { error } = await supabase
-    .from("tareas")
-    .delete()
-    .eq("id", id)
-
-  if (error) {
-    console.error(error)
-    return
+    setOpen(true)
   }
 
-  obtenerTareas()
-}
+  async function eliminarTarea(id: string) {
 
-return (
+    const confirmar = confirm(
+      "¿Eliminar esta tarea?"
+    )
+
+    if (!confirmar) return
+
+    const { error } = await supabase
+      .from("tareas")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    obtenerTareas()
+  }
+
+  // FILTROS + BUSCADOR
+
+  const tareasFiltradas = tareas.filter((tarea) => {
+
+    const textoBusqueda = busqueda.toLowerCase()
+
+    const coincideBusqueda =
+      tarea.titulo.toLowerCase().includes(textoBusqueda) ||
+      tarea.empresas?.nombre?.toLowerCase().includes(textoBusqueda) ||
+      tarea.colaboradores?.nombre?.toLowerCase().includes(textoBusqueda)
+
+    if (!coincideBusqueda) return false
+
+    if (filtro === "pendientes") {
+      return tarea.estado !== "completada"
+    }
+
+    if (filtro === "completadas") {
+      return tarea.estado === "completada"
+    }
+
+    if (filtro === "vencidas") {
+
+      if (!tarea.fecha_limite) return false
+
+      return (
+        new Date(tarea.fecha_limite) < new Date() &&
+        tarea.estado !== "completada"
+      )
+    }
+
+    return true
+  })
+
+  return (
     <div>
 
       {/* HEADER */}
@@ -174,6 +237,7 @@ return (
       <div className="flex items-center justify-between mb-10">
 
         <div>
+
           <h1 className="text-4xl font-bold mb-2">
             Tareas
           </h1>
@@ -181,15 +245,81 @@ return (
           <p className="text-zinc-400">
             Gestión de tareas y pendientes
           </p>
+
+          <input
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar tarea, empresa o responsable..."
+            className="w-full md:w-96 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none mt-6 mb-6"
+          />
+
+          <div className="flex gap-3 flex-wrap">
+
+            <button
+              onClick={() => setFiltro("todas")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filtro === "todas"
+                  ? "bg-white text-black"
+                  : "bg-zinc-800 text-zinc-300"
+              }`}
+            >
+              Todas
+            </button>
+
+            <button
+              onClick={() => setFiltro("pendientes")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filtro === "pendientes"
+                  ? "bg-yellow-500 text-black"
+                  : "bg-zinc-800 text-zinc-300"
+              }`}
+            >
+              Pendientes
+            </button>
+
+            <button
+              onClick={() => setFiltro("completadas")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filtro === "completadas"
+                  ? "bg-green-500 text-black"
+                  : "bg-zinc-800 text-zinc-300"
+              }`}
+            >
+              Completadas
+            </button>
+
+            <button
+              onClick={() => setFiltro("vencidas")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filtro === "vencidas"
+                  ? "bg-red-500 text-white"
+                  : "bg-zinc-800 text-zinc-300"
+              }`}
+            >
+              Vencidas
+            </button>
+
+          </div>
+
         </div>
 
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setEditandoId(null)
+            setTitulo("")
+            setEmpresaId("")
+            setColaboradorId("")
+            setPrioridad("media")
+            setFechaLimite("")
+            setOpen(true)
+          }}
           className="flex items-center gap-2 bg-white text-black px-5 py-3 rounded-xl font-medium hover:opacity-90 transition"
         >
+
           <Plus size={18} />
 
-          {editandoId ? "Editar Tarea" : "Nueva Tarea"}
+          Nueva Tarea
+
         </button>
 
       </div>
@@ -213,6 +343,10 @@ return (
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
+                Responsable
+              </th>
+
+              <th className="p-5 text-zinc-400 font-medium">
                 Prioridad
               </th>
 
@@ -221,14 +355,12 @@ return (
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
-              
-               Estado
+                Estado
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
-               Acciones
+                Acciones
               </th>
-
 
             </tr>
 
@@ -236,11 +368,28 @@ return (
 
           <tbody>
 
-            {tareas.map((tarea) => (
+            {tareasFiltradas.map((tarea) => (
 
               <tr
                 key={tarea.id}
-                className="border-b border-zinc-800 hover:bg-zinc-800/40 transition"
+                className={`
+                 border-b border-zinc-800 transition
+
+                 ${tarea.estado === "completada"
+                 ? "bg-green-500/5 hover:bg-green-500/10"
+
+                 : !tarea.fecha_limite
+                 ? "hover:bg-zinc-800/40"
+
+                 : new Date(tarea.fecha_limite) < new Date()
+                 ? "bg-red-500/10 hover:bg-red-500/20"
+
+                 : new Date(tarea.fecha_limite).toDateString() === new Date().toDateString()
+                  ? "bg-yellow-500/10 hover:bg-yellow-500/20"
+
+                  : "bg-blue-500/5 hover:bg-blue-500/10"
+               }
+             `}
               >
 
                 <td className="p-5 font-medium">
@@ -249,6 +398,10 @@ return (
 
                 <td className="p-5">
                   {tarea.empresas?.nombre}
+                </td>
+
+                <td className="p-5">
+                  {tarea.colaboradores?.nombre || "-"}
                 </td>
 
                 <td className="p-5">
@@ -277,54 +430,57 @@ return (
                 <td className="p-5">
 
                   <span className={`
-                   px-3 py-1 rounded-full text-sm
+                    px-3 py-1 rounded-full text-sm
 
-                   ${tarea.estado === "completada"
-                     ? "bg-green-500/20 text-green-400"
-                     : "bg-yellow-500/20 text-yellow-400"
-                   }
-                `}>
+                    ${tarea.estado === "completada"
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-yellow-500/20 text-yellow-400"
+                    }
+                  `}>
 
-                  {tarea.estado}
+                    {tarea.estado}
 
-                </span>
+                  </span>
 
-              </td>
-              <td className="p-5">
+                </td>
 
-                 {tarea.estado !== "completada" && (
+                <td className="p-5 flex flex-wrap gap-2">
+
+                  {tarea.estado !== "completada" && (
+
+                    <button
+                      onClick={() => completarTarea(tarea.id)}
+                      className="bg-green-500/20 text-green-400 px-3 py-2 rounded-lg text-sm hover:bg-green-500/30 transition"
+                    >
+
+                      Completar
+
+                    </button>
+
+                  )}
 
                   <button
-                    onClick={() => completarTarea(tarea.id)}
-                    className="bg-green-500/20 text-green-400 px-3 py-2 rounded-lg text-sm hover:bg-green-500/30 transition"
-                  >
-
-                    Completar
-
-                  </button>
-
-                )}
-
-                <button
-                  onClick={() => editarTarea(tarea)}
-                  className="bg-blue-500/20 text-blue-400 px-3 py-2 rounded-lg text-sm hover:bg-blue-500/30 transition ml-2"
+                    onClick={() => editarTarea(tarea)}
+                    className="bg-blue-500/20 text-blue-400 px-3 py-2 rounded-lg text-sm hover:bg-blue-500/30 transition"
                   >
 
                     Editar
 
                   </button>
 
-                <button
-                  onClick={() => eliminarTarea(tarea.id)}
-                  className="bg-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-red-500/30 transition ml-2"
-                >
+                  <button
+                    onClick={() => eliminarTarea(tarea.id)}
+                    className="bg-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-red-500/30 transition"
+                  >
 
                     Eliminar
 
                   </button>
 
-              </td>
+                </td>
+
               </tr>
+
             ))}
 
           </tbody>
@@ -342,7 +498,7 @@ return (
           <DialogHeader>
 
             <DialogTitle>
-              Nueva Tarea
+              {editandoId ? "Editar Tarea" : "Nueva Tarea"}
             </DialogTitle>
 
           </DialogHeader>
@@ -367,12 +523,41 @@ return (
               </option>
 
               {empresas.map((empresa) => (
+
                 <option
                   key={empresa.id}
                   value={empresa.id}
                 >
+
                   {empresa.nombre}
+
                 </option>
+
+              ))}
+
+            </select>
+
+            <select
+              value={colaboradorId}
+              onChange={(e) => setColaboradorId(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none"
+            >
+
+              <option value="">
+                Seleccionar responsable
+              </option>
+
+              {colaboradores.map((colaborador) => (
+
+                <option
+                  key={colaborador.id}
+                  value={colaborador.id}
+                >
+
+                  {colaborador.nombre}
+
+                </option>
+
               ))}
 
             </select>

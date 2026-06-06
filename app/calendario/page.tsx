@@ -14,7 +14,7 @@ export default function CalendarioPage() {
 
   async function obtenerTareas() {
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("tareas")
       .select(`
         *,
@@ -23,109 +23,167 @@ export default function CalendarioPage() {
         )
       `)
       .not("fecha_limite", "is", null)
-      .order("fecha_limite", { ascending: true })
+      .order("fecha_limite", {
+        ascending: true,
+      })
 
-    if (data) {
-      setTareas(data)
+    if (error) {
+      console.error(error)
+      return
     }
+
+    setTareas(data || [])
   }
 
   // AGRUPAR POR FECHA
 
-  const tareasAgrupadas = tareas.reduce((acc, tarea) => {
+  const tareasAgrupadas = tareas.reduce(
+    (
+      acc: Record<string, any[]>,
+      tarea: any
+    ) => {
 
-    const fecha = tarea.fecha_limite
+      const fecha =
+        tarea.fecha_limite || "Sin fecha"
 
-    if (!acc[fecha]) {
-      acc[fecha] = []
-    }
+      if (!acc[fecha]) {
+        acc[fecha] = []
+      }
 
-    acc[fecha].push(tarea)
+      acc[fecha].push(tarea)
 
-    return acc
+      return acc
 
-  }, {} as Record<string, any[]>)
+    },
+    {}
+  )
 
   return (
     <div>
 
-      <h1 className="text-4xl font-bold mb-2">
+      <h1 className="text-5xl font-black mb-3">
         Calendario
       </h1>
 
-      <p className="text-zinc-400 mb-10">
+      <p className="text-zinc-400 mb-12 text-lg">
         Cronograma operativo de tareas
       </p>
 
-      <div className="space-y-8">
+      <div className="space-y-10">
 
-        {Object.entries(tareasAgrupadas).map(([fecha, tareas]) => (
+        {Object.entries(tareasAgrupadas).map(
+          ([fecha, tareasDelDia]) => (
 
-          <div
-            key={fecha}
-            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
-          >
+            <div
+              key={fecha}
+              className="
+                bg-zinc-900/60
+                border
+                border-zinc-800
+                rounded-3xl
+                p-8
+                backdrop-blur-xl
+              "
+            >
 
-            <h2 className="text-2xl font-bold mb-6">
-              📅 {fecha}
-            </h2>
+              <h2 className="
+                text-3xl
+                font-black
+                mb-8
+              ">
+                📅 {fecha}
+              </h2>
 
-            <div className="space-y-4">
+              <div className="space-y-5">
 
-              {tareas.map((tarea: any) => (
+                {(tareasDelDia as any[]).map(
+                  (tarea: any) => (
 
-                <div
-                  key={tarea.id}
-                  className={`
-                    border rounded-xl p-4 flex items-center justify-between
+                    <div
+                      key={tarea.id}
+                      className={`
+                        border
+                        rounded-2xl
+                        p-5
+                        flex
+                        items-center
+                        justify-between
+                        transition
+                        hover:scale-[1.01]
 
-                    ${tarea.estado === "completada"
-                      ? "border-green-500/30 bg-green-500/10"
+                        ${
+                          tarea.estado === "completada"
 
-                      : tarea.prioridad === "alta"
-                      ? "border-red-500/30 bg-red-500/10"
+                            ? "border-green-500/30 bg-green-500/10"
 
-                      : tarea.prioridad === "media"
-                      ? "border-yellow-500/30 bg-yellow-500/10"
+                            : tarea.prioridad === "alta"
 
-                      : "border-blue-500/30 bg-blue-500/10"
-                    }
-                  `}
-                >
+                            ? "border-red-500/30 bg-red-500/10"
 
-                  <div>
+                            : tarea.prioridad === "media"
 
-                    <h3 className="font-semibold text-lg">
-                      {tarea.titulo}
-                    </h3>
+                            ? "border-yellow-500/30 bg-yellow-500/10"
 
-                    <p className="text-zinc-400 text-sm">
-                      {tarea.empresas?.nombre}
-                    </p>
+                            : "border-blue-500/30 bg-blue-500/10"
+                        }
+                      `}
+                    >
 
-                  </div>
+                      {/* LEFT */}
 
-                  <div className="text-right">
+                      <div>
 
-                    <p className="capitalize">
-                      {tarea.prioridad}
-                    </p>
+                        <h3 className="
+                          font-bold
+                          text-xl
+                          mb-2
+                        ">
+                          {tarea.titulo}
+                        </h3>
 
-                    <p className="text-sm text-zinc-400">
-                      {tarea.estado}
-                    </p>
+                        <p className="
+                          text-zinc-400
+                          text-sm
+                        ">
+                          {tarea.empresas?.nombre || "Sin empresa"}
+                        </p>
 
-                  </div>
+                      </div>
 
-                </div>
+                      {/* RIGHT */}
 
-              ))}
+                      <div className="text-right">
+
+                        <p className="
+                          capitalize
+                          font-semibold
+                          text-lg
+                        ">
+                          {tarea.prioridad}
+                        </p>
+
+                        <p className="
+                          text-sm
+                          text-zinc-400
+                          capitalize
+                          mt-1
+                        ">
+                          {tarea.estado}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
 
             </div>
 
-          </div>
-
-        ))}
+          )
+        )}
 
       </div>
 

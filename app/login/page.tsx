@@ -13,24 +13,29 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  async function iniciarSesion() {
+async function iniciarSesion() {
 
-    const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } =
+    await supabase.auth.signInWithPassword({
 
       email,
       password,
 
     })
 
-    if (error) {
+  console.log(data)
+  console.log(error)
 
-      alert("Credenciales incorrectas")
+  if (error) {
 
-      return
-    }
+    alert(error.message)
 
-    router.push("/")
+    return
   }
+
+  router.push("/")
+  router.refresh()
+}
 
   return (
 

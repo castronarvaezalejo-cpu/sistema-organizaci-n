@@ -25,60 +25,76 @@ import { supabase } from "@/lib/supabase"
 export default function Home() {
 
   const [empresas, setEmpresas] = useState(0)
-  const [pendientes, setPendientes] = useState(0)
-  const [completadas, setCompletadas] = useState(0)
-  const [vencidas, setVencidas] = useState(0)
 
-  const [horasPorColaborador, setHorasPorColaborador] =
-    useState<any[]>([])
-
-  const [horasMes, setHorasMes] = useState(0)
-
-  const [valorFacturable, setValorFacturable] =
+  const [pendientes, setPendientes] =
     useState(0)
+
+  const [completadas, setCompletadas] =
+    useState(0)
+
+  const [vencidas, setVencidas] =
+    useState(0)
+
+  const [
+    horasPorColaborador,
+    setHorasPorColaborador,
+  ] = useState<any[]>([])
+
+  const [horasMes, setHorasMes] =
+    useState(0)
+
+  const [
+    valorFacturable,
+    setValorFacturable,
+  ] = useState(0)
 
   const [topColaborador, setTopColaborador] =
     useState("")
 
   useEffect(() => {
+
     cargarDashboard()
+
   }, [])
 
   async function cargarDashboard() {
 
     // EMPRESAS
 
-    const { count: empresasCount } = await supabase
-      .from("empresas")
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq("activa", true)
+    const { count: empresasCount } =
+      await supabase
+        .from("empresas")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("activa", true)
 
     setEmpresas(empresasCount || 0)
 
     // PENDIENTES
 
-    const { count: pendientesCount } = await supabase
-      .from("tareas")
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .neq("estado", "completada")
+    const { count: pendientesCount } =
+      await supabase
+        .from("tareas")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .neq("estado", "completada")
 
     setPendientes(pendientesCount || 0)
 
     // COMPLETADAS
 
-    const { count: completadasCount } = await supabase
-      .from("tareas")
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq("estado", "completada")
+    const { count: completadasCount } =
+      await supabase
+        .from("tareas")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("estado", "completada")
 
     setCompletadas(completadasCount || 0)
 
@@ -88,18 +104,19 @@ export default function Home() {
       .toISOString()
       .split("T")[0]
 
-    const { count: vencidasCount } = await supabase
-      .from("tareas")
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .lt("fecha_limite", hoy)
-      .neq("estado", "completada")
+    const { count: vencidasCount } =
+      await supabase
+        .from("tareas")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .lt("fecha_limite", hoy)
+        .neq("estado", "completada")
 
     setVencidas(vencidasCount || 0)
 
-    // HORAS DEL MES
+    // ACTIVIDADES
 
     const inicioMes = new Date(
       new Date().getFullYear(),
@@ -109,71 +126,78 @@ export default function Home() {
       .toISOString()
       .split("T")[0]
 
-    const { data: actividadesData } = await supabase
-      .from("actividades_realizadas")
-.select(`
-  horas,
-  total_facturado,
-  colaboradores (
-    nombre
-  ),
-  fecha
-`)
-      .gte("fecha", inicioMes)
+    const { data: actividadesData } =
+      await supabase
+        .from("actividades_realizadas")
+        .select(`
+          horas,
+          total_facturado,
+          colaboradores (
+            nombre
+          ),
+          fecha
+        `)
+        .gte("fecha", inicioMes)
 
     if (actividadesData) {
 
-      const agrupadas: Record<string, number> = {}
+      const agrupadas:
+        Record<string, number> = {}
 
       let totalHoras = 0
 
-      actividadesData.forEach((actividad: any) => {
+      actividadesData.forEach(
+        (actividad: any) => {
 
-        const nombre =
-          actividad.colaboradores?.nombre ||
-          "Sin nombre"
+          const nombre =
+            actividad.colaboradores?.nombre ||
+            "Sin nombre"
 
-        const horas = Number(
-          actividad.horas
-        )
+          const horas = Number(
+            actividad.horas
+          )
 
-        agrupadas[nombre] =
-          (agrupadas[nombre] || 0) +
-          horas
+          agrupadas[nombre] =
+            (agrupadas[nombre] || 0)
+            + horas
 
-        totalHoras += horas
-      })
+          totalHoras += horas
+        }
+      )
 
-      const resultado = Object.entries(
-        agrupadas
-      ).map(([nombre, horas]) => ({
-        nombre,
-        horas,
-      }))
+      const resultado =
+        Object.entries(agrupadas)
+          .map(([nombre, horas]) => ({
+            nombre,
+            horas,
+          }))
 
       setHorasPorColaborador(resultado)
 
       setHorasMes(totalHoras)
 
-// FACTURACIÓN REAL
+      const totalFacturacion =
+        actividadesData.reduce(
+          (
+            acc: number,
+            actividad: any
+          ) =>
+            acc +
+            Number(
+              actividad.total_facturado || 0
+            ),
+          0
+        )
 
-const totalFacturacion =
-  actividadesData.reduce(
-    (acc: number, actividad: any) =>
-      acc +
-      Number(
-        actividad.total_facturado || 0
-      ),
-    0
-  )
+      setValorFacturable(
+        totalFacturacion
+      )
 
-setValorFacturable(
-  totalFacturacion
-)
-
-      const top = [...resultado].sort(
-        (a, b) => b.horas - a.horas
-      )[0]
+      const top = [...resultado]
+        .sort(
+          (a, b) =>
+            b.horas - a.horas
+        )[0]
 
       if (top) {
 
@@ -185,37 +209,43 @@ setValorFacturable(
   }
 
   return (
-    <div className="max-w-[820px]">
+
+    <div className="max-w-[1200px]">
 
       {/* HEADER */}
 
       <div className="mb-8">
 
         <h1 className="
-          text-2xl
+          text-5xl
           font-black
           tracking-tight
           mb-2
         ">
+
           Dashboard
+
         </h1>
 
         <p className="
           text-zinc-400
-          text-base
+          text-lg
         ">
+
           Resumen operativo y financiero
+
         </p>
 
       </div>
 
-      {/* CARDS PRINCIPALES */}
+      {/* CARDS */}
 
       <div className="
         grid
         grid-cols-1
-        lg:grid-cols-4
-        gap-2
+        md:grid-cols-2
+        xl:grid-cols-4
+        gap-4
       ">
 
         <PremiumCard
@@ -252,14 +282,14 @@ setValorFacturable(
 
       </div>
 
-      {/* CARDS SECUNDARIAS */}
+      {/* MINI CARDS */}
 
       <div className="
         grid
         grid-cols-1
         md:grid-cols-3
-        gap-3
-        mt-5
+        gap-4
+        mt-6
       ">
 
         <PremiumMiniCard
@@ -288,25 +318,25 @@ setValorFacturable(
       {/* GRAFICA */}
 
       <div className="
-        mt-6
-        rounded-2xl
+        mt-8
+        rounded-3xl
         border
         border-zinc-800
         bg-zinc-900/40
-        backdrop-blur-xl
-        p-4
-        shadow-2xl
+        p-6
       ">
 
         <h2 className="
-          text-xl
+          text-2xl
           font-bold
-          mb-5
+          mb-6
         ">
+
           Productividad
+
         </h2>
 
-        <div className="h-[160px]">
+        <div className="h-[300px]">
 
           <ResponsiveContainer
             width="100%"
@@ -320,20 +350,18 @@ setValorFacturable(
               <XAxis
                 dataKey="nombre"
                 stroke="#a1a1aa"
-                fontSize={12}
               />
 
               <YAxis
                 stroke="#a1a1aa"
-                fontSize={12}
               />
 
               <Tooltip />
 
               <Bar
                 dataKey="horas"
-                radius={[8, 8, 0, 0]}
                 fill="#3b82f6"
+                radius={[10, 10, 0, 0]}
               />
 
             </BarChart>
@@ -363,58 +391,53 @@ function PremiumCard({
 }) {
 
   const styles = {
+
     red: {
-      border: "border-red-500/20",
       bg: "bg-red-500/10",
       text: "text-red-400",
+      border: "border-red-500/20",
     },
 
     yellow: {
-      border: "border-yellow-500/20",
       bg: "bg-yellow-500/10",
       text: "text-yellow-400",
+      border: "border-yellow-500/20",
     },
 
     blue: {
-      border: "border-blue-500/20",
       bg: "bg-blue-500/10",
       text: "text-blue-400",
+      border: "border-blue-500/20",
     },
 
     green: {
-      border: "border-green-500/20",
       bg: "bg-green-500/10",
       text: "text-green-400",
+      border: "border-green-500/20",
     },
   }
 
   return (
-    <div
-      className={`
-        rounded-2xl
-        min-h-[140px]
-        border
-        ${styles[color].border}
-        bg-zinc-900/40
-        backdrop-blur-xl
-        p-3
-        shadow-xl
-        hover:translate-y-[-2px]
-        transition-all
-      `}
-    >
+
+    <div className={`
+      rounded-3xl
+      border
+      ${styles[color].border}
+      bg-zinc-900/40
+      p-5
+    `}>
 
       <div className="
         flex
         items-center
         justify-between
-        mb-5
+        mb-6
       ">
 
         <div className={`
-          w-8
-          h-8
-          rounded-xl
+          w-12
+          h-12
+          rounded-2xl
           flex
           items-center
           justify-center
@@ -429,27 +452,32 @@ function PremiumCard({
       </div>
 
       <h3 className="
-        text-base
+        text-lg
         font-semibold
         mb-2
       ">
+
         {title}
+
       </h3>
 
       <p className={`
-        text-3xl
+        text-4xl
         font-black
         mb-2
         ${styles[color].text}
       `}>
+
         {value}
+
       </p>
 
       <p className="
         text-zinc-500
-        text-xs
       ">
+
         {subtitle}
+
       </p>
 
     </div>
@@ -469,40 +497,47 @@ function PremiumMiniCard({
 }) {
 
   const styles = {
-    yellow: "text-yellow-400 bg-yellow-500/10",
-    green: "text-green-400 bg-green-500/10",
-    blue: "text-blue-400 bg-blue-500/10",
+
+    yellow:
+      "text-yellow-400 bg-yellow-500/10",
+
+    green:
+      "text-green-400 bg-green-500/10",
+
+    blue:
+      "text-blue-400 bg-blue-500/10",
   }
 
   return (
+
     <div className="
-      rounded-2xl
+      rounded-3xl
       border
       border-zinc-800
       bg-zinc-900/40
-      backdrop-blur-xl
       p-5
-      shadow-xl
     ">
 
       <div className="
         flex
         items-center
         justify-between
-        mb-5
+        mb-6
       ">
 
         <h3 className="
-          text-base
+          text-lg
           font-semibold
         ">
+
           {title}
+
         </h3>
 
         <div className={`
-          w-11
-          h-11
-          rounded-xl
+          w-12
+          h-12
+          rounded-2xl
           flex
           items-center
           justify-center
@@ -515,21 +550,21 @@ function PremiumMiniCard({
 
       </div>
 
-      <p className={`
-        text-3xl
-        font-black
+<p className={`
+  text-3xl
+  font-black
 
-        ${color === "green"
-          ? "text-green-400"
+  ${color === "green"
+    ? "text-green-400"
 
-          : color === "yellow"
-          ? "text-yellow-400"
+    : color === "yellow"
+    ? "text-yellow-400"
 
-          : "text-blue-400"
-        }
-      `}>
-        {value}
-      </p>
+    : "text-blue-400"
+  }
+`}>
+  {value}
+</p>
 
     </div>
   )

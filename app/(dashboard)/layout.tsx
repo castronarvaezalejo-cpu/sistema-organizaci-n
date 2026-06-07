@@ -1,6 +1,10 @@
 "use client"
 
-import "../globals.css"
+import { useEffect, useState } from "react"
+
+import { useRouter } from "next/navigation"
+
+import { supabase } from "@/lib/supabase"
 
 import Link from "next/link"
 
@@ -23,6 +27,52 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
 
+  const router = useRouter()
+
+  const [loading, setLoading] =
+    useState(true)
+
+  useEffect(() => {
+
+    verificarSesion()
+
+  }, [])
+
+  async function verificarSesion() {
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session) {
+
+      router.push("/login")
+
+      return
+    }
+
+    setLoading(false)
+  }
+
+  if (loading) {
+
+    return (
+
+      <div className="
+        min-h-screen
+        bg-black
+        flex
+        items-center
+        justify-center
+        text-white
+      ">
+
+        Cargando...
+
+      </div>
+    )
+  }
+
   const fecha = new Date().toLocaleDateString(
     "es-CO",
     {
@@ -35,7 +85,13 @@ export default function DashboardLayout({
 
   return (
 
-    <main className="h-screen flex overflow-hidden bg-black text-white">
+    <main className="
+      h-screen
+      flex
+      overflow-hidden
+      bg-black
+      text-white
+    ">
 
       {/* SIDEBAR */}
 
@@ -48,8 +104,6 @@ export default function DashboardLayout({
         flex
         flex-col
       ">
-
-        {/* LOGO */}
 
         <div className="
           p-6
@@ -68,8 +122,6 @@ export default function DashboardLayout({
           </div>
 
         </div>
-
-        {/* MENU */}
 
         <nav className="
           flex-1

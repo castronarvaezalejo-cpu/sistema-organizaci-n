@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react"
 
 import {
+  AlertTriangle,
+  Clock3,
+  Building2,
+  CheckCircle2,
+  DollarSign,
+  Trophy,
+} from "lucide-react"
+
+import {
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -19,8 +28,6 @@ export default function Home() {
   const [pendientes, setPendientes] = useState(0)
   const [completadas, setCompletadas] = useState(0)
   const [vencidas, setVencidas] = useState(0)
-
-  // PRODUCTIVIDAD
 
   const [horasPorColaborador, setHorasPorColaborador] =
     useState<any[]>([])
@@ -136,8 +143,6 @@ export default function Home() {
         totalHoras += horas
       })
 
-      // HORAS POR COLABORADOR
-
       const resultado = Object.entries(
         agrupadas
       ).map(([nombre, horas]) => ({
@@ -147,19 +152,13 @@ export default function Home() {
 
       setHorasPorColaborador(resultado)
 
-      // TOTAL HORAS MES
-
       setHorasMes(totalHoras)
-
-      // FACTURACIÓN ESTIMADA
 
       const valorHora = 80000
 
       setValorFacturable(
         totalHoras * valorHora
       )
-
-      // TOP COLABORADOR
 
       const top = [...resultado].sort(
         (a, b) => b.horas - a.horas
@@ -177,105 +176,156 @@ export default function Home() {
   return (
     <div>
 
-      <h1 className="text-4xl font-bold mb-2">
-        Dashboard
-      </h1>
+      {/* HEADER */}
 
-      <p className="text-zinc-400 mb-10">
-        Resumen operativo y financiero
-      </p>
+      <div className="mb-12">
+
+        <h1 className="
+          text-5xl
+          font-black
+          tracking-tight
+          mb-3
+        ">
+          Dashboard
+        </h1>
+
+        <p className="
+          text-zinc-400
+          text-lg
+        ">
+          Resumen operativo y financiero
+        </p>
+
+      </div>
 
       {/* CARDS PRINCIPALES */}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="
+        grid
+        grid-cols-1
+        md:grid-cols-4
+        gap-6
+      ">
 
-        <Card
+        <PremiumCard
           title="Urgente"
-          value={`${vencidas} tareas vencidas`}
+          value={vencidas}
+          subtitle="tareas vencidas"
           color="red"
+          icon={<AlertTriangle size={28} />}
         />
 
-        <Card
+        <PremiumCard
           title="Pendientes"
-          value={`${pendientes} tareas pendientes`}
+          value={pendientes}
+          subtitle="tareas pendientes"
           color="yellow"
+          icon={<Clock3 size={28} />}
         />
 
-        <Card
+        <PremiumCard
           title="Empresas"
-          value={`${empresas} empresas activas`}
+          value={empresas}
+          subtitle="empresas activas"
           color="blue"
+          icon={<Building2 size={28} />}
         />
 
-        <Card
+        <PremiumCard
           title="Completadas"
-          value={`${completadas} tareas completadas`}
+          value={completadas}
+          subtitle="tareas completadas"
           color="green"
+          icon={<CheckCircle2 size={28} />}
         />
 
       </div>
 
-      {/* FINANCIERO */}
+      {/* CARDS SECUNDARIAS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+      <div className="
+        grid
+        grid-cols-1
+        md:grid-cols-3
+        gap-6
+        mt-8
+      ">
 
-        <Card
+        <PremiumMiniCard
           title="Horas del Mes"
           value={`${horasMes}h`}
           color="blue"
+          icon={<Clock3 size={24} />}
         />
 
-        <Card
+        <PremiumMiniCard
           title="Facturación Estimada"
           value={`$${valorFacturable.toLocaleString()}`}
           color="green"
+          icon={<DollarSign size={24} />}
         />
 
-        <Card
+        <PremiumMiniCard
           title="Top Colaborador"
           value={topColaborador || "-"}
           color="yellow"
+          icon={<Trophy size={24} />}
         />
 
       </div>
 
       {/* GRAFICA */}
 
-      <div className="mt-12">
+      <div className="
+        mt-10
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-zinc-900/40
+        backdrop-blur-xl
+        p-8
+        shadow-2xl
+      ">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="
+          text-3xl
+          font-bold
+          mb-8
+        ">
           Productividad por colaborador
         </h2>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <div className="h-[420px]">
 
-          <div className="h-[400px]">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
 
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
+            <BarChart
+              data={horasPorColaborador}
             >
 
-              <BarChart
-                data={horasPorColaborador}
-              >
+              <XAxis
+                dataKey="nombre"
+                stroke="#a1a1aa"
+              />
 
-                <XAxis dataKey="nombre" />
+              <YAxis
+                stroke="#a1a1aa"
+              />
 
-                <YAxis />
+              <Tooltip />
 
-                <Tooltip />
+              <Bar
+                dataKey="horas"
+                radius={[12, 12, 0, 0]}
+                fill="#3b82f6"
+              />
 
-                <Bar
-                  dataKey="horas"
-                  radius={[8, 8, 0, 0]}
-                />
+            </BarChart>
 
-              </BarChart>
-
-            </ResponsiveContainer>
-
-          </div>
+          </ResponsiveContainer>
 
         </div>
 
@@ -285,45 +335,190 @@ export default function Home() {
   )
 }
 
-function Card({
+function PremiumCard({
   title,
   value,
+  subtitle,
   color,
+  icon,
 }: {
   title: string
-  value: string
+  value: number
+  subtitle: string
   color: "red" | "yellow" | "blue" | "green"
+  icon: React.ReactNode
 }) {
 
   const styles = {
-    red:
-      "border-red-500 bg-red-500/10 text-red-400",
+    red: {
+      border: "border-red-500/30",
+      bg: "bg-red-500/10",
+      text: "text-red-400",
+    },
 
-    yellow:
-      "border-yellow-500 bg-yellow-500/10 text-yellow-400",
+    yellow: {
+      border: "border-yellow-500/30",
+      bg: "bg-yellow-500/10",
+      text: "text-yellow-400",
+    },
 
-    blue:
-      "border-blue-500 bg-blue-500/10 text-blue-400",
+    blue: {
+      border: "border-blue-500/30",
+      bg: "bg-blue-500/10",
+      text: "text-blue-400",
+    },
 
-    green:
-      "border-green-500 bg-green-500/10 text-green-400",
+    green: {
+      border: "border-green-500/30",
+      bg: "bg-green-500/10",
+      text: "text-green-400",
+    },
   }
 
   return (
     <div
       className={`
-        border rounded-2xl p-6
+        relative
+        overflow-hidden
+        rounded-3xl
+        border
+        ${styles[color].border}
+        bg-zinc-900/50
+        backdrop-blur-xl
+        p-7
         hover:scale-[1.02]
-        transition
-        ${styles[color]}
+        transition-all
+        duration-300
+        shadow-2xl
       `}
     >
 
-      <h3 className="text-xl font-semibold mb-3">
+      <div className="
+        flex
+        items-center
+        justify-between
+        mb-8
+      ">
+
+        <div className={`
+          w-16
+          h-16
+          rounded-2xl
+          flex
+          items-center
+          justify-center
+          ${styles[color].bg}
+          ${styles[color].text}
+        `}>
+
+          {icon}
+
+        </div>
+
+      </div>
+
+      <h3 className="
+        text-2xl
+        font-semibold
+        mb-3
+      ">
         {title}
       </h3>
 
-      <p className="text-zinc-200 text-lg">
+      <p className={`
+        text-5xl
+        font-black
+        mb-3
+        ${styles[color].text}
+      `}>
+        {value}
+      </p>
+
+      <p className="
+        text-zinc-400
+        text-lg
+      ">
+        {subtitle}
+      </p>
+
+    </div>
+  )
+}
+
+function PremiumMiniCard({
+  title,
+  value,
+  color,
+  icon,
+}: {
+  title: string
+  value: string
+  color: "yellow" | "green" | "blue"
+  icon: React.ReactNode
+}) {
+
+  const styles = {
+    yellow: "text-yellow-400 bg-yellow-500/10",
+    green: "text-green-400 bg-green-500/10",
+    blue: "text-blue-400 bg-blue-500/10",
+  }
+
+  return (
+    <div className="
+      rounded-3xl
+      border
+      border-zinc-800
+      bg-zinc-900/40
+      backdrop-blur-xl
+      p-7
+      shadow-xl
+      hover:scale-[1.01]
+      transition
+    ">
+
+      <div className="
+        flex
+        items-center
+        justify-between
+        mb-8
+      ">
+
+        <h3 className="
+          text-xl
+          font-semibold
+        ">
+          {title}
+        </h3>
+
+        <div className={`
+          w-14
+          h-14
+          rounded-2xl
+          flex
+          items-center
+          justify-center
+          ${styles[color]}
+        `}>
+
+          {icon}
+
+        </div>
+
+      </div>
+
+      <p className={`
+        text-4xl
+        font-black
+
+        ${color === "green"
+          ? "text-green-400"
+
+          : color === "yellow"
+          ? "text-yellow-400"
+
+          : "text-blue-400"
+        }
+      `}>
         {value}
       </p>
 

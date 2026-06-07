@@ -184,8 +184,10 @@ export default function TareasPage() {
 
     const { error } = await supabase
       .from("tareas")
-      .delete()
-      .eq("id", id)
+      .update({
+  archivada: true,
+})
+.eq("id", id)
 
     if (error) {
       console.error(error)

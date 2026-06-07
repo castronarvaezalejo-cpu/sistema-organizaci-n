@@ -30,6 +30,8 @@ export default function EmpresasPage() {
   const [nombre, setNombre] = useState("")
   const [contacto, setContacto] = useState("")
   const [telefono, setTelefono] = useState("")
+  const [tarifaHora, setTarifaHora] =
+    useState("")
 
   const [mostrarArchivadas, setMostrarArchivadas] =
     useState(false)
@@ -49,6 +51,7 @@ export default function EmpresasPage() {
           nombre,
           contacto,
           telefono,
+          tarifa_hora: Number(tarifaHora || 0),
           activa: true,
         },
       ])
@@ -81,6 +84,9 @@ export default function EmpresasPage() {
         nombre,
         contacto,
         telefono,
+        tarifa_hora: Number(
+          tarifaHora || 0
+        ),
       })
       .eq("id", empresaEditandoId)
 
@@ -171,6 +177,10 @@ export default function EmpresasPage() {
     setContacto(empresa.contacto || "")
     setTelefono(empresa.telefono || "")
 
+    setTarifaHora(
+      empresa.tarifa_hora?.toString() || ""
+    )
+
     setOpen(true)
   }
 
@@ -181,6 +191,7 @@ export default function EmpresasPage() {
     setNombre("")
     setContacto("")
     setTelefono("")
+    setTarifaHora("")
 
     setModoEdicion(false)
 
@@ -289,11 +300,15 @@ export default function EmpresasPage() {
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
-                Estado
+                Contacto
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
-                Tareas
+                Tarifa/Hora
+              </th>
+
+              <th className="p-5 text-zinc-400 font-medium">
+                Estado
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
@@ -318,6 +333,17 @@ export default function EmpresasPage() {
                 </td>
 
                 <td className="p-5">
+                  {empresa.contacto || "-"}
+                </td>
+
+                <td className="p-5 text-green-400 font-semibold">
+                  $
+                  {Number(
+                    empresa.tarifa_hora || 0
+                  ).toLocaleString()}
+                </td>
+
+                <td className="p-5">
 
                   <span
                     className={`
@@ -337,10 +363,6 @@ export default function EmpresasPage() {
 
                   </span>
 
-                </td>
-
-                <td className="p-5">
-                  0
                 </td>
 
                 {/* ACCIONES */}
@@ -450,6 +472,18 @@ export default function EmpresasPage() {
                 setTelefono(e.target.value)
               }
               placeholder="Teléfono"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none"
+            />
+
+            {/* TARIFA */}
+
+            <input
+              type="number"
+              value={tarifaHora}
+              onChange={(e) =>
+                setTarifaHora(e.target.value)
+              }
+              placeholder="Tarifa por hora"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none"
             />
 

@@ -111,13 +111,14 @@ export default function Home() {
 
     const { data: actividadesData } = await supabase
       .from("actividades_realizadas")
-      .select(`
-        horas,
-        colaboradores (
-          nombre
-        ),
-        fecha
-      `)
+.select(`
+  horas,
+  total_facturado,
+  colaboradores (
+    nombre
+  ),
+  fecha
+`)
       .gte("fecha", inicioMes)
 
     if (actividadesData) {
@@ -154,11 +155,21 @@ export default function Home() {
 
       setHorasMes(totalHoras)
 
-      const valorHora = 80000
+// FACTURACIÓN REAL
 
-      setValorFacturable(
-        totalHoras * valorHora
-      )
+const totalFacturacion =
+  actividadesData.reduce(
+    (acc: number, actividad: any) =>
+      acc +
+      Number(
+        actividad.total_facturado || 0
+      ),
+    0
+  )
+
+setValorFacturable(
+  totalFacturacion
+)
 
       const top = [...resultado].sort(
         (a, b) => b.horas - a.horas
@@ -174,24 +185,24 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="max-w-[820px]">
 
       {/* HEADER */}
 
-      <div className="mb-12">
+      <div className="mb-8">
 
         <h1 className="
-          text-5xl
+          text-2xl
           font-black
           tracking-tight
-          mb-3
+          mb-2
         ">
           Dashboard
         </h1>
 
         <p className="
           text-zinc-400
-          text-lg
+          text-base
         ">
           Resumen operativo y financiero
         </p>
@@ -203,8 +214,8 @@ export default function Home() {
       <div className="
         grid
         grid-cols-1
-        md:grid-cols-4
-        gap-6
+        lg:grid-cols-4
+        gap-2
       ">
 
         <PremiumCard
@@ -212,7 +223,7 @@ export default function Home() {
           value={vencidas}
           subtitle="tareas vencidas"
           color="red"
-          icon={<AlertTriangle size={28} />}
+          icon={<AlertTriangle size={22} />}
         />
 
         <PremiumCard
@@ -220,7 +231,7 @@ export default function Home() {
           value={pendientes}
           subtitle="tareas pendientes"
           color="yellow"
-          icon={<Clock3 size={28} />}
+          icon={<Clock3 size={22} />}
         />
 
         <PremiumCard
@@ -228,7 +239,7 @@ export default function Home() {
           value={empresas}
           subtitle="empresas activas"
           color="blue"
-          icon={<Building2 size={28} />}
+          icon={<Building2 size={22} />}
         />
 
         <PremiumCard
@@ -236,7 +247,7 @@ export default function Home() {
           value={completadas}
           subtitle="tareas completadas"
           color="green"
-          icon={<CheckCircle2 size={28} />}
+          icon={<CheckCircle2 size={22} />}
         />
 
       </div>
@@ -247,29 +258,29 @@ export default function Home() {
         grid
         grid-cols-1
         md:grid-cols-3
-        gap-6
-        mt-8
+        gap-3
+        mt-5
       ">
 
         <PremiumMiniCard
           title="Horas del Mes"
           value={`${horasMes}h`}
           color="blue"
-          icon={<Clock3 size={24} />}
+          icon={<Clock3 size={20} />}
         />
 
         <PremiumMiniCard
-          title="Facturación Estimada"
+          title="Facturación"
           value={`$${valorFacturable.toLocaleString()}`}
           color="green"
-          icon={<DollarSign size={24} />}
+          icon={<DollarSign size={20} />}
         />
 
         <PremiumMiniCard
-          title="Top Colaborador"
+          title="Top"
           value={topColaborador || "-"}
           color="yellow"
-          icon={<Trophy size={24} />}
+          icon={<Trophy size={20} />}
         />
 
       </div>
@@ -277,25 +288,25 @@ export default function Home() {
       {/* GRAFICA */}
 
       <div className="
-        mt-10
-        rounded-3xl
+        mt-6
+        rounded-2xl
         border
         border-zinc-800
         bg-zinc-900/40
         backdrop-blur-xl
-        p-8
+        p-4
         shadow-2xl
       ">
 
         <h2 className="
-          text-3xl
+          text-xl
           font-bold
-          mb-8
+          mb-5
         ">
-          Productividad por colaborador
+          Productividad
         </h2>
 
-        <div className="h-[420px]">
+        <div className="h-[160px]">
 
           <ResponsiveContainer
             width="100%"
@@ -309,17 +320,19 @@ export default function Home() {
               <XAxis
                 dataKey="nombre"
                 stroke="#a1a1aa"
+                fontSize={12}
               />
 
               <YAxis
                 stroke="#a1a1aa"
+                fontSize={12}
               />
 
               <Tooltip />
 
               <Bar
                 dataKey="horas"
-                radius={[12, 12, 0, 0]}
+                radius={[8, 8, 0, 0]}
                 fill="#3b82f6"
               />
 
@@ -351,25 +364,25 @@ function PremiumCard({
 
   const styles = {
     red: {
-      border: "border-red-500/30",
+      border: "border-red-500/20",
       bg: "bg-red-500/10",
       text: "text-red-400",
     },
 
     yellow: {
-      border: "border-yellow-500/30",
+      border: "border-yellow-500/20",
       bg: "bg-yellow-500/10",
       text: "text-yellow-400",
     },
 
     blue: {
-      border: "border-blue-500/30",
+      border: "border-blue-500/20",
       bg: "bg-blue-500/10",
       text: "text-blue-400",
     },
 
     green: {
-      border: "border-green-500/30",
+      border: "border-green-500/20",
       bg: "bg-green-500/10",
       text: "text-green-400",
     },
@@ -378,18 +391,16 @@ function PremiumCard({
   return (
     <div
       className={`
-        relative
-        overflow-hidden
-        rounded-3xl
+        rounded-2xl
+        min-h-[140px]
         border
         ${styles[color].border}
-        bg-zinc-900/50
+        bg-zinc-900/40
         backdrop-blur-xl
-        p-7
-        hover:scale-[1.02]
+        p-3
+        shadow-xl
+        hover:translate-y-[-2px]
         transition-all
-        duration-300
-        shadow-2xl
       `}
     >
 
@@ -397,13 +408,13 @@ function PremiumCard({
         flex
         items-center
         justify-between
-        mb-8
+        mb-5
       ">
 
         <div className={`
-          w-16
-          h-16
-          rounded-2xl
+          w-8
+          h-8
+          rounded-xl
           flex
           items-center
           justify-center
@@ -418,25 +429,25 @@ function PremiumCard({
       </div>
 
       <h3 className="
-        text-2xl
+        text-base
         font-semibold
-        mb-3
+        mb-2
       ">
         {title}
       </h3>
 
       <p className={`
-        text-5xl
+        text-3xl
         font-black
-        mb-3
+        mb-2
         ${styles[color].text}
       `}>
         {value}
       </p>
 
       <p className="
-        text-zinc-400
-        text-lg
+        text-zinc-500
+        text-xs
       ">
         {subtitle}
       </p>
@@ -465,35 +476,33 @@ function PremiumMiniCard({
 
   return (
     <div className="
-      rounded-3xl
+      rounded-2xl
       border
       border-zinc-800
       bg-zinc-900/40
       backdrop-blur-xl
-      p-7
+      p-5
       shadow-xl
-      hover:scale-[1.01]
-      transition
     ">
 
       <div className="
         flex
         items-center
         justify-between
-        mb-8
+        mb-5
       ">
 
         <h3 className="
-          text-xl
+          text-base
           font-semibold
         ">
           {title}
         </h3>
 
         <div className={`
-          w-14
-          h-14
-          rounded-2xl
+          w-11
+          h-11
+          rounded-xl
           flex
           items-center
           justify-center
@@ -507,7 +516,7 @@ function PremiumMiniCard({
       </div>
 
       <p className={`
-        text-4xl
+        text-3xl
         font-black
 
         ${color === "green"

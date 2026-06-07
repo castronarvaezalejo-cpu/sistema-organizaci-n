@@ -38,39 +38,42 @@ export default function RootLayout({
   return (
     <html lang="es">
 
-      <body className="bg-black text-white">
+      <body className="bg-black text-white overflow-hidden">
 
-        <main className="min-h-screen flex">
+        <main className="h-screen flex overflow-hidden">
 
           {/* SIDEBAR */}
 
-          <aside className="
-            w-72
-            bg-[#050816]
-            border-r
-            border-zinc-900
-            flex
-            flex-col
-            shadow-2xl
-          ">
+          <aside
+            className="
+              w-64
+              min-w-64
+              bg-[#050816]
+              border-r
+              border-zinc-900
+              flex
+              flex-col
+              shadow-2xl
+            "
+          >
 
             {/* HEADER SIDEBAR */}
 
-            <div className="
-              p-8
-              border-b
-              border-zinc-900
-            ">
+            <div
+              className="
+                p-6
+                border-b
+                border-zinc-900
+              "
+            >
 
               <div className="flex justify-center">
-
-                {/* LOGO */}
 
                 <img
                   src="/logo.png"
                   alt="SEITON"
                   className="
-                    w-52
+                    w-44
                     h-auto
                     object-contain
                     drop-shadow-2xl
@@ -83,56 +86,58 @@ export default function RootLayout({
 
             {/* MENU */}
 
-            <nav className="
-              flex-1
-              p-6
-              space-y-2
-            ">
+            <nav
+              className="
+                flex-1
+                p-4
+                space-y-1
+              "
+            >
 
               <SidebarItem
-                icon={<LayoutDashboard size={21} />}
+                icon={<LayoutDashboard size={19} />}
                 title="Dashboard"
                 href="/"
               />
 
               <SidebarItem
-                icon={<Building2 size={21} />}
+                icon={<Building2 size={19} />}
                 title="Empresas"
                 href="/empresas"
               />
 
               <SidebarItem
-                icon={<CheckSquare size={21} />}
+                icon={<CheckSquare size={19} />}
                 title="Tareas"
                 href="/tareas"
               />
 
               <SidebarItem
-                icon={<CalendarDays size={21} />}
+                icon={<CalendarDays size={19} />}
                 title="Calendario"
                 href="/calendario"
               />
 
               <SidebarItem
-                icon={<Users size={21} />}
+                icon={<Users size={19} />}
                 title="Colaboradores"
                 href="/colaboradores"
               />
 
               <SidebarItem
-                icon={<ClipboardList size={21} />}
+                icon={<ClipboardList size={19} />}
                 title="Actividades"
                 href="/actividades"
               />
 
               <SidebarItem
-                icon={<Bell size={21} />}
+                icon={<Bell size={19} />}
                 title="Alertas"
                 href="/alertas"
               />
 
               <SidebarItem
-                icon={<BarChart3 size={21} />}
+                icon={<BarChart3 size={19} />}
                 title="Reportes"
                 href="/reportes"
               />
@@ -141,51 +146,63 @@ export default function RootLayout({
 
             {/* FOOTER SIDEBAR */}
 
-            <div className="
-              p-6
-              border-t
-              border-zinc-900
-            ">
+            <div
+              className="
+                p-4
+                border-t
+                border-zinc-900
+              "
+            >
 
-              <div className="
-                bg-gradient-to-br
-                from-zinc-900
-                to-[#0b1020]
-                border
-                border-zinc-800
-                rounded-3xl
-                p-5
-                shadow-xl
-              ">
+              <div
+                className="
+                  bg-gradient-to-br
+                  from-zinc-900
+                  to-[#0b1020]
+                  border
+                  border-zinc-800
+                  rounded-2xl
+                  p-4
+                  shadow-xl
+                "
+              >
 
-                <p className="
-                  text-sm
-                  text-zinc-400
-                  mb-3
-                ">
+                <p
+                  className="
+                    text-xs
+                    text-zinc-400
+                    mb-2
+                  "
+                >
 
                   Estado del sistema
 
                 </p>
 
-                <div className="
-                  flex
-                  items-center
-                  gap-3
-                ">
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                  "
+                >
 
-                  <div className="
-                    w-3
-                    h-3
-                    rounded-full
-                    bg-green-400
-                    animate-pulse
-                  " />
+                  <div
+                    className="
+                      w-2.5
+                      h-2.5
+                      rounded-full
+                      bg-green-400
+                      animate-pulse
+                    "
+                  />
 
-                  <p className="
-                    text-sm
-                    font-semibold
-                  ">
+                  <p
+                    className="
+                      text-sm
+                      font-semibold
+                    "
+                  >
 
                     Operativo
 
@@ -201,56 +218,70 @@ export default function RootLayout({
 
           {/* CONTENIDO */}
 
-          <section className="
-            flex-1
-            overflow-auto
-            bg-gradient-to-br
-            from-black
-            via-[#060816]
-            to-black
-          ">
+          <section
+            className="
+              flex-1
+              overflow-y-auto
+              overflow-x-hidden
+              bg-gradient-to-br
+              from-black
+              via-[#060816]
+              to-black
+            "
+          >
 
             {/* TOPBAR */}
 
-            <div className="
-              sticky
-              top-0
-              z-50
-              border-b
-              border-zinc-900
-              bg-[#050816]/80
-              backdrop-blur-2xl
-            ">
+            <div
+              className="
+                sticky
+                top-0
+                z-50
+                border-b
+                border-zinc-900
+                bg-[#050816]/80
+                backdrop-blur-2xl
+              "
+            >
 
-              <div className="
-                px-14
-                py-7
-                flex
-                items-center
-                justify-between
-              ">
+              <div
+                className="
+                  max-w-[1200px]
+                  mx-auto
+                  px-6
+                  py-5
+                  flex
+                  items-center
+                  justify-between
+                "
+              >
 
                 {/* LEFT */}
 
                 <div>
 
-                  <h2 className="
-                    text-5xl
-                    font-black
-                    tracking-tight
-                    leading-none
-                  ">
+                  <h2
+                    className="
+                      text-4xl
+                      xl:text-5xl
+                      font-black
+                      tracking-tight
+                      leading-none
+                    "
+                  >
 
                     Panel Empresarial
 
                   </h2>
 
-                  <p className="
-                    text-zinc-400
-                    text-base
-                    mt-4
-                    capitalize
-                  ">
+                  <p
+                    className="
+                      text-zinc-400
+                      text-sm
+                      mt-3
+                      capitalize
+                    "
+                  >
 
                     {fecha}
 
@@ -260,28 +291,34 @@ export default function RootLayout({
 
                 {/* RIGHT */}
 
-                <div className="
-                  flex
-                  items-center
-                  gap-5
-                ">
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-4
+                  "
+                >
 
                   <div className="text-right">
 
-                    <p className="
-                      font-bold
-                      text-xl
-                    ">
+                    <p
+                      className="
+                        font-bold
+                        text-lg
+                      "
+                    >
 
                       Administrador
 
                     </p>
 
-                    <p className="
-                      text-sm
-                      text-zinc-500
-                      mt-1
-                    ">
+                    <p
+                      className="
+                        text-sm
+                        text-zinc-500
+                        mt-1
+                      "
+                    >
 
                       SEITON
 
@@ -289,21 +326,23 @@ export default function RootLayout({
 
                   </div>
 
-                  <div className="
-                    w-16
-                    h-16
-                    rounded-3xl
-                    bg-gradient-to-br
-                    from-white
-                    to-zinc-300
-                    text-black
-                    flex
-                    items-center
-                    justify-center
-                    font-black
-                    text-xl
-                    shadow-2xl
-                  ">
+                  <div
+                    className="
+                      w-14
+                      h-14
+                      rounded-2xl
+                      bg-gradient-to-br
+                      from-white
+                      to-zinc-300
+                      text-black
+                      flex
+                      items-center
+                      justify-center
+                      font-black
+                      text-lg
+                      shadow-2xl
+                    "
+                  >
 
                     A
 
@@ -317,10 +356,15 @@ export default function RootLayout({
 
             {/* PAGE */}
 
-            <div className="
-              p-14
-              max-w-[1700px]
-            ">
+            <div
+              className="
+                max-w-[1200px]
+                mx-auto
+                px-6
+                py-8
+                w-full
+              "
+            >
 
               {children}
 
@@ -355,10 +399,10 @@ function SidebarItem({
         w-full
         flex
         items-center
-        gap-4
-        px-5
-        py-4
-        rounded-3xl
+        gap-3
+        px-4
+        py-3
+        rounded-2xl
         text-zinc-400
         hover:bg-blue-500/10
         hover:text-blue-400
@@ -370,13 +414,15 @@ function SidebarItem({
 
       {/* ICONO */}
 
-      <div className="
-        relative
-        z-10
-        transition-transform
-        duration-300
-        group-hover:scale-110
-      ">
+      <div
+        className="
+          relative
+          z-10
+          transition-transform
+          duration-300
+          group-hover:scale-110
+        "
+      >
 
         {icon}
 
@@ -384,13 +430,15 @@ function SidebarItem({
 
       {/* TEXTO */}
 
-      <span className="
-        relative
-        z-10
-        font-semibold
-        tracking-wide
-        text-lg
-      ">
+      <span
+        className="
+          relative
+          z-10
+          font-semibold
+          tracking-wide
+          text-base
+        "
+      >
 
         {title}
 

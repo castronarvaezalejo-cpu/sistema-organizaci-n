@@ -10,14 +10,17 @@ import { supabase } from "@/lib/supabase"
 export default function ReportesPage() {
 
   const [actividades, setActividades] = useState<any[]>([])
-  const [horasPorColaborador, setHorasPorColaborador] = useState<any[]>([])
+  const [horasPorColaborador, setHorasPorColaborador] =
+    useState<any[]>([])
 
-  const [empresas, setEmpresas] = useState<any[]>([])
+  const [empresas, setEmpresas] =
+    useState<any[]>([])
 
   const [empresaSeleccionada, setEmpresaSeleccionada] =
     useState("")
 
-  const mesActual = new Date().toISOString().slice(0, 7)
+  const mesActual =
+    new Date().toISOString().slice(0, 7)
 
   const [mesSeleccionado, setMesSeleccionado] =
     useState(mesActual)
@@ -47,7 +50,8 @@ export default function ReportesPage() {
 
   async function cargarReporte() {
 
-    const inicioMes = `${mesSeleccionado}-01`
+    const inicioMes =
+      `${mesSeleccionado}-01`
 
     let query = supabase
       .from("actividades_realizadas")
@@ -91,31 +95,33 @@ export default function ReportesPage() {
     data.forEach((actividad: any) => {
 
       const nombre =
-        actividad.colaboradores?.nombre || "Sin nombre"
+        actividad.colaboradores?.nombre ||
+        "Sin nombre"
 
       agrupadas[nombre] =
         (agrupadas[nombre] || 0) +
         Number(actividad.horas)
     })
 
-    const resultado = Object.entries(agrupadas).map(
-      ([nombre, horas]) => ({
-        nombre,
-        horas,
-      })
-    )
+    const resultado = Object.entries(
+      agrupadas
+    ).map(([nombre, horas]) => ({
+      nombre,
+      horas,
+    }))
 
     setHorasPorColaborador(resultado)
   }
 
   // TOTAL HORAS
 
-  const totalHoras = horasPorColaborador.reduce(
-    (acc, item) => acc + item.horas,
-    0
-  )
+  const totalHoras =
+    horasPorColaborador.reduce(
+      (acc, item) => acc + item.horas,
+      0
+    )
 
-  // NOMBRE EMPRESA PDF
+  // EMPRESA PDF
 
   const nombreEmpresa =
     empresas.find(
@@ -131,19 +137,21 @@ export default function ReportesPage() {
 
     try {
 
-      // CARGAR LOGO
+      const response =
+        await fetch("/logo.jpg")
 
-      const response = await fetch("/logo.jpg")
+      const blob =
+        await response.blob()
 
-      const blob = await response.blob()
-
-      const reader = new FileReader()
+      const reader =
+        new FileReader()
 
       reader.readAsDataURL(blob)
 
       reader.onloadend = () => {
 
-        const base64data = reader.result as string
+        const base64data =
+          reader.result as string
 
         // LOGO
 
@@ -158,12 +166,12 @@ export default function ReportesPage() {
 
         // TITULO
 
-        doc.setFontSize(20)
+        doc.setFontSize(22)
 
         doc.text(
-          `Reporte Operativo`,
+          "Reporte Operativo",
           14,
-          42
+          45
         )
 
         doc.setFontSize(12)
@@ -171,26 +179,26 @@ export default function ReportesPage() {
         doc.text(
           `Mes: ${mesSeleccionado}`,
           14,
-          52
+          55
         )
 
         doc.text(
           `Empresa: ${nombreEmpresa}`,
           14,
-          60
+          63
         )
 
         doc.text(
           `Total Horas: ${totalHoras}h`,
           14,
-          68
+          71
         )
 
         // TABLA
 
         autoTable(doc, {
 
-          startY: 78,
+          startY: 82,
 
           head: [[
             "Fecha",
@@ -201,23 +209,45 @@ export default function ReportesPage() {
             "Horas",
           ]],
 
-          body: actividades.map((actividad) => [
+          body: actividades.map(
+            (actividad) => [
 
-            actividad.fecha,
+              actividad.fecha,
 
-            actividad.colaboradores?.nombre || "-",
+              actividad.colaboradores?.nombre || "-",
 
-            actividad.empresas?.nombre || "-",
+              actividad.empresas?.nombre || "-",
 
-            actividad.descripcion,
+              actividad.descripcion,
 
-            actividad.tareas?.titulo || "-",
+              actividad.tareas?.titulo || "-",
 
-            `${actividad.horas}h`,
-          ]),
+              `${actividad.horas}h`,
+            ]
+          ),
+
+          theme: "grid",
+
+          styles: {
+            fillColor: [10, 10, 20],
+            textColor: 255,
+            lineColor: [40, 40, 60],
+            lineWidth: 0.2,
+            fontSize: 10,
+          },
+
+          headStyles: {
+            fillColor: [30, 64, 175],
+            textColor: 255,
+            fontStyle: "bold",
+          },
+
+          alternateRowStyles: {
+            fillColor: [18, 18, 30],
+          },
         })
 
-        // DESCARGAR PDF
+        // DESCARGAR
 
         doc.save(
           `Reporte-${nombreEmpresa}-${mesSeleccionado}.pdf`
@@ -233,19 +263,43 @@ export default function ReportesPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-[1200px]">
 
-      <h1 className="text-4xl font-bold mb-2">
-        Reportes
-      </h1>
+      {/* HEADER */}
 
-      <p className="text-zinc-400 mb-10">
-        Reporte operativo mensual
-      </p>
+      <div className="mb-10">
 
-      {/* FILTROS + PDF */}
+        <h1 className="
+          text-5xl
+          font-black
+          tracking-tight
+          mb-3
+        ">
 
-      <div className="flex flex-wrap items-center gap-4 mb-8">
+          Reportes
+
+        </h1>
+
+        <p className="
+          text-zinc-400
+          text-lg
+        ">
+
+          Reporte operativo mensual
+
+        </p>
+
+      </div>
+
+      {/* FILTROS */}
+
+      <div className="
+        flex
+        flex-wrap
+        items-center
+        gap-4
+        mb-8
+      ">
 
         {/* MES */}
 
@@ -253,9 +307,20 @@ export default function ReportesPage() {
           type="month"
           value={mesSeleccionado}
           onChange={(e) =>
-            setMesSeleccionado(e.target.value)
+            setMesSeleccionado(
+              e.target.value
+            )
           }
-          className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none"
+          className="
+            bg-[#0b1020]
+            border
+            border-zinc-800
+            rounded-2xl
+            px-5
+            py-3
+            outline-none
+            text-white
+          "
         />
 
         {/* EMPRESA */}
@@ -263,9 +328,20 @@ export default function ReportesPage() {
         <select
           value={empresaSeleccionada}
           onChange={(e) =>
-            setEmpresaSeleccionada(e.target.value)
+            setEmpresaSeleccionada(
+              e.target.value
+            )
           }
-          className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none"
+          className="
+            bg-[#0b1020]
+            border
+            border-zinc-800
+            rounded-2xl
+            px-5
+            py-3
+            outline-none
+            text-white
+          "
         >
 
           <option value="">
@@ -287,11 +363,21 @@ export default function ReportesPage() {
 
         </select>
 
-        {/* PDF */}
+        {/* BOTON */}
 
         <button
           onClick={exportarPDF}
-          className="bg-white text-black px-5 py-3 rounded-xl font-medium hover:opacity-90 transition"
+          className="
+            px-6
+            py-3
+            rounded-2xl
+            font-semibold
+            bg-blue-500
+            hover:bg-blue-400
+            transition
+            shadow-lg
+            shadow-blue-500/20
+          "
         >
 
           Exportar PDF
@@ -302,21 +388,48 @@ export default function ReportesPage() {
 
       {/* RESUMEN */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="
+        grid
+        grid-cols-1
+        md:grid-cols-3
+        gap-5
+        mb-10
+      ">
 
         {horasPorColaborador.map((item) => (
 
           <div
             key={item.nombre}
-            className="border border-zinc-800 bg-zinc-900 rounded-2xl p-6"
+            className="
+              rounded-3xl
+              border
+              border-zinc-800
+              bg-gradient-to-br
+              from-[#0b1020]
+              to-[#050816]
+              p-6
+              shadow-xl
+            "
           >
 
-            <h2 className="text-xl font-semibold mb-2">
+            <h2 className="
+              text-lg
+              text-zinc-400
+              mb-3
+            ">
+
               {item.nombre}
+
             </h2>
 
-            <p className="text-3xl font-bold text-green-400">
+            <p className="
+              text-5xl
+              font-black
+              text-green-400
+            ">
+
               {item.horas}h
+
             </p>
 
           </div>
@@ -327,49 +440,82 @@ export default function ReportesPage() {
 
       {/* TOTAL */}
 
-      <div className="mb-12 border border-zinc-800 bg-zinc-900 rounded-2xl p-6">
+      <div className="
+        mb-10
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-gradient-to-br
+        from-[#0b1020]
+        to-[#050816]
+        p-7
+        shadow-xl
+      ">
 
-        <h2 className="text-xl font-semibold mb-2">
+        <h2 className="
+          text-xl
+          text-zinc-400
+          mb-3
+        ">
+
           Total mensual
+
         </h2>
 
-        <p className="text-4xl font-bold text-blue-400">
+        <p className="
+          text-6xl
+          font-black
+          text-blue-400
+        ">
+
           {totalHoras}h
+
         </p>
 
       </div>
 
       {/* TABLA */}
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+      <div className="
+        overflow-hidden
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-[#0b1020]
+        shadow-2xl
+      ">
 
         <table className="w-full">
 
-          <thead className="border-b border-zinc-800 bg-zinc-950/40">
+          <thead className="
+            bg-zinc-950/50
+            border-b
+            border-zinc-800
+          ">
 
             <tr className="text-left">
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Fecha
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Colaborador
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Empresa
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Actividad
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Tarea
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-zinc-400">
                 Horas
               </th>
 
@@ -383,14 +529,22 @@ export default function ReportesPage() {
 
               <tr
                 key={actividad.id}
-                className="border-b border-zinc-800 hover:bg-zinc-800/40 transition"
+                className="
+                  border-b
+                  border-zinc-800
+                  hover:bg-white/5
+                  transition
+                "
               >
 
                 <td className="p-5">
                   {actividad.fecha}
                 </td>
 
-                <td className="p-5 font-medium">
+                <td className="
+                  p-5
+                  font-semibold
+                ">
                   {actividad.colaboradores?.nombre}
                 </td>
 
@@ -406,7 +560,11 @@ export default function ReportesPage() {
                   {actividad.tareas?.titulo || "-"}
                 </td>
 
-                <td className="p-5">
+                <td className="
+                  p-5
+                  text-green-400
+                  font-bold
+                ">
                   {actividad.horas}h
                 </td>
 

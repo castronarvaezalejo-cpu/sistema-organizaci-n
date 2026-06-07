@@ -98,6 +98,31 @@ export default function ActividadesPage() {
       !colaboradorId
     ) return
 
+    // OBTENER TARIFA DE LA EMPRESA
+
+    const { data: empresaData } = await supabase
+      .from("empresas")
+      .select("tarifa_hora")
+      .eq("id", empresaId)
+      .single()
+
+    if (!empresaData) {
+
+      alert("Empresa no encontrada")
+
+      return
+    }
+
+    // CALCULAR FACTURACIÓN
+
+    const tarifaHora =
+      Number(empresaData.tarifa_hora || 0)
+
+    const totalFacturado =
+      Number(horas) * tarifaHora
+
+    // GUARDAR ACTIVIDAD
+
     const { error } = await supabase
       .from("actividades_realizadas")
       .insert([
@@ -108,16 +133,24 @@ export default function ActividadesPage() {
           empresa_id: empresaId,
           colaborador_id: colaboradorId,
           tarea_id: tareaId || null,
+          total_facturado: totalFacturado,
         },
       ])
 
     if (error) {
+
       console.error(error)
+
       alert("Error creando actividad")
+
       return
     }
 
-    alert("Actividad registrada")
+    alert(
+      `Actividad registrada\n\nFacturación: $${totalFacturado.toLocaleString()}`
+    )
+
+    // LIMPIAR
 
     setDescripcion("")
     setHoras("")
@@ -228,6 +261,10 @@ export default function ActividadesPage() {
               </th>
 
               <th className="p-5 text-zinc-400 font-medium">
+                Facturación
+              </th>
+
+              <th className="p-5 text-zinc-400 font-medium">
                 Acciones
               </th>
 
@@ -266,6 +303,13 @@ export default function ActividadesPage() {
 
                 <td className="p-5">
                   {actividad.horas}h
+                </td>
+
+                <td className="p-5 text-green-400 font-semibold">
+                  $
+                  {Number(
+                    actividad.total_facturado || 0
+                  ).toLocaleString()}
                 </td>
 
                 <td className="p-5">

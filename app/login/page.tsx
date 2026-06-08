@@ -11,31 +11,37 @@ export default function LoginPage() {
   const router = useRouter()
 
   const [email, setEmail] = useState("")
+
   const [password, setPassword] = useState("")
 
-async function iniciarSesion() {
+  const [loading, setLoading] = useState(false)
 
-  const { data, error } =
-    await supabase.auth.signInWithPassword({
+  async function iniciarSesion() {
 
-      email,
-      password,
+    setLoading(true)
 
-    })
+    const { error } =
+      await supabase.auth.signInWithPassword({
 
-  console.log(data)
-  console.log(error)
+        email,
 
-  if (error) {
+        password,
 
-    alert(error.message)
+      })
 
-    return
+    if (error) {
+
+      alert(error.message)
+
+      setLoading(false)
+
+      return
+    }
+
+    router.push("/")
+
+    router.refresh()
   }
-
-  router.push("/")
-  router.refresh()
-}
 
   return (
 
@@ -60,18 +66,21 @@ async function iniciarSesion() {
         shadow-2xl
       ">
 
-        {/* LOGO */}
-
         <div className="flex justify-center mb-8">
 
-          <img
-            src="/logo-black.png"
-            alt="SEITON"
-            className="
-              w-44
-              rounded-2xl
-            "
-          />
+          <div className="flex justify-center mb-6">
+
+  <img
+    src="/logo.png"
+    alt="SEITON"
+    className="
+      w-40
+      h-auto
+      object-contain
+    "
+  />
+
+</div>
 
         </div>
 
@@ -80,8 +89,11 @@ async function iniciarSesion() {
           font-black
           text-center
           mb-2
+          text-white
         ">
+
           Iniciar Sesión
+
         </h1>
 
         <p className="
@@ -89,7 +101,9 @@ async function iniciarSesion() {
           text-center
           mb-8
         ">
+
           Plataforma empresarial SEITON
+
         </p>
 
         <div className="space-y-4">
@@ -110,6 +124,7 @@ async function iniciarSesion() {
               px-4
               py-3
               outline-none
+              text-white
             "
           />
 
@@ -129,11 +144,13 @@ async function iniciarSesion() {
               px-4
               py-3
               outline-none
+              text-white
             "
           />
 
           <button
             onClick={iniciarSesion}
+            disabled={loading}
             className="
               w-full
               bg-white
@@ -146,7 +163,10 @@ async function iniciarSesion() {
             "
           >
 
-            Entrar
+            {loading
+              ? "Entrando..."
+              : "Entrar"
+            }
 
           </button>
 

@@ -86,9 +86,10 @@ export default function DashboardLayout({
   return (
 
     <main className="
-      h-screen
+      min-h-screen
       flex
-      overflow-hidden
+      flex-col
+       md:flex-row
       bg-black
       text-white
     ">
@@ -96,8 +97,8 @@ export default function DashboardLayout({
       {/* SIDEBAR */}
 
       <aside className="
-        w-64
-        min-w-64
+        md:w-64
+        md:min-w-64
         bg-[#050816]
         border-r
         border-zinc-900
@@ -114,20 +115,27 @@ export default function DashboardLayout({
           <div className="flex justify-center">
 
             <img
-              src="/logo.png"
-              alt="SEITON"
-              className="w-44"
-            />
+  src="/logo.png"
+  alt="SEITON"
+  className="
+    w-32
+    h-auto
+    object-contain
+  "
+/>
 
           </div>
 
         </div>
 
-        <nav className="
-          flex-1
-          p-4
-          space-y-1
-        ">
+<nav className="
+  flex
+  md:flex-col
+  overflow-x-auto
+  md:overflow-visible
+  p-4
+  gap-2
+">
 
           <SidebarItem
             icon={<LayoutDashboard size={19} />}
@@ -241,6 +249,7 @@ export default function DashboardLayout({
             <div className="
               flex
               items-center
+              min-w-fit
               gap-4
             ">
 

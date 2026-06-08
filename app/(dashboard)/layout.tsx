@@ -250,23 +250,27 @@ export default function DashboardLayout({
               flex
               items-center
               min-w-fit
-              gap-4
+              gap-3
             ">
 
-              <div className="text-right">
+<div className="
+  hidden
+  md:block
+  text-right
+">
 
-                <p className="font-bold">
-                  Administrador
-                </p>
+  <p className="font-bold">
+    Administrador
+  </p>
 
-                <p className="
-                  text-sm
-                  text-zinc-500
-                ">
-                  SEITON
-                </p>
+  <p className="
+    text-sm
+    text-zinc-500
+  ">
+    SEITON
+  </p>
 
-              </div>
+</div>
 
               <LogoutButton />
 

@@ -7,7 +7,7 @@ const client =
   new OpenAI({
 
     apiKey:
-      "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",
+     process.env.GROQ_API_KEY,
 
     baseURL:
       "https://api.groq.com/openai/v1",

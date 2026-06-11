@@ -1,16 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState }
+from "react";
 
-import { useRouter } from "next/navigation"
+import { useRouter }
+from "next/navigation";
 
-import { supabase } from "@/lib/supabase"
+import { supabase }
+from "@/lib/supabase";
 
-import Link from "next/link"
+import Link from "next/link";
 
-import LogoutButton from "@/components/LogoutButton"
+import LogoutButton
+from "@/components/LogoutButton";
 
 import {
+
   LayoutDashboard,
   Building2,
   CheckSquare,
@@ -19,7 +24,11 @@ import {
   ClipboardList,
   CalendarDays,
   BarChart3,
-} from "lucide-react"
+  ShieldAlert,
+  Bot,
+  Clock3,
+
+} from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -27,31 +36,71 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
 
-  const router = useRouter()
+  const router =
+    useRouter();
 
-  const [loading, setLoading] =
-    useState(true)
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    colaborador,
+    setColaborador,
+  ] = useState<any>(null);
+
+  const [
+    esAdmin,
+    setEsAdmin,
+  ] = useState(false);
 
   useEffect(() => {
 
-    verificarSesion()
+    verificarSesion();
 
-  }, [])
+  }, []);
 
   async function verificarSesion() {
 
     const {
       data: { session },
-    } = await supabase.auth.getSession()
+    } = await supabase
+      .auth
+      .getSession();
 
     if (!session) {
 
-      router.push("/login")
+      router.push("/login");
 
-      return
+      return;
     }
 
-    setLoading(false)
+    // ===================================
+    // BUSCAR COLABORADOR
+    // ===================================
+
+    const {
+      data,
+    } = await supabase
+      .from("colaboradores")
+      .select("*")
+      .eq(
+        "email",
+        session.user.email
+      )
+      .single();
+
+    if (data) {
+
+      setColaborador(data);
+
+      if (data.rol === "admin") {
+
+        setEsAdmin(true);
+      }
+    }
+
+    setLoading(false);
   }
 
   if (loading) {
@@ -70,18 +119,20 @@ export default function DashboardLayout({
         Cargando...
 
       </div>
-    )
+    );
   }
 
-  const fecha = new Date().toLocaleDateString(
-    "es-CO",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
-  )
+  const fecha =
+    new Date()
+    .toLocaleDateString(
+      "es-CO",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }
+    );
 
   return (
 
@@ -89,7 +140,7 @@ export default function DashboardLayout({
       min-h-screen
       flex
       flex-col
-       md:flex-row
+      md:flex-row
       bg-black
       text-white
     ">
@@ -106,83 +157,154 @@ export default function DashboardLayout({
         flex-col
       ">
 
+        {/* LOGO */}
+
         <div className="
           p-6
           border-b
           border-zinc-900
         ">
 
-          <div className="flex justify-center">
+          <div className="
+            flex
+            justify-center
+          ">
 
             <img
-  src="/logo.png"
-  alt="SEITON"
-  className="
-    w-32
-    h-auto
-    object-contain
-  "
-/>
+              src="/logo.png"
+              alt="SEITON"
+              className="
+                w-32
+                h-auto
+                object-contain
+              "
+            />
 
           </div>
 
         </div>
 
-<nav className="
-  flex
-  md:flex-col
-  overflow-x-auto
-  md:overflow-visible
-  p-4
-  gap-2
-">
+        {/* NAV */}
+
+        <nav className="
+          flex
+          md:flex-col
+          overflow-x-auto
+          md:overflow-visible
+          p-4
+          gap-2
+        ">
 
           <SidebarItem
-            icon={<LayoutDashboard size={19} />}
+            icon={
+              <LayoutDashboard size={19} />
+            }
             title="Dashboard"
             href="/"
           />
 
           <SidebarItem
-            icon={<Building2 size={19} />}
+            icon={
+              <Building2 size={19} />
+            }
             title="Empresas"
             href="/empresas"
           />
 
           <SidebarItem
-            icon={<CheckSquare size={19} />}
+            icon={
+              <CheckSquare size={19} />
+            }
             title="Tareas"
             href="/tareas"
           />
 
           <SidebarItem
-            icon={<CalendarDays size={19} />}
+            icon={
+              <CalendarDays size={19} />
+            }
             title="Calendario"
             href="/calendario"
           />
 
-          <SidebarItem
-            icon={<Users size={19} />}
-            title="Colaboradores"
-            href="/colaboradores"
-          />
+          {/* SOLO ADMIN */}
+
+          {esAdmin && (
+
+            <SidebarItem
+              icon={
+                <Users size={19} />
+              }
+              title="Colaboradores"
+              href="/colaboradores"
+            />
+
+          )}
+
+          {/* SOLO ADMIN */}
+
+          {esAdmin && (
+
+            <SidebarItem
+              icon={
+                <ClipboardList size={19} />
+              }
+              title="Actividades"
+              href="/actividades"
+            />
+
+          )}
+
+          {/* SOLO ASESOR */}
+
+          {!esAdmin && (
+
+            <SidebarItem
+              icon={
+                <Clock3 size={19} />
+              }
+              title="Horas"
+              href="/horas"
+            />
+
+          )}
 
           <SidebarItem
-            icon={<ClipboardList size={19} />}
-            title="Actividades"
-            href="/actividades"
-          />
-
-          <SidebarItem
-            icon={<Bell size={19} />}
+            icon={
+              <Bell size={19} />
+            }
             title="Alertas"
             href="/alertas"
           />
 
+          {/* SOLO ADMIN */}
+
+          {esAdmin && (
+
+            <SidebarItem
+              icon={
+                <BarChart3 size={19} />
+              }
+              title="Reportes"
+              href="/reportes"
+            />
+
+          )}
+
           <SidebarItem
-            icon={<BarChart3 size={19} />}
-            title="Reportes"
-            href="/reportes"
+            icon={
+              <ShieldAlert size={19} />
+            }
+            title="Extintores"
+            href="/extintores"
+          />
+
+          <SidebarItem
+            icon={
+              <Bot size={19} />
+            }
+            title="ChatBot"
+            href="/chatbot"
           />
 
         </nav>
@@ -246,31 +368,46 @@ export default function DashboardLayout({
 
             </div>
 
+            {/* PERFIL */}
+
             <div className="
               flex
               items-center
               min-w-fit
-              gap-3
+              gap-4
             ">
 
-<div className="
-  hidden
-  md:block
-  text-right
-">
+              <div className="
+                hidden
+                md:block
+                text-right
+              ">
 
-  <p className="font-bold">
-    Administrador
-  </p>
+                <p className="
+                  font-bold
+                ">
 
-  <p className="
-    text-sm
-    text-zinc-500
-  ">
-    SEITON
-  </p>
+                  {
+                    colaborador?.nombre
+                    || "Administrador"
+                  }
 
-</div>
+                </p>
+
+                <p className="
+                  text-sm
+                  text-zinc-500
+                  capitalize
+                ">
+
+                  {
+                    colaborador?.rol
+                    || "admin"
+                  }
+
+                </p>
+
+              </div>
 
               <LogoutButton />
 
@@ -296,7 +433,7 @@ export default function DashboardLayout({
       </section>
 
     </main>
-  )
+  );
 }
 
 function SidebarItem({
@@ -329,12 +466,14 @@ function SidebarItem({
 
       {icon}
 
-      <span className="font-semibold">
+      <span className="
+        font-semibold
+      ">
 
         {title}
 
       </span>
 
     </Link>
-  )
+  );
 }

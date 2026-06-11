@@ -1,220 +1,490 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState }
+from "react";
 
 import {
+
   AlertTriangle,
   Clock3,
   Building2,
   CheckCircle2,
   DollarSign,
   Trophy,
-} from "lucide-react"
+
+} from "lucide-react";
 
 import {
+
   ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-} from "recharts"
 
-import { supabase } from "@/lib/supabase"
+} from "recharts";
+
+import { supabase }
+from "@/lib/supabase";
 
 export default function Home() {
 
-  const [empresas, setEmpresas] = useState(0)
+  const [
+    colaborador,
+    setColaborador,
+  ] = useState<any>(null);
 
-  const [pendientes, setPendientes] =
-    useState(0)
+  const [
+    empresas,
+    setEmpresas,
+  ] = useState(0);
 
-  const [completadas, setCompletadas] =
-    useState(0)
+  const [
+    pendientes,
+    setPendientes,
+  ] = useState(0);
 
-  const [vencidas, setVencidas] =
-    useState(0)
+  const [
+    completadas,
+    setCompletadas,
+  ] = useState(0);
+
+  const [
+    vencidas,
+    setVencidas,
+  ] = useState(0);
 
   const [
     horasPorColaborador,
     setHorasPorColaborador,
-  ] = useState<any[]>([])
+  ] = useState<any[]>([]);
 
-  const [horasMes, setHorasMes] =
-    useState(0)
+  const [
+    horasMes,
+    setHorasMes,
+  ] = useState(0);
 
   const [
     valorFacturable,
     setValorFacturable,
-  ] = useState(0)
+  ] = useState(0);
 
-  const [topColaborador, setTopColaborador] =
-    useState("")
+  const [
+    topColaborador,
+    setTopColaborador,
+  ] = useState("");
+
+  const [
+  horasEmpresas,
+  setHorasEmpresas,
+] = useState<any[]>([]);
 
   useEffect(() => {
 
-    cargarDashboard()
+    cargarDashboard();
 
-  }, [])
+  }, []);
 
   async function cargarDashboard() {
 
-    // EMPRESAS
+    // ===================================
+    // USUARIO ACTUAL
+    // ===================================
 
-    const { count: empresasCount } =
-      await supabase
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) return;
+
+    const {
+      data: colaboradorData,
+    } = await supabase
+      .from("colaboradores")
+      .select("*")
+      .eq(
+        "email",
+        session.user.email
+      )
+      .single();
+
+    if (!colaboradorData) return;
+
+    setColaborador(
+      colaboradorData
+    );
+
+    // ===================================
+    // EMPRESAS
+    // SOLO ADMIN
+    // ===================================
+
+    if (
+      colaboradorData.rol ===
+      "admin"
+    ) {
+
+      const {
+        count: empresasCount,
+      } = await supabase
         .from("empresas")
         .select("*", {
           count: "exact",
           head: true,
         })
-        .eq("activa", true)
+        .eq("activa", true);
 
-    setEmpresas(empresasCount || 0)
+      setEmpresas(
+        empresasCount || 0
+      );
+    }
 
-    // PENDIENTES
+    // ===================================
+    // TAREAS
+    // ===================================
 
-    const { count: pendientesCount } =
-      await supabase
-        .from("tareas")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .neq("estado", "completada")
+    const {
+      count: pendientesCount,
+    } = await supabase
+      .from("tareas")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .neq(
+        "estado",
+        "completada"
+      );
 
-    setPendientes(pendientesCount || 0)
+    setPendientes(
+      pendientesCount || 0
+    );
 
-    // COMPLETADAS
+    const {
+      count: completadasCount,
+    } = await supabase
+      .from("tareas")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq(
+        "estado",
+        "completada"
+      );
 
-    const { count: completadasCount } =
-      await supabase
-        .from("tareas")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .eq("estado", "completada")
+    setCompletadas(
+      completadasCount || 0
+    );
 
-    setCompletadas(completadasCount || 0)
-
-    // VENCIDAS
-
-    const hoy = new Date()
+    const hoy =
+      new Date()
       .toISOString()
-      .split("T")[0]
+      .split("T")[0];
 
-    const { count: vencidasCount } =
-      await supabase
-        .from("tareas")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .lt("fecha_limite", hoy)
-        .neq("estado", "completada")
+    const {
+      count: vencidasCount,
+    } = await supabase
+      .from("tareas")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .lt(
+        "fecha_limite",
+        hoy
+      )
+      .neq(
+        "estado",
+        "completada"
+      );
 
-    setVencidas(vencidasCount || 0)
+    setVencidas(
+      vencidasCount || 0
+    );
 
-    // ACTIVIDADES
+    // ===================================
+// HORAS POR EMPRESA
+// SOLO ADMIN
+// ===================================
 
-    const inicioMes = new Date(
+if (
+  colaboradorData.rol ===
+  "admin"
+) {
+
+  const inicioMes =
+    new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
       1
     )
-      .toISOString()
-      .split("T")[0]
+    .toISOString()
+    .split("T")[0];
 
-    const { data: actividadesData } =
-      await supabase
-        .from("actividades_realizadas")
+  const {
+    data: empresasData,
+  } = await supabase
+    .from("empresas")
+    .select(`
+      id,
+      nombre,
+      horas_contratadas
+    `)
+    .eq("activa", true)
+    .order("nombre");
+
+  const {
+    data: actividadesEmpresa,
+  } = await supabase
+    .from(
+      "actividades_realizadas"
+    )
+    .select(`
+      empresa_id,
+      horas
+    `)
+    .gte(
+      "fecha",
+      inicioMes
+    );
+
+  if (
+    empresasData &&
+    actividadesEmpresa
+  ) {
+
+    const resultado =
+      empresasData.map(
+        (empresa: any) => {
+
+          const horasUsadas =
+            actividadesEmpresa
+              .filter(
+                (
+                  actividad: any
+                ) =>
+
+                  actividad
+                  .empresa_id ===
+                  empresa.id
+              )
+              .reduce(
+                (
+                  acc: number,
+                  actividad: any
+                ) =>
+
+                  acc +
+                  Number(
+                    actividad.horas
+                  ),
+
+                0
+              );
+
+          const contratadas =
+            Number(
+              empresa.horas_contratadas
+              || 0
+            );
+
+          const porcentaje =
+            contratadas > 0
+              ? (
+                  horasUsadas
+                  / contratadas
+                ) * 100
+              : 0;
+
+          return {
+
+            nombre:
+              empresa.nombre,
+
+            usadas:
+              horasUsadas,
+
+            contratadas,
+
+            porcentaje,
+          };
+        }
+      );
+
+    setHorasEmpresas(
+      resultado
+    );
+  }
+}
+
+    // ===================================
+    // ACTIVIDADES
+    // ===================================
+
+    const inicioMes =
+      new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+      )
+      .toISOString()
+      .split("T")[0];
+
+    let query =
+      supabase
+        .from(
+          "actividades_realizadas"
+        )
         .select(`
           horas,
           total_facturado,
+          colaborador_id,
           colaboradores (
             nombre
           ),
           fecha
         `)
-        .gte("fecha", inicioMes)
+        .gte(
+          "fecha",
+          inicioMes
+        );
+
+    // ===================================
+    // SI ES ASESOR
+    // SOLO SUS DATOS
+    // ===================================
+
+    if (
+      colaboradorData.rol !==
+      "admin"
+    ) {
+
+      query =
+        query.eq(
+          "colaborador_id",
+          colaboradorData.id
+        );
+    }
+
+    const {
+      data: actividadesData,
+    } = await query;
 
     if (actividadesData) {
 
       const agrupadas:
-        Record<string, number> = {}
+        Record<
+          string,
+          number
+        > = {};
 
-      let totalHoras = 0
+      let totalHoras = 0;
 
       actividadesData.forEach(
         (actividad: any) => {
 
           const nombre =
-            actividad.colaboradores?.nombre ||
-            "Sin nombre"
+            actividad
+            .colaboradores
+            ?.nombre ||
+            "Sin nombre";
 
-          const horas = Number(
-            actividad.horas
-          )
+          const horas =
+            Number(
+              actividad.horas
+            );
 
           agrupadas[nombre] =
-            (agrupadas[nombre] || 0)
-            + horas
+            (
+              agrupadas[nombre]
+              || 0
+            ) + horas;
 
-          totalHoras += horas
+          totalHoras += horas;
         }
-      )
+      );
 
       const resultado =
-        Object.entries(agrupadas)
-          .map(([nombre, horas]) => ({
+        Object.entries(
+          agrupadas
+        ).map(
+          ([nombre, horas]) => ({
             nombre,
             horas,
-          }))
+          })
+        );
 
-      setHorasPorColaborador(resultado)
+      setHorasPorColaborador(
+        resultado
+      );
 
-      setHorasMes(totalHoras)
+      setHorasMes(
+        totalHoras
+      );
 
-      const totalFacturacion =
-        actividadesData.reduce(
-          (
-            acc: number,
-            actividad: any
-          ) =>
-            acc +
-            Number(
-              actividad.total_facturado || 0
-            ),
-          0
-        )
+      // SOLO ADMIN VE FACTURACION
 
-      setValorFacturable(
-        totalFacturacion
-      )
+      if (
+        colaboradorData.rol ===
+        "admin"
+      ) {
 
-      const top = [...resultado]
-        .sort(
-          (a, b) =>
-            b.horas - a.horas
-        )[0]
+        const totalFacturacion =
+          actividadesData.reduce(
+            (
+              acc: number,
+              actividad: any
+            ) =>
 
-      if (top) {
+              acc +
+              Number(
+                actividad
+                .total_facturado
+                || 0
+              ),
 
-        setTopColaborador(
-          `${top.nombre} (${top.horas}h)`
-        )
+            0
+          );
+
+        setValorFacturable(
+          totalFacturacion
+        );
+
+        const top =
+          [...resultado]
+          .sort(
+            (a, b) =>
+              b.horas -
+              a.horas
+          )[0];
+
+        if (top) {
+
+          setTopColaborador(
+            `${top.nombre} (${top.horas}h)`
+          );
+        }
       }
     }
   }
 
+  const esAdmin =
+    colaborador?.rol ===
+    "admin";
+
   return (
 
-    <div className="max-w-[1200px]">
+    <div className="
+      max-w-[1200px]
+    ">
 
       {/* HEADER */}
 
-      <div className="mb-8">
+      <div className="
+        mb-8
+      ">
 
         <h1 className="
           text-5xl
@@ -232,7 +502,11 @@ export default function Home() {
           text-lg
         ">
 
-          Resumen operativo y financiero
+          {
+            esAdmin
+            ? "Resumen operativo y financiero"
+            : "Resumen operativo personal"
+          }
 
         </p>
 
@@ -253,7 +527,9 @@ export default function Home() {
           value={vencidas}
           subtitle="tareas vencidas"
           color="red"
-          icon={<AlertTriangle size={22} />}
+          icon={
+            <AlertTriangle size={22} />
+          }
         />
 
         <PremiumCard
@@ -261,23 +537,33 @@ export default function Home() {
           value={pendientes}
           subtitle="tareas pendientes"
           color="yellow"
-          icon={<Clock3 size={22} />}
+          icon={
+            <Clock3 size={22} />
+          }
         />
 
-        <PremiumCard
-          title="Empresas"
-          value={empresas}
-          subtitle="empresas activas"
-          color="blue"
-          icon={<Building2 size={22} />}
-        />
+        {esAdmin && (
+
+          <PremiumCard
+            title="Empresas"
+            value={empresas}
+            subtitle="empresas activas"
+            color="blue"
+            icon={
+              <Building2 size={22} />
+            }
+          />
+
+        )}
 
         <PremiumCard
           title="Completadas"
           value={completadas}
           subtitle="tareas completadas"
           color="green"
-          icon={<CheckCircle2 size={22} />}
+          icon={
+            <CheckCircle2 size={22} />
+          }
         />
 
       </div>
@@ -296,84 +582,277 @@ export default function Home() {
           title="Horas del Mes"
           value={`${horasMes}h`}
           color="blue"
-          icon={<Clock3 size={20} />}
+          icon={
+            <Clock3 size={20} />
+          }
         />
 
-        <PremiumMiniCard
-          title="Facturación"
-          value={`$${valorFacturable.toLocaleString()}`}
-          color="green"
-          icon={<DollarSign size={20} />}
-        />
+        {esAdmin && (
 
-        <PremiumMiniCard
-          title="Top"
-          value={topColaborador || "-"}
-          color="yellow"
-          icon={<Trophy size={20} />}
-        />
+          <>
+            <PremiumMiniCard
+              title="Facturación"
+              value={`$${valorFacturable.toLocaleString()}`}
+              color="green"
+              icon={
+                <DollarSign size={20} />
+              }
+            />
+
+            <PremiumMiniCard
+              title="Top"
+              value={topColaborador || "-"}
+              color="yellow"
+              icon={
+                <Trophy size={20} />
+              }
+            />
+          </>
+        )}
 
       </div>
 
-      {/* GRAFICA */}
+      {/* HORAS CONTRATADAS */}
+{/* SOLO ADMIN */}
 
-      <div className="
-        mt-8
-        rounded-3xl
-        border
-        border-zinc-800
-        bg-zinc-900/40
-        p-6
-      ">
+{esAdmin && (
 
-        <h2 className="
-          text-2xl
-          font-bold
-          mb-6
-        ">
+  <div className="
+    mt-8
+  ">
 
-          Productividad
+    <h2 className="
+      text-2xl
+      font-bold
+      mb-6
+    ">
 
-        </h2>
+      Consumo de Horas por Empresa
 
-        <div className="h-[300px]">
+    </h2>
 
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
+    <div className="
+      grid
+      grid-cols-1
+      md:grid-cols-2
+      gap-4
+    ">
 
-            <BarChart
-              data={horasPorColaborador}
+      {horasEmpresas.map(
+        (empresa) => {
+
+          const color =
+
+            empresa.porcentaje >= 100
+
+            ? "bg-red-500"
+
+            : empresa.porcentaje >= 80
+
+            ? "bg-yellow-500"
+
+            : "bg-green-500";
+
+          return (
+
+            <div
+              key={empresa.nombre}
+              className="
+                rounded-3xl
+                border
+                border-zinc-800
+                bg-zinc-900/40
+                p-5
+              "
             >
 
-              <XAxis
-                dataKey="nombre"
-                stroke="#a1a1aa"
-              />
+              <div className="
+                flex
+                items-center
+                justify-between
+                mb-4
+              ">
 
-              <YAxis
-                stroke="#a1a1aa"
-              />
+                <h3 className="
+                  text-lg
+                  font-bold
+                ">
 
-              <Tooltip />
+                  {empresa.nombre}
 
-              <Bar
-                dataKey="horas"
-                fill="#3b82f6"
-                radius={[10, 10, 0, 0]}
-              />
+                </h3>
 
-            </BarChart>
+                <span className="
+                  text-zinc-400
+                  text-sm
+                ">
 
-          </ResponsiveContainer>
+                  {empresa.usadas}h
+                  /
+                  {empresa.contratadas}h
 
-        </div>
+                </span>
 
-      </div>
+              </div>
+
+              {/* BARRA */}
+
+              <div className="
+                w-full
+                h-4
+                rounded-full
+                bg-zinc-800
+                overflow-hidden
+              ">
+
+                <div
+                  className={`
+                    h-full
+                    ${color}
+                  `}
+                  style={{
+                    width:
+                      `${Math.min(
+                        empresa.porcentaje,
+                        100
+                      )}%`,
+                  }}
+                />
+
+              </div>
+
+              {/* ESTADO */}
+
+              <div className="
+                mt-3
+                text-sm
+                font-medium
+              ">
+
+                {
+
+                  empresa.porcentaje >= 100
+
+                  ? (
+
+                    <span className="
+                      text-red-400
+                    ">
+
+                      Horas excedidas
+
+                    </span>
+                  )
+
+                  : empresa.porcentaje >= 80
+
+                  ? (
+
+                    <span className="
+                      text-yellow-400
+                    ">
+
+                      Próximo al límite
+
+                    </span>
+                  )
+
+                  : (
+
+                    <span className="
+                      text-green-400
+                    ">
+
+                      Dentro del rango
+
+                    </span>
+                  )
+                }
+
+              </div>
+
+            </div>
+          );
+        }
+      )}
 
     </div>
-  )
+
+  </div>
+)}
+
+      {/* GRAFICA */}
+      {/* SOLO ADMIN */}
+
+      {esAdmin && (
+
+        <div className="
+          mt-8
+          rounded-3xl
+          border
+          border-zinc-800
+          bg-zinc-900/40
+          p-6
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-6
+          ">
+
+            Productividad
+
+          </h2>
+
+          <div className="
+            h-[300px]
+          ">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <BarChart
+                data={
+                  horasPorColaborador
+                }
+              >
+
+                <XAxis
+                  dataKey="nombre"
+                  stroke="#a1a1aa"
+                />
+
+                <YAxis
+                  stroke="#a1a1aa"
+                />
+
+                <Tooltip />
+
+                <Bar
+                  dataKey="horas"
+                  fill="#3b82f6"
+                  radius={[
+                    10,
+                    10,
+                    0,
+                    0,
+                  ]}
+                />
+
+              </BarChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
 }
 
 function PremiumCard({
@@ -386,7 +865,11 @@ function PremiumCard({
   title: string
   value: number
   subtitle: string
-  color: "red" | "yellow" | "blue" | "green"
+  color:
+    | "red"
+    | "yellow"
+    | "blue"
+    | "green"
   icon: React.ReactNode
 }) {
 
@@ -395,27 +878,31 @@ function PremiumCard({
     red: {
       bg: "bg-red-500/10",
       text: "text-red-400",
-      border: "border-red-500/20",
+      border:
+        "border-red-500/20",
     },
 
     yellow: {
       bg: "bg-yellow-500/10",
       text: "text-yellow-400",
-      border: "border-yellow-500/20",
+      border:
+        "border-yellow-500/20",
     },
 
     blue: {
       bg: "bg-blue-500/10",
       text: "text-blue-400",
-      border: "border-blue-500/20",
+      border:
+        "border-blue-500/20",
     },
 
     green: {
       bg: "bg-green-500/10",
       text: "text-green-400",
-      border: "border-green-500/20",
+      border:
+        "border-green-500/20",
     },
-  }
+  };
 
   return (
 
@@ -481,7 +968,7 @@ function PremiumCard({
       </p>
 
     </div>
-  )
+  );
 }
 
 function PremiumMiniCard({
@@ -492,7 +979,10 @@ function PremiumMiniCard({
 }: {
   title: string
   value: string
-  color: "yellow" | "green" | "blue"
+  color:
+    | "yellow"
+    | "green"
+    | "blue"
   icon: React.ReactNode
 }) {
 
@@ -506,7 +996,7 @@ function PremiumMiniCard({
 
     blue:
       "text-blue-400 bg-blue-500/10",
-  }
+  };
 
   return (
 
@@ -550,22 +1040,24 @@ function PremiumMiniCard({
 
       </div>
 
-<p className={`
-  text-3xl
-  font-black
+      <p className={`
+        text-3xl
+        font-black
 
-  ${color === "green"
-    ? "text-green-400"
+        ${color === "green"
+          ? "text-green-400"
 
-    : color === "yellow"
-    ? "text-yellow-400"
+          : color === "yellow"
+          ? "text-yellow-400"
 
-    : "text-blue-400"
-  }
-`}>
-  {value}
-</p>
+          : "text-blue-400"
+        }
+      `}>
+
+        {value}
+
+      </p>
 
     </div>
-  )
+  );
 }

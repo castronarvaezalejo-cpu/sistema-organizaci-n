@@ -12,6 +12,7 @@ import { supabase }
 from "@/lib/supabase"
 
 export default function CapacitacionesPage() {
+  
 
   const [
     empresas,
@@ -43,6 +44,12 @@ export default function CapacitacionesPage() {
 
   const [fecha, setFecha] =
     useState("")
+
+    const [hora, setHora] =
+  useState("")
+
+const [lugar, setLugar] =
+  useState("")
 
   const [
     observaciones,
@@ -147,9 +154,13 @@ export default function CapacitacionesPage() {
 
             tipo,
 
-            fecha,
+fecha,
 
-            observaciones,
+hora,
+
+lugar,
+
+observaciones,
 
             estado:
               "programada",
@@ -175,7 +186,9 @@ export default function CapacitacionesPage() {
     setResponsableId("")
     setTipo("")
     setFecha("")
-    setObservaciones("")
+setHora("")
+setLugar("")
+setObservaciones("")
 
     obtenerCapacitaciones()
   }
@@ -356,6 +369,27 @@ export default function CapacitacionesPage() {
           "
         />
 
+        {/* HORA */}
+
+<input
+  type="time"
+  value={hora}
+  onChange={(e) =>
+    setHora(
+      e.target.value
+    )
+  }
+  className="
+    bg-zinc-900
+    border
+    border-zinc-800
+    rounded-2xl
+    px-4
+    py-4
+    outline-none
+  "
+/>
+
         {/* TIPO */}
 
         <select
@@ -405,6 +439,29 @@ export default function CapacitacionesPage() {
           </option>
 
         </select>
+
+        {/* LUGAR */}
+
+<input
+  value={lugar}
+  onChange={(e) =>
+    setLugar(
+      e.target.value
+    )
+  }
+  placeholder="
+    Lugar / Barrio
+  "
+  className="
+    bg-zinc-900
+    border
+    border-zinc-800
+    rounded-2xl
+    px-4
+    py-4
+    outline-none
+  "
+/>
 
         {/* OBS */}
 
@@ -491,6 +548,14 @@ export default function CapacitacionesPage() {
               </th>
 
               <th className="p-5 text-left">
+  Hora
+</th>
+
+<th className="p-5 text-left">
+  Lugar
+</th>
+
+              <th className="p-5 text-left">
                 Responsable
               </th>
 
@@ -546,6 +611,22 @@ export default function CapacitacionesPage() {
                   }
 
                 </td>
+
+                <td className="p-5">
+
+  {
+    capacitacion.hora || "-"
+  }
+
+</td>
+
+<td className="p-5">
+
+  {
+    capacitacion.lugar || "-"
+  }
+
+</td>
 
                 <td className="p-5">
 
@@ -617,4 +698,4 @@ export default function CapacitacionesPage() {
 
     </div>
   )
-}
+}   

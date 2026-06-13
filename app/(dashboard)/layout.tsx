@@ -266,19 +266,13 @@ export default function DashboardLayout({
 
           )}
 
-          {/* SOLO ASESOR */}
-
-          {!esAdmin && (
-
-            <SidebarItem
-              icon={
-                <Clock3 size={19} />
-              }
-              title="Horas"
-              href="/horas"
-            />
-
-          )}
+          <SidebarItem
+  icon={
+    <Clock3 size={19} />
+  }
+  title="Horas"
+  href="/horas"
+/>
 
           <SidebarItem
             icon={

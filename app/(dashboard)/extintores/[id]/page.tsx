@@ -6,9 +6,11 @@ import {
   useState,
 } from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter }
+from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
+import { supabase }
+from "@/lib/supabase";
 
 export default function EditarExtintorPage({
   params,
@@ -20,32 +22,43 @@ export default function EditarExtintorPage({
 
   const { id } = use(params);
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [codigo, setCodigo] =
-    useState("");
+  const [
+    codigo,
+    setCodigo,
+  ] = useState("");
 
-  const [empresa, setEmpresa] =
-    useState("");
+  const [
+    empresa,
+    setEmpresa,
+  ] = useState("");
 
-  const [ubicacion, setUbicacion] =
-    useState("");
+  const [
+    ubicacion,
+    setUbicacion,
+  ] = useState("");
 
-  const [tipo, setTipo] =
-    useState("");
+  const [
+    tipo,
+    setTipo,
+  ] = useState("");
 
-  const [capacidad, setCapacidad] =
-    useState("");
+  const [
+    capacidad,
+    setCapacidad,
+  ] = useState("");
 
-  const [fechaRecarga,
-    setFechaRecarga] = useState("");
-
-  const [fechaHidrostatica,
-    setFechaHidrostatica] =
-    useState("");
+  const [
+    fechaRecarga,
+    setFechaRecarga,
+  ] = useState("");
 
   useEffect(() => {
 
@@ -55,12 +68,14 @@ export default function EditarExtintorPage({
 
   async function cargarExtintor() {
 
-    const { data, error } =
-      await supabase
-        .from("extintores")
-        .select("*")
-        .eq("id", id)
-        .single();
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("extintores")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error || !data) {
 
@@ -68,20 +83,28 @@ export default function EditarExtintorPage({
         "Error cargando extintor"
       );
 
-      router.push("/extintores");
+      router.push(
+        "/extintores"
+      );
 
       return;
     }
 
-    setCodigo(data.codigo || "");
+    setCodigo(
+      data.codigo || ""
+    );
 
-    setEmpresa(data.empresa || "");
+    setEmpresa(
+      data.empresa || ""
+    );
 
     setUbicacion(
       data.ubicacion || ""
     );
 
-    setTipo(data.tipo || "");
+    setTipo(
+      data.tipo || ""
+    );
 
     setCapacidad(
       data.capacidad || ""
@@ -89,10 +112,6 @@ export default function EditarExtintorPage({
 
     setFechaRecarga(
       data.fecha_recarga || ""
-    );
-
-    setFechaHidrostatica(
-      data.fecha_hidrostatica || ""
     );
 
     setLoading(false);
@@ -108,15 +127,19 @@ export default function EditarExtintorPage({
       await supabase
         .from("extintores")
         .update({
+
           codigo,
+
           empresa,
+
           ubicacion,
+
           tipo,
+
           capacidad,
+
           fecha_recarga:
             fechaRecarga,
-          fecha_hidrostatica:
-            fechaHidrostatica,
         })
         .eq("id", id);
 
@@ -129,7 +152,9 @@ export default function EditarExtintorPage({
       return;
     }
 
-    router.push("/extintores");
+    router.push(
+      "/extintores"
+    );
 
     router.refresh();
   }
@@ -137,26 +162,37 @@ export default function EditarExtintorPage({
   if (loading) {
 
     return (
-      <div className="p-6">
+
+      <div className="
+        p-6
+      ">
+
         Cargando...
+
       </div>
     );
   }
 
   return (
 
-    <div className="max-w-3xl">
+    <div className="
+      max-w-3xl
+    ">
 
       <h1 className="
         text-3xl
         font-bold
         mb-8
       ">
+
         Editar Extintor
+
       </h1>
 
       <form
-        onSubmit={actualizarExtintor}
+        onSubmit={
+          actualizarExtintor
+        }
         className="
           bg-zinc-900
           border
@@ -170,63 +206,101 @@ export default function EditarExtintorPage({
         <Input
           label="Código"
           value={codigo}
-          onChange={setCodigo}
+          onChange={
+            setCodigo
+          }
         />
 
         <Input
           label="Empresa"
           value={empresa}
-          onChange={setEmpresa}
+          onChange={
+            setEmpresa
+          }
         />
 
         <Input
           label="Ubicación"
           value={ubicacion}
-          onChange={setUbicacion}
+          onChange={
+            setUbicacion
+          }
         />
 
         <Input
           label="Tipo"
           value={tipo}
-          onChange={setTipo}
+          onChange={
+            setTipo
+          }
         />
 
         <Input
           label="Capacidad"
           value={capacidad}
-          onChange={setCapacidad}
-        />
-
-        <DateInput
-          label="Fecha de recarga"
-          value={fechaRecarga}
-          onChange={setFechaRecarga}
-        />
-
-        <DateInput
-          label="Fecha hidrostática"
-          value={fechaHidrostatica}
           onChange={
-            setFechaHidrostatica
+            setCapacidad
           }
         />
 
-        <button
-          type="submit"
-          className="
-            bg-blue-600
-            hover:bg-blue-700
-            transition
-            px-6
-            py-3
-            rounded-xl
-            font-semibold
+        <DateInput
+          label="
+            Fecha de recarga
           "
-        >
+          value={
+            fechaRecarga
+          }
+          onChange={
+            setFechaRecarga
+          }
+        />
 
-          Guardar Cambios
+        <div className="
+          flex
+          gap-4
+          pt-4
+        ">
 
-        </button>
+          <button
+            type="submit"
+            className="
+              bg-blue-600
+              hover:bg-blue-700
+              transition
+              px-6
+              py-3
+              rounded-xl
+              font-semibold
+            "
+          >
+
+            Guardar Cambios
+
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              router.push(
+                "/extintores"
+              )
+            }
+            className="
+              bg-zinc-800
+              hover:bg-zinc-700
+              transition
+              px-6
+              py-3
+              rounded-xl
+              font-semibold
+            "
+          >
+
+            Cancelar
+
+          </button>
+
+        </div>
 
       </form>
 
@@ -241,24 +315,32 @@ function Input({
 }: {
   label: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (
+    value: string
+  ) => void;
 }) {
 
   return (
 
-    <div className="space-y-2">
+    <div className="
+      space-y-2
+    ">
 
       <label className="
         text-sm
         text-zinc-400
       ">
+
         {label}
+
       </label>
 
       <input
         value={value}
         onChange={(e) =>
-          onChange(e.target.value)
+          onChange(
+            e.target.value
+          )
         }
         className="
           w-full
@@ -284,25 +366,33 @@ function DateInput({
 }: {
   label: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (
+    value: string
+  ) => void;
 }) {
 
   return (
 
-    <div className="space-y-2">
+    <div className="
+      space-y-2
+    ">
 
       <label className="
         text-sm
         text-zinc-400
       ">
+
         {label}
+
       </label>
 
       <input
         type="date"
         value={value}
         onChange={(e) =>
-          onChange(e.target.value)
+          onChange(
+            e.target.value
+          )
         }
         className="
           w-full

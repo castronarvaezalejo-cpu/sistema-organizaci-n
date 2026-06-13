@@ -23,6 +23,7 @@ import {
   Bell,
   ClipboardList,
   CalendarDays,
+  GraduationCap,
   BarChart3,
   ShieldAlert,
   Bot,
@@ -224,8 +225,18 @@ export default function DashboardLayout({
               <CalendarDays size={19} />
             }
             title="Calendario"
+            
             href="/calendario"
+            
           />
+
+          <SidebarItem
+  icon={
+  <GraduationCap size={19} />
+}
+  title="Capacitaciones"
+  href="/capacitaciones"
+/>
 
           {/* SOLO ADMIN */}
 

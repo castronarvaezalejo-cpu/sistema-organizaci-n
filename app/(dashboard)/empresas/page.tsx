@@ -1,17 +1,20 @@
 "use client"
 
-import Link from "next/link"
-
 import {
   Plus,
   Pencil,
   Trash2,
   Search,
+  ShieldAlert,
 } from "lucide-react"
 
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
 
-import { supabase } from "@/lib/supabase"
+import { supabase }
+from "@/lib/supabase"
 
 import {
   Dialog,
@@ -22,8 +25,10 @@ import {
 
 export default function EmpresasPage() {
 
-  const [open, setOpen] =
-    useState(false)
+  const [
+    open,
+    setOpen,
+  ] = useState(false)
 
   const [
     modoEdicion,
@@ -35,14 +40,20 @@ export default function EmpresasPage() {
     setEmpresaEditandoId,
   ] = useState("")
 
-  const [nombre, setNombre] =
-    useState("")
+  const [
+    nombre,
+    setNombre,
+  ] = useState("")
 
-  const [contacto, setContacto] =
-    useState("")
+  const [
+    contacto,
+    setContacto,
+  ] = useState("")
 
-  const [telefono, setTelefono] =
-    useState("")
+  const [
+    telefono,
+    setTelefono,
+  ] = useState("")
 
   const [
     tarifaHora,
@@ -93,20 +104,25 @@ export default function EmpresasPage() {
 
     const {
       data: { session },
-    } = await supabase.auth.getSession()
+    } = await supabase
+      .auth
+      .getSession()
 
     if (!session) return
 
-    const { data } = await supabase
-      .from("colaboradores")
-      .select("rol")
-      .eq(
-        "email",
-        session.user.email
-      )
-      .single()
+    const { data } =
+      await supabase
+        .from("colaboradores")
+        .select("rol")
+        .eq(
+          "email",
+          session.user.email
+        )
+        .single()
 
-    if (data?.rol === "admin") {
+    if (
+      data?.rol === "admin"
+    ) {
 
       setEsAdmin(true)
     }
@@ -124,17 +140,19 @@ export default function EmpresasPage() {
 
   async function obtenerEmpresas() {
 
-    const { data, error } =
-      await supabase
-        .from("empresas")
-        .select("*")
-        .eq(
-          "activa",
-          !mostrarArchivadas
-        )
-        .order("nombre", {
-          ascending: true,
-        })
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("empresas")
+      .select("*")
+      .eq(
+        "activa",
+        !mostrarArchivadas
+      )
+      .order("nombre", {
+        ascending: true,
+      })
 
     if (error) {
 
@@ -158,9 +176,12 @@ export default function EmpresasPage() {
       await supabase
         .from("empresas")
         .insert([
+
           {
             nombre,
+
             contacto,
+
             telefono,
 
             tarifa_hora:
@@ -184,12 +205,12 @@ export default function EmpresasPage() {
 
       console.error(error)
 
-      alert("Error creando empresa")
+      alert(
+        "Error creando empresa"
+      )
 
       return
     }
-
-    alert("Empresa creada")
 
     limpiarFormulario()
 
@@ -210,7 +231,9 @@ export default function EmpresasPage() {
         .update({
 
           nombre,
+
           contacto,
+
           telefono,
 
           tarifa_hora:
@@ -242,8 +265,6 @@ export default function EmpresasPage() {
       return
     }
 
-    alert("Empresa actualizada")
-
     limpiarFormulario()
 
     obtenerEmpresas()
@@ -267,7 +288,8 @@ export default function EmpresasPage() {
           : "¿Restaurar empresa?"
       )
 
-    if (!confirmar) return
+    if (!confirmar)
+      return
 
     const { error } =
       await supabase
@@ -341,7 +363,6 @@ export default function EmpresasPage() {
     setTelefono("")
     setTarifaHora("")
     setHorasContratadas("")
-
     setPermiteAcumulado(false)
 
     setModoEdicion(false)
@@ -377,7 +398,6 @@ export default function EmpresasPage() {
           empresa.telefono
             ?.toLowerCase()
             .includes(texto)
-
         )
       }
     )
@@ -405,13 +425,17 @@ export default function EmpresasPage() {
             font-bold
             mb-2
           ">
+
             Empresas
+
           </h1>
 
           <p className="
             text-zinc-400
           ">
+
             Gestión de empresas y clientes
+
           </p>
 
         </div>
@@ -424,6 +448,7 @@ export default function EmpresasPage() {
               limpiarFormulario()
 
               setOpen(true)
+
             }}
             className="
               flex
@@ -475,7 +500,9 @@ export default function EmpresasPage() {
                 e.target.value
               )
             }
-            placeholder="Buscar empresa..."
+            placeholder="
+              Buscar empresa...
+            "
             className="
               w-full
               bg-zinc-900
@@ -503,7 +530,9 @@ export default function EmpresasPage() {
         overflow-hidden
       ">
 
-        <table className="w-full">
+        <table className="
+          w-full
+        ">
 
           <thead className="
             border-b
@@ -513,61 +542,33 @@ export default function EmpresasPage() {
 
             <tr>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Empresa
               </th>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Contacto
               </th>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Teléfono
               </th>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Tarifa
               </th>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Horas
               </th>
 
-              <th className="
-                p-5
-                text-left
-                text-zinc-400
-              ">
+              <th className="p-5 text-left text-zinc-400">
                 Acumulado
               </th>
 
               {esAdmin && (
 
-                <th className="
-                  p-5
-                  text-left
-                  text-zinc-400
-                ">
+                <th className="p-5 text-left text-zinc-400">
                   Acciones
                 </th>
 
@@ -582,130 +583,165 @@ export default function EmpresasPage() {
             {empresasFiltradas.map(
               (empresa) => (
 
-                <tr
-                  key={empresa.id}
-                  className="
-                    border-b
-                    border-zinc-800
-                    hover:bg-zinc-800/30
-                  "
-                >
+              <tr
+                key={empresa.id}
+                className="
+                  border-b
+                  border-zinc-800
+                  hover:bg-zinc-800/30
+                  transition
+                "
+              >
 
-                  <td className="
-                    p-5
-                    font-medium
-                  ">
+                <td className="
+  p-5
+  font-medium
+">
 
-                    <Link
-                      href={`/empresas/${empresa.id}`}
-                      className="
-                        hover:text-blue-400
-                      "
-                    >
+  <button
+    onClick={() =>
+      window.location.href =
+        `/empresas/${empresa.id}`
+    }
+    className="
+      text-white
+      hover:text-blue-400
+      transition
+      hover:underline
+      text-left
+    "
+  >
 
-                      {empresa.nombre}
+    {empresa.nombre}
 
-                    </Link>
+  </button>
 
-                  </td>
+</td>
+
+                <td className="p-5">
+                  {empresa.contacto || "-"}
+                </td>
+
+                <td className="p-5">
+                  {empresa.telefono || "-"}
+                </td>
+
+                <td className="
+                  p-5
+                  text-green-400
+                ">
+
+                  $
+                  {Number(
+                    empresa.tarifa_hora || 0
+                  ).toLocaleString()}
+
+                </td>
+
+                <td className="
+                  p-5
+                  text-blue-400
+                ">
+
+                  {
+                    empresa.horas_contratadas || 0
+                  }h
+
+                </td>
+
+                <td className="p-5">
+
+                  {empresa.permite_acumulado
+                    ? "Sí"
+                    : "No"}
+
+                </td>
+
+                {esAdmin && (
 
                   <td className="p-5">
 
-                    {empresa.contacto || "-"}
+                    <div className="
+                      flex
+                      items-center
+                      gap-2
+                    ">
+
+                      {/* EXTINTORES */}
+
+                      <button
+                        onClick={() =>
+                          window.location.href =
+                            `/extintores?empresa=${empresa.id}`
+                        }
+                        className="
+                          p-2
+                          rounded-lg
+                          bg-orange-500/10
+                          text-orange-400
+                          hover:bg-orange-500/20
+                          transition
+                        "
+                      >
+
+                        <ShieldAlert size={16} />
+
+                      </button>
+
+                      {/* EDITAR */}
+
+                      <button
+                        onClick={() =>
+                          abrirEdicion(
+                            empresa
+                          )
+                        }
+                        className="
+                          p-2
+                          rounded-lg
+                          bg-blue-500/10
+                          text-blue-400
+                          hover:bg-blue-500/20
+                          transition
+                        "
+                      >
+
+                        <Pencil size={16} />
+
+                      </button>
+
+                      {/* ARCHIVAR */}
+
+                      <button
+                        onClick={() =>
+                          eliminarEmpresa(
+                            empresa.id,
+                            empresa.activa
+                          )
+                        }
+                        className="
+                          p-2
+                          rounded-lg
+                          bg-red-500/10
+                          text-red-400
+                          hover:bg-red-500/20
+                          transition
+                        "
+                      >
+
+                        <Trash2 size={16} />
+
+                      </button>
+
+                    </div>
 
                   </td>
 
-                  <td className="p-5">
+                )}
 
-                    {empresa.telefono || "-"}
+              </tr>
 
-                  </td>
-
-                  <td className="
-                    p-5
-                    text-green-400
-                  ">
-
-                    $
-                    {Number(
-                      empresa.tarifa_hora || 0
-                    ).toLocaleString()}
-
-                  </td>
-
-                  <td className="
-                    p-5
-                    text-blue-400
-                  ">
-
-                    {empresa.horas_contratadas || 0}h
-
-                  </td>
-
-                  <td className="p-5">
-
-                    {empresa.permite_acumulado
-                      ? "Sí"
-                      : "No"}
-
-                  </td>
-
-                  {esAdmin && (
-
-                    <td className="p-5">
-
-                      <div className="
-                        flex
-                        gap-2
-                      ">
-
-                        <button
-                          onClick={() =>
-                            abrirEdicion(
-                              empresa
-                            )
-                          }
-                          className="
-                            p-2
-                            rounded-lg
-                            bg-blue-500/10
-                            text-blue-400
-                          "
-                        >
-
-                          <Pencil size={16} />
-
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            eliminarEmpresa(
-                              empresa.id,
-                              empresa.activa
-                            )
-                          }
-                          className="
-                            p-2
-                            rounded-lg
-                            bg-red-500/10
-                            text-red-400
-                          "
-                        >
-
-                          <Trash2 size={16} />
-
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  )}
-
-                </tr>
-
-              )
-            )}
+            ))}
 
           </tbody>
 
@@ -808,7 +844,9 @@ export default function EmpresasPage() {
                   e.target.value
                 )
               }
-              placeholder="Tarifa por hora"
+              placeholder="
+                Tarifa por hora
+              "
               className="
                 w-full
                 bg-zinc-800
@@ -852,7 +890,9 @@ export default function EmpresasPage() {
 
               <input
                 type="checkbox"
-                checked={permiteAcumulado}
+                checked={
+                  permiteAcumulado
+                }
                 onChange={(e) =>
                   setPermiteAcumulado(
                     e.target.checked
@@ -875,6 +915,7 @@ export default function EmpresasPage() {
                   limpiarFormulario()
 
                   setOpen(false)
+
                 }}
                 className="
                   flex-1

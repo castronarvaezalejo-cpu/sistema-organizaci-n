@@ -6,6 +6,7 @@ from "react"
 import {
   Plus,
   CalendarDays,
+  Pencil,
 } from "lucide-react"
 
 import { supabase }
@@ -55,6 +56,16 @@ const [lugar, setLugar] =
     observaciones,
     setObservaciones,
   ] = useState("")
+
+  const [
+  editandoId,
+  setEditandoId,
+] = useState("")
+
+const [
+  modoEdicion,
+  setModoEdicion,
+] = useState(false)
 
   useEffect(() => {
 
@@ -193,6 +204,54 @@ setObservaciones("")
     obtenerCapacitaciones()
   }
 
+
+  async function actualizarCapacitacion() {
+
+  const { error } =
+    await supabase
+      .from("capacitaciones")
+      .update({
+
+        empresa_id:
+          empresaId,
+
+        responsable_id:
+          responsableId || null,
+
+        tipo,
+
+        fecha,
+
+        hora,
+
+        lugar,
+
+        observaciones,
+      })
+      .eq(
+        "id",
+        editandoId
+      )
+
+  if (error) {
+
+    console.log(error)
+
+    alert(
+      "Error actualizando"
+    )
+
+    return
+  }
+
+  alert(
+    "Capacitación actualizada"
+  )
+
+  limpiarFormulario()
+
+  obtenerCapacitaciones()
+}
   async function completarCapacitacion(
     id: string
   ) {
@@ -208,6 +267,60 @@ setObservaciones("")
     obtenerCapacitaciones()
   }
 
+
+  function editarCapacitacion(
+  capacitacion: any
+) {
+
+  setModoEdicion(true)
+
+  setEditandoId(
+    capacitacion.id
+  )
+
+  setEmpresaId(
+    capacitacion.empresa_id
+  )
+
+  setResponsableId(
+    capacitacion.responsable_id || ""
+  )
+
+  setTipo(
+    capacitacion.tipo || ""
+  )
+
+  setFecha(
+    capacitacion.fecha || ""
+  )
+
+  setHora(
+    capacitacion.hora || ""
+  )
+
+  setLugar(
+    capacitacion.lugar || ""
+  )
+
+  setObservaciones(
+    capacitacion.observaciones || ""
+  )
+}
+
+function limpiarFormulario() {
+
+  setEmpresaId("")
+  setResponsableId("")
+  setTipo("")
+  setFecha("")
+  setHora("")
+  setLugar("")
+  setObservaciones("")
+
+  setModoEdicion(false)
+
+  setEditandoId("")
+}
   function estadoColor(
     estado: string
   ) {
@@ -491,7 +604,11 @@ setObservaciones("")
       {/* BOTON */}
 
       <button
-        onClick={crearCapacitacion}
+        onClick={
+  modoEdicion
+    ? actualizarCapacitacion
+    : crearCapacitacion
+}
         className="
           flex
           items-center
@@ -509,7 +626,9 @@ setObservaciones("")
 
         <Plus size={18} />
 
-        Programar capacitación
+        {modoEdicion
+  ? "Actualizar capacitación"
+  : "Programar capacitación"}
 
       </button>
 
@@ -659,33 +778,63 @@ setObservaciones("")
 
                 </td>
 
-                <td className="p-5">
+               <td className="p-5">
 
-                  {capacitacion.estado !==
-                    "realizada" && (
+  <div className="
+    flex
+    items-center
+    gap-2
+  ">
 
-                    <button
-                      onClick={() =>
-                        completarCapacitacion(
-                          capacitacion.id
-                        )
-                      }
-                      className="
-                        bg-green-500/20
-                        text-green-400
-                        px-4
-                        py-2
-                        rounded-xl
-                      "
-                    >
+    {/* EDITAR */}
 
-                      Completar
+    <button
+      onClick={() =>
+        editarCapacitacion(
+          capacitacion
+        )
+      }
+      className="
+        bg-blue-500/20
+        text-blue-400
+        p-2
+        rounded-xl
+      "
+    >
 
-                    </button>
+      <Pencil size={16} />
 
-                  )}
+    </button>
 
-                </td>
+    {/* COMPLETAR */}
+
+    {capacitacion.estado !==
+      "realizada" && (
+
+      <button
+        onClick={() =>
+          completarCapacitacion(
+            capacitacion.id
+          )
+        }
+        className="
+          bg-green-500/20
+          text-green-400
+          px-4
+          py-2
+          rounded-xl
+        "
+      >
+
+        Completar
+
+      </button>
+
+    )}
+
+  </div>
+
+</td>
 
               </tr>
             ))}

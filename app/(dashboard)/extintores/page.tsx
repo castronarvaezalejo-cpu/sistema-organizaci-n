@@ -6,6 +6,7 @@ from "next/navigation";
 import {
   ChevronDown,
   ChevronRight,
+  Search,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -126,6 +127,11 @@ export default function ExtintoresPage() {
     Record<string, boolean>
   >({});
 
+  const [
+  busquedaEmpresa,
+  setBusquedaEmpresa,
+] = useState("");
+
   // CARGAR EXTINTORES
 
   async function cargarExtintores() {
@@ -226,30 +232,33 @@ export default function ExtintoresPage() {
 
   // AGRUPAR
 
-  const agrupados =
-    extintores.reduce(
+const agrupados =
+  extintores
+    .filter((extintor) =>
+      extintor.empresas?.nombre
+        ?.toLowerCase()
+        .includes(
+          busquedaEmpresa.toLowerCase()
+        )
+    )
+    .reduce(
       (acc: any, extintor) => {
 
         const nombre =
-          extintor.empresas
-            ?.nombre ||
+          extintor.empresas?.nombre ||
           "Sin empresa";
 
         if (!acc[nombre]) {
-
           acc[nombre] = [];
         }
 
-        acc[nombre].push(
-          extintor
-        );
+        acc[nombre].push(extintor);
 
         return acc;
 
       },
       {}
     );
-
   // ABRIR / CERRAR
 
   function toggleEmpresa(
@@ -347,6 +356,42 @@ export default function ExtintoresPage() {
         </Link>
 
       </div>
+
+      <div className="relative mb-8 w-full md:w-96">
+
+  <Search
+    size={20}
+    className="
+      absolute
+      left-4
+      top-1/2
+      -translate-y-1/2
+      text-zinc-500
+    "
+  />
+
+  <input
+    type="text"
+    placeholder="Buscar empresa..."
+    value={busquedaEmpresa}
+    onChange={(e) =>
+      setBusquedaEmpresa(e.target.value)
+    }
+    className="
+      w-full
+      bg-zinc-900
+      border
+      border-zinc-800
+      rounded-2xl
+      py-3
+      pl-12
+      pr-4
+      outline-none
+      focus:border-blue-500
+    "
+  />
+
+</div>
 
       {/* EMPRESAS */}
 

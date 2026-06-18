@@ -1,258 +1,326 @@
-"use client";
+  "use client";
 
-import { useState } from "react";
+  import { useEffect, useState } from "react";
 
-import { useRouter } from "next/navigation";
+  import { useRouter } from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
+  import { supabase } from "@/lib/supabase";
 
-export default function NuevoExtintorPage() {
+  
 
-  const router = useRouter();
+  export default function NuevoExtintorPage() {
 
-  const [codigo, setCodigo] =
+    const router = useRouter();
+
+    const [codigo, setCodigo] =
+      useState("");
+
+  const [empresaId, setEmpresaId] =
     useState("");
 
-  const [empresa, setEmpresa] =
-    useState("");
+  const [empresas, setEmpresas] =
+    useState<any[]>([]);
 
-  const [ubicacion, setUbicacion] =
-    useState("");
+    const [ubicacion, setUbicacion] =
+      useState("");
 
-  const [tipo, setTipo] =
-    useState("");
+    const [tipo, setTipo] =
+      useState("");
 
-  const [capacidad, setCapacidad] =
-    useState("");
+    const [capacidad, setCapacidad] =
+      useState("");
 
-  const [fechaRecarga,
-    setFechaRecarga] = useState("");
+    const [fechaRecarga,
+      setFechaRecarga] = useState("");
 
-  const [fechaHidrostatica,
-    setFechaHidrostatica] =
-    useState("");
 
-  const [loading, setLoading] =
-    useState(false);
+    const [loading, setLoading] =
+      useState(false);
 
-  async function crearExtintor(
-    e: React.FormEvent
-  ) {
+      useEffect(() => {
+    cargarEmpresas();
 
-    e.preventDefault();
+  }, []);
 
-    setLoading(true);
+  async function cargarEmpresas() {
 
-    const { error } = await supabase
-      .from("extintores")
-      .insert([
-        {
-          codigo,
-          empresa,
-          ubicacion,
-          tipo,
-          capacidad,
-          fecha_recarga: fechaRecarga,
-          fecha_hidrostatica:
-            fechaHidrostatica,
-        },
-      ]);
+    const { data } = await supabase
+      .from("empresas")
+      .select("id, nombre")
+      .eq("activa", true)
+      .order("nombre");
 
-    setLoading(false);
-
-    if (error) {
-
-      console.log(error);
-
-      alert(
-        "Error creando extintor"
-      );
-
-      return;
+    if (data) {
+      setEmpresas(data);
     }
 
-    router.push("/extintores");
-
-    router.refresh();
   }
 
-  return (
+    async function crearExtintor(
+      e: React.FormEvent
+    ) {
 
-    <div className="max-w-3xl">
+      e.preventDefault();
 
-      <h1 className="
-        text-3xl
-        font-bold
-        mb-8
-      ">
-        Nuevo Extintor
-      </h1>
+      setLoading(true);
 
-      <form
-        onSubmit={crearExtintor}
-        className="
-          bg-zinc-900
-          border
-          border-zinc-800
-          rounded-2xl
-          p-8
-          space-y-6
-        "
-      >
+      const { error } = await supabase
+        .from("extintores")
+        .insert([
+          {
+            codigo,
+            empresa_id: empresaId,
+            ubicacion,
+            tipo,
+            capacidad,
+            fecha_recarga: fechaRecarga,
 
-        <Input
-          label="Código"
-          value={codigo}
-          onChange={setCodigo}
-        />
+          },
+        ]);
 
-        <Input
-          label="Empresa"
-          value={empresa}
-          onChange={setEmpresa}
-        />
+      setLoading(false);
 
-        <Input
-          label="Ubicación"
-          value={ubicacion}
-          onChange={setUbicacion}
-        />
+      if (error) {
 
-        <Input
-          label="Tipo"
-          value={tipo}
-          onChange={setTipo}
-        />
+        console.log(error);
 
-        <Input
-          label="Capacidad"
-          value={capacidad}
-          onChange={setCapacidad}
-        />
+        alert(
+          "Error creando extintor"
+        );
 
-        <DateInput
-          label="Fecha de recarga"
-          value={fechaRecarga}
-          onChange={setFechaRecarga}
-        />
+        return;
+      }
 
-        <DateInput
-          label="Fecha hidrostática"
-          value={fechaHidrostatica}
-          onChange={
-            setFechaHidrostatica
-          }
-        />
+      router.push("/extintores");
 
-        <button
-          type="submit"
-          disabled={loading}
+      router.refresh();
+    }
+
+    return (
+
+      <div className="max-w-3xl">
+
+        <h1 className="
+          text-3xl
+          font-bold
+          mb-8
+        ">
+          Nuevo Extintor
+        </h1>
+
+        <form
+          onSubmit={crearExtintor}
           className="
-            bg-blue-600
-            hover:bg-blue-700
-            transition
-            px-6
-            py-3
-            rounded-xl
-            font-semibold
+            bg-zinc-900
+            border
+            border-zinc-800
+            rounded-2xl
+            p-8
+            space-y-6
           "
         >
 
-          {loading
-            ? "Guardando..."
-            : "Guardar Extintor"}
+          <Input
+            label="Código"
+            value={codigo}
+            onChange={setCodigo}
+          />
 
-        </button>
+          <div className="space-y-2">
 
-      </form>
+    <label className="text-sm text-zinc-400">
+      Empresa
+    </label>
 
-    </div>
-  );
-}
+    <select
+      value={empresaId}
+      onChange={(e) =>
+        setEmpresaId(e.target.value)
+      }
+      className="
+        w-full
+        bg-black
+        border
+        border-zinc-800
+        rounded-xl
+        px-4
+        py-3
+        outline-none
+        focus:border-blue-500
+      "
+    >
 
-function Input({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
+      <option value="">
+        Seleccione una empresa
+      </option>
 
-  return (
+      {empresas.map((empresa) => (
 
-    <div className="space-y-2">
+        <option
+          key={empresa.id}
+          value={empresa.id}
+        >
+          {empresa.nombre}
+        </option>
 
-      <label className="
-        text-sm
-        text-zinc-400
-      ">
-        {label}
-      </label>
+      ))}
 
-      <input
-        value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
-        className="
-          w-full
-          bg-black
-          border
-          border-zinc-800
-          rounded-xl
-          px-4
-          py-3
-          outline-none
-          focus:border-blue-500
-        "
-      />
+    </select>
 
-    </div>
-  );
-}
+  </div>
 
-function DateInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
+          <Input
+            label="Ubicación"
+            value={ubicacion}
+            onChange={setUbicacion}
+          />
 
-  return (
+          <Input
+            label="Tipo"
+            value={tipo}
+            onChange={setTipo}
+          />
 
-    <div className="space-y-2">
+          <Input
+            label="Capacidad"
+            value={capacidad}
+            onChange={setCapacidad}
+          />
 
-      <label className="
-        text-sm
-        text-zinc-400
-      ">
-        {label}
-      </label>
+          <DateInput
+            label="Fecha de recarga"
+            value={fechaRecarga}
+            onChange={setFechaRecarga}
+          />
 
-      <input
-        type="date"
-        value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
-        className="
-          w-full
-          bg-black
-          border
-          border-zinc-800
-          rounded-xl
-          px-4
-          py-3
-          outline-none
-          focus:border-blue-500
-        "
-      />
 
-    </div>
-  );
-}
+          <div className="flex gap-4">
+
+  <button
+    type="submit"
+    disabled={loading}
+    className="
+      bg-blue-600
+      hover:bg-blue-700
+      transition
+      px-6
+      py-3
+      rounded-xl
+      font-semibold
+    "
+  >
+    {loading
+      ? "Guardando..."
+      : "Guardar Extintor"}
+  </button>
+
+  <button
+    type="button"
+    onClick={() => router.push("/extintores")}
+    className="
+      bg-zinc-700
+      hover:bg-zinc-600
+      transition
+      px-6
+      py-3
+      rounded-xl
+      font-semibold
+    "
+  >
+    Cancelar
+  </button>
+
+</div>
+
+        </form>
+
+      </div>
+    );
+  }
+
+  function Input({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+  }) {
+
+    return (
+
+      <div className="space-y-2">
+
+        <label className="
+          text-sm
+          text-zinc-400
+        ">
+          {label}
+        </label>
+
+        <input
+          value={value}
+          onChange={(e) =>
+            onChange(e.target.value)
+          }
+          className="
+            w-full
+            bg-black
+            border
+            border-zinc-800
+            rounded-xl
+            px-4
+            py-3
+            outline-none
+            focus:border-blue-500
+          "
+        />
+
+      </div>
+    );
+  }
+
+  function DateInput({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+  }) {
+
+    return (
+
+      <div className="space-y-2">
+
+        <label className="
+          text-sm
+          text-zinc-400
+        ">
+          {label}
+        </label>
+
+        <input
+          type="date"
+          value={value}
+          onChange={(e) =>
+            onChange(e.target.value)
+          }
+          className="
+            w-full
+            bg-black
+            border
+            border-zinc-800
+            rounded-xl
+            px-4
+            py-3
+            outline-none
+            focus:border-blue-500
+          "
+        />
+
+      </div>
+    );
+  }

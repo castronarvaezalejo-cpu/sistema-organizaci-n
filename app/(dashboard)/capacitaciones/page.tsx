@@ -7,6 +7,7 @@ import {
   Plus,
   CalendarDays,
   Pencil,
+  Trash2,
 } from "lucide-react"
 
 import { supabase }
@@ -321,6 +322,38 @@ function limpiarFormulario() {
 
   setEditandoId("")
 }
+async function eliminarCapacitacion(id: string) {
+
+  const confirmar = window.confirm(
+    "¿Deseas eliminar esta capacitación?"
+  )
+
+  if (!confirmar) return
+
+  const { error } = await supabase
+    .from("capacitaciones")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+
+    console.error(error)
+
+    alert("No fue posible eliminar la capacitación.")
+
+    return
+
+  }
+
+  if (editandoId === id) {
+
+    limpiarFormulario()
+
+  }
+
+  obtenerCapacitaciones()
+
+}
   function estadoColor(
     estado: string
   ) {
@@ -601,36 +634,60 @@ function limpiarFormulario() {
 
       </div>
 
-      {/* BOTON */}
+{/* BOTONES */}
 
-      <button
-        onClick={
-  modoEdicion
-    ? actualizarCapacitacion
-    : crearCapacitacion
-}
-        className="
-          flex
-          items-center
-          gap-2
-          bg-blue-600
-          hover:bg-blue-700
-          transition
-          px-6
-          py-4
-          rounded-2xl
-          font-medium
-          mb-10
-        "
-      >
+<div className="flex gap-3 mb-10">
 
-        <Plus size={18} />
+  <button
+    onClick={
+      modoEdicion
+        ? actualizarCapacitacion
+        : crearCapacitacion
+    }
+    className="
+      flex
+      items-center
+      gap-2
+      bg-blue-600
+      hover:bg-blue-700
+      transition
+      px-6
+      py-4
+      rounded-2xl
+      font-medium
+    "
+  >
 
-        {modoEdicion
-  ? "Actualizar capacitación"
-  : "Programar capacitación"}
+    <Plus size={18} />
 
-      </button>
+    {modoEdicion
+      ? "Actualizar capacitación"
+      : "Programar capacitación"}
+
+  </button>
+
+  {modoEdicion && (
+
+    <button
+      onClick={limpiarFormulario}
+      className="
+        bg-zinc-700
+        hover:bg-zinc-600
+        transition
+        px-6
+        py-4
+        rounded-2xl
+        font-medium
+      "
+    >
+
+      Cancelar
+
+    </button>
+
+  )}
+
+</div>
 
       {/* TABLA */}
 
@@ -778,38 +835,47 @@ function limpiarFormulario() {
 
                 </td>
 
-               <td className="p-5">
+ <td className="p-5">
 
-  <div className="
-    flex
-    items-center
-    gap-2
-  ">
+  <div className="flex items-center gap-2">
 
     {/* EDITAR */}
 
     <button
-      onClick={() =>
-        editarCapacitacion(
-          capacitacion
-        )
-      }
+      onClick={() => editarCapacitacion(capacitacion)}
       className="
-        bg-blue-500/20
-        text-blue-400
         p-2
-        rounded-xl
+        rounded-lg
+        bg-blue-500/10
+        text-blue-400
+        hover:bg-blue-500/20
+        transition
       "
     >
-
       <Pencil size={16} />
+    </button>
 
+    {/* ELIMINAR */}
+
+    <button
+      onClick={() =>
+        eliminarCapacitacion(capacitacion.id)
+      }
+      className="
+        p-2
+        rounded-lg
+        bg-red-500/10
+        text-red-400
+        hover:bg-red-500/20
+        transition
+      "
+    >
+      <Trash2 size={16} />
     </button>
 
     {/* COMPLETAR */}
 
-    {capacitacion.estado !==
-      "realizada" && (
+    {capacitacion.estado !== "realizada" && (
 
       <button
         onClick={() =>
@@ -825,9 +891,7 @@ function limpiarFormulario() {
           rounded-xl
         "
       >
-
         Completar
-
       </button>
 
     )}

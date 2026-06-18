@@ -6,8 +6,11 @@ from "react";
 import { supabase }
 from "@/lib/supabase";
 
-import { Plus }
-from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 export default function HorasPage() {
 
@@ -64,6 +67,16 @@ export default function HorasPage() {
     usuario,
     setUsuario,
   ] = useState<any>(null);
+
+  const [
+  editandoId,
+  setEditandoId,
+] = useState<string | null>(null);
+
+const [
+  editando,
+  setEditando,
+] = useState(false);
 
   useEffect(() => {
 
@@ -150,7 +163,88 @@ const {
 
     obtenerRegistros();
   }
+function editarRegistro(registro: any) {
 
+  setEditando(true);
+
+  setEditandoId(registro.id);
+
+  setColaboradorId(registro.asesor_id);
+
+  setEmpresaId(registro.empresa_id);
+
+  setHoras(String(registro.horas));
+
+  setActividad(registro.actividad || "");
+
+  setTipo(registro.tipo || "");
+
+  setFecha(registro.fecha);
+
+}
+
+function limpiarFormulario() {
+
+  setHoras("");
+
+  setActividad("");
+
+  setTipo("");
+
+  setEmpresaId("");
+
+  setEditando(false);
+
+  setEditandoId(null);
+
+  setFecha(
+    new Date()
+      .toISOString()
+      .split("T")[0]
+  );
+
+  if (usuario) {
+
+    setColaboradorId(
+      usuario.id
+    );
+
+  }
+
+}
+
+async function eliminarRegistro(id: string) {
+
+  const confirmar = window.confirm(
+    "¿Deseas eliminar este registro de horas?"
+  );
+
+  if (!confirmar) return;
+
+  const { error } = await supabase
+    .from("horas_trabajo")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    alert("No fue posible eliminar el registro.");
+
+    return;
+
+  }
+
+  if (editandoId === id) {
+
+    limpiarFormulario();
+
+  }
+
+  obtenerRegistros();
+
+}
   async function obtenerRegistros() {
 
     const {
@@ -198,47 +292,96 @@ const {
     // BUSCAR TARIFA
     // ===================================
 
-    const {
-      data: empresa,
-    } = await supabase
-      .from("empresas")
-      .select("tarifa_hora")
-      .eq("id", empresaId)
-      .single();
+const {
+  data: empresa,
+} = await supabase
+  .from("empresas")
+  .select(`
+    tarifa_hora,
+    horas_contratadas
+  `)
+  .eq("id", empresaId)
+  .single();
 
-    const totalFacturado =
-      Number(horas) *
-      Number(
-        empresa?.tarifa_hora || 0
-      );
+const tarifaMensual =
+  Number(
+    empresa?.tarifa_hora || 0
+  );
 
-    // ===================================
-    // GUARDAR EN HORAS
-    // ===================================
+const horasContratadas =
+  Number(
+    empresa?.horas_contratadas || 1
+  );
 
-    const {
-      error,
-    } = await supabase
-      .from("horas_trabajo")
-      .insert([
+const valorHora =
+  tarifaMensual /
+  horasContratadas;
 
-        {
-          asesor_id:
-            colaboradorId,
+const totalFacturado =
+  valorHora *
+  Number(horas);
 
-          empresa_id:
-            empresaId,
+// ===================================
+// GUARDAR / ACTUALIZAR EN HORAS
+// ===================================
 
-          fecha,
+let horaCreada = null;
+let error = null;
 
-          horas:
-            Number(horas),
+if (editando) {
 
-          actividad,
+  const respuesta = await supabase
+    .from("horas_trabajo")
+    .update({
 
-          tipo,
-        },
-      ]);
+      asesor_id: colaboradorId,
+
+      empresa_id: empresaId,
+
+      fecha,
+
+      horas: Number(horas),
+
+      actividad,
+
+      tipo,
+
+    })
+    .eq("id", editandoId)
+    .select()
+    .single();
+
+  horaCreada = respuesta.data;
+  error = respuesta.error;
+
+} else {
+
+  const respuesta = await supabase
+    .from("horas_trabajo")
+    .insert([
+      {
+
+        asesor_id: colaboradorId,
+
+        empresa_id: empresaId,
+
+        fecha,
+
+        horas: Number(horas),
+
+        actividad,
+
+        tipo,
+
+      },
+    ])
+    .select()
+    .single();
+
+  horaCreada = respuesta.data;
+  error = respuesta.error;
+
+}
 
 if (error) {
 
@@ -251,37 +394,62 @@ if (error) {
   return;
 }
 
-    // ===================================
-    // GUARDAR EN ACTIVIDADES
-    // ===================================
+  // ===================================
+// GUARDAR / ACTUALIZAR ACTIVIDAD
+// ===================================
 
-    const {
-      error: errorActividad,
-    } = await supabase
-      .from(
-        "actividades_realizadas"
-      )
-      .insert([
+let errorActividad = null;
 
-        {
-          colaborador_id:
-            colaboradorId,
+if (editando) {
 
-          empresa_id:
-            empresaId,
+  const respuestaActividad = await supabase
+    .from("actividades_realizadas")
+    .update({
 
-          descripcion:
-            actividad,
+      colaborador_id: colaboradorId,
 
-          horas:
-            Number(horas),
+      empresa_id: empresaId,
 
-          fecha,
+      descripcion: actividad,
 
-          total_facturado:
-            totalFacturado,
-        },
-      ]);
+      horas: Number(horas),
+
+      fecha,
+
+      total_facturado: totalFacturado,
+
+    })
+    .eq("horas_trabajo_id", editandoId);
+
+  errorActividad = respuestaActividad.error;
+
+} else {
+
+  const respuestaActividad = await supabase
+    .from("actividades_realizadas")
+    .insert([
+      {
+
+        colaborador_id: colaboradorId,
+
+        empresa_id: empresaId,
+
+        descripcion: actividad,
+
+        horas: Number(horas),
+
+        fecha,
+
+        horas_trabajo_id: horaCreada.id,
+
+        total_facturado: totalFacturado,
+
+      },
+    ]);
+
+  errorActividad = respuestaActividad.error;
+
+}
 
     if (errorActividad) {
 
@@ -290,15 +458,17 @@ if (error) {
       );
     }
 
-    alert(
-      "Horas registradas"
-    );
+alert(
 
-    setHoras("");
-    setActividad("");
-    setTipo("");
+  editando
+    ? "Horas actualizadas"
+    : "Horas registradas"
 
-    obtenerRegistros();
+);
+
+limpiarFormulario();
+
+obtenerRegistros();
   }
 
   return (
@@ -513,55 +683,77 @@ if (error) {
           "
         />
 
-        {/* ACTIVIDAD */}
+<div className="md:col-span-2 xl:col-span-3">
 
-        <input
-          placeholder="
-            Descripción
-          "
-          value={actividad}
-          onChange={(e) =>
-            setActividad(
-              e.target.value
-            )
-          }
-          className="
-            bg-zinc-900
-            border
-            border-zinc-800
-            rounded-2xl
-            px-4
-            py-4
-            outline-none
-          "
-        />
+  <textarea
+    placeholder="Descripción detallada de la actividad"
+    value={actividad}
+    onChange={(e) => setActividad(e.target.value)}
+    rows={4}
+    className="
+      w-full
+      bg-zinc-900
+      border
+      border-zinc-800
+      rounded-2xl
+      px-4
+      py-4
+      outline-none
+      resize-none
+    "
+  />
+
+</div>
 
       </div>
 
       {/* BUTTON */}
 
-      <button
-        onClick={guardarHoras}
-        className="
-          flex
-          items-center
-          gap-2
-          bg-blue-600
-          hover:bg-blue-700
-          transition
-          px-6
-          py-4
-          rounded-2xl
-          font-medium
-          mb-10
-        "
-      >
+      <div className="flex gap-3 mb-10">
 
-        <Plus size={18} />
+  <button
+    onClick={guardarHoras}
+    className="
+      flex
+      items-center
+      gap-2
+      bg-blue-600
+      hover:bg-blue-700
+      transition
+      px-6
+      py-4
+      rounded-2xl
+      font-medium
+    "
+  >
 
-        Registrar Horas
+    <Plus size={18} />
 
-      </button>
+    {editando
+      ? "Actualizar Horas"
+      : "Registrar Horas"}
+
+  </button>
+
+  {editando && (
+
+    <button
+      onClick={limpiarFormulario}
+      className="
+        bg-zinc-700
+        hover:bg-zinc-600
+        transition
+        px-6
+        py-4
+        rounded-2xl
+      "
+    >
+      Cancelar
+    </button>
+
+  )}
+
+</div>
 
       {/* TABLA */}
 
@@ -604,6 +796,10 @@ if (error) {
               <th className="p-5 text-left">
                 Tipo
               </th>
+
+              <th className="p-5 text-left">
+  Acción
+</th>
 
             </tr>
 
@@ -664,6 +860,50 @@ if (error) {
 
                 </td>
 
+
+<td className="p-5">
+
+  <div className="flex gap-2">
+
+<button
+  onClick={() =>
+    editarRegistro(registro)
+  }
+  className="
+    p-2
+    rounded-lg
+    bg-blue-500/10
+    text-blue-400
+    hover:bg-blue-500/20
+    transition
+  "
+>
+
+  <Pencil size={16} />
+
+</button>
+
+<button
+  onClick={() =>
+    eliminarRegistro(registro.id)
+  }
+  className="
+    p-2
+    rounded-lg
+    bg-red-500/10
+    text-red-400
+    hover:bg-red-500/20
+    transition
+  "
+>
+
+  <Trash2 size={16} />
+
+</button>
+
+  </div>
+
+</td>
               </tr>
             ))}
 

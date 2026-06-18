@@ -153,13 +153,15 @@ export default function ActividadesPage() {
 
     // OBTENER TARIFA
 
-    const { data: empresaData } =
-      await supabase
-        .from("empresas")
-        .select("tarifa_hora")
-        .eq("id", empresaId)
-        .single()
-
+const { data: empresaData } =
+  await supabase
+    .from("empresas")
+    .select(`
+      tarifa_hora,
+      horas_contratadas
+    `)
+    .eq("id", empresaId)
+    .single()
     if (!empresaData) {
 
       alert("Empresa no encontrada")
@@ -169,13 +171,23 @@ export default function ActividadesPage() {
 
     // CALCULAR FACTURACIÓN
 
-    const tarifaHora =
-      Number(
-        empresaData.tarifa_hora || 0
-      )
+const tarifaMensual =
+  Number(
+    empresaData.tarifa_hora || 0
+  )
 
-    const totalFacturado =
-      Number(horas) * tarifaHora
+const horasContratadas =
+  Number(
+    empresaData.horas_contratadas || 1
+  )
+
+const valorHora =
+  tarifaMensual /
+  horasContratadas
+
+const totalFacturado =
+  valorHora *
+  Number(horas)
 
     // INSERTAR
 
@@ -238,31 +250,78 @@ export default function ActividadesPage() {
   // ELIMINAR
   // =========================================
 
-  async function eliminarActividad(
-    id: string
-  ) {
+async function eliminarActividad(
+  id: string
+) {
 
-    const confirmar = confirm(
-      "¿Eliminar actividad?"
-    )
+  const confirmar = window.confirm(
+    "¿Eliminar actividad?"
+  )
 
-    if (!confirmar) return
+  if (!confirmar) return
 
-    const { error } =
-      await supabase
-        .from("actividades_realizadas")
-        .delete()
-        .eq("id", id)
+  // Buscar el registro para obtener horas_trabajo_id
+
+  const {
+    data: actividad,
+    error: errorBuscar,
+  } = await supabase
+    .from("actividades_realizadas")
+    .select("horas_trabajo_id")
+    .eq("id", id)
+    .single()
+
+  if (errorBuscar) {
+
+    console.error(errorBuscar)
+
+    return
+
+  }
+
+  // Si proviene del módulo Horas,
+  // eliminar desde horas_trabajo
+
+  if (actividad?.horas_trabajo_id) {
+
+    const { error } = await supabase
+      .from("horas_trabajo")
+      .delete()
+      .eq(
+        "id",
+        actividad.horas_trabajo_id
+      )
 
     if (error) {
 
       console.error(error)
 
       return
+
     }
 
-    obtenerActividades()
+  } else {
+
+    // Actividad creada manualmente
+
+    const { error } = await supabase
+      .from("actividades_realizadas")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+
+      console.error(error)
+
+      return
+
+    }
+
   }
+
+  obtenerActividades()
+
+}
 
   // =========================================
   // USE EFFECT

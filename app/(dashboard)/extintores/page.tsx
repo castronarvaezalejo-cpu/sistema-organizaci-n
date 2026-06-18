@@ -24,7 +24,6 @@ type Extintor = {
   tipo: string;
   capacidad: string;
   fecha_recarga: string;
-  fecha_hidrostatica: string;
   empresa_id: string;
 
   empresas?: {
@@ -542,19 +541,6 @@ export default function ExtintoresPage() {
 
                                 {
                                   extintor.fecha_recarga
-                                }
-                              </p>
-
-                              <p>
-                                <span className="
-                                  font-semibold
-                                  text-white
-                                ">
-                                  Hidrostática:
-                                </span>{" "}
-
-                                {
-                                  extintor.fecha_hidrostatica
                                 }
                               </p>
 

@@ -129,6 +129,25 @@ export default function ReportesPage() {
         empresa.id === empresaSeleccionada
     )?.nombre || "Todas-las-Empresas"
 
+
+    const totalFacturado = actividades.reduce(
+  (acc, actividad) => acc + Number(actividad.total_facturado || 0),
+  0
+)
+
+const colaboradoresUnicos = new Set(
+  actividades.map(a => a.colaboradores?.nombre)
+).size
+
+const fechaGeneracion = new Date().toLocaleString("es-CO")
+
+const periodoTexto = new Date(
+  `${mesSeleccionado}-01`
+).toLocaleDateString("es-CO", {
+  month: "long",
+  year: "numeric",
+})
+
   // EXPORTAR PDF
 
   async function exportarPDF() {
@@ -160,52 +179,140 @@ export default function ReportesPage() {
           "JPEG",
           14,
           10,
-          55,
-          22
+          65,
+          26
         )
 
         // TITULO
 
-        doc.setFontSize(22)
+doc.setFont("helvetica", "bold")
+doc.setFontSize(22)
 
-        doc.text(
-          "Reporte Operativo",
-          14,
-          45
-        )
+doc.text(
+  "REPORTE OPERATIVO MENSUAL",
+  105,
+  48,
+  { align: "center" }
+)
 
-        doc.setFontSize(12)
+doc.setFontSize(12)
 
-        doc.text(
-          `Mes: ${mesSeleccionado}`,
-          14,
-          55
-        )
+doc.setFont("helvetica", "normal")
 
-        doc.text(
-          `Empresa: ${nombreEmpresa}`,
-          14,
-          63
-        )
+doc.setFont("helvetica","bold")
+doc.setFontSize(11)
 
-        doc.text(
-          `Total Horas: ${totalHoras}h`,
-          14,
-          71
-        )
+doc.text(
+"Empresa",
+14,
+60
+)
+
+doc.text(
+"Período",
+14,
+78
+)
+
+doc.text(
+"Fecha de generación",
+14,
+96
+)
+
+doc.setFont("helvetica","normal")
+
+doc.setFontSize(12)
+
+doc.text(
+nombreEmpresa,
+14,
+67
+)
+
+doc.text(
+periodoTexto.charAt(0).toUpperCase() +
+periodoTexto.slice(1),
+14,
+85
+)
+
+doc.text(
+new Date().toLocaleDateString(
+"es-CO",
+{
+day:"numeric",
+month:"long",
+year:"numeric"
+}
+),
+14,
+103
+)
+
+doc.setDrawColor(40)
+
+doc.line(14,112,196,112)
+
+
 
         // TABLA
 
+        doc.setFillColor(240,245,255)
+
+doc.roundedRect(
+14,
+118,
+182,
+26,
+2,
+2,
+"F"
+)
+
+doc.setFont("helvetica","bold")
+doc.setFontSize(12)
+
+doc.text(
+"Resumen Ejecutivo",
+18,
+126
+)
+
+doc.setFont("helvetica","normal")
+doc.setFontSize(10)
+
+doc.text(
+`Actividades: ${actividades.length}`,
+18,
+134
+)
+
+doc.text(
+`Colaboradores: ${colaboradoresUnicos}`,
+80,
+104
+)
+
+doc.text(
+`Horas: ${totalHoras} h`,
+18,
+141
+)
+
+doc.text(
+`Facturación: $${totalFacturado.toLocaleString("es-CO")}`,
+80,
+111
+)
         autoTable(doc, {
 
-          startY: 82,
+          startY: 150,
 
           head: [[
             "Fecha",
             "Colaborador",
-            "Empresa",
             "Actividad",
-            "Tarea",
             "Horas",
           ]],
 
@@ -216,11 +323,7 @@ export default function ReportesPage() {
 
               actividad.colaboradores?.nombre || "-",
 
-              actividad.empresas?.nombre || "-",
-
               actividad.descripcion,
-
-              actividad.tareas?.titulo || "-",
 
               `${actividad.horas}h`,
             ]
@@ -245,10 +348,81 @@ export default function ReportesPage() {
           alternateRowStyles: {
             fillColor: [18, 18, 30],
           },
+
+          columnStyles:{
+0:{cellWidth:22},
+
+1:{cellWidth:35},
+
+2:{cellWidth:115},
+
+3:{
+cellWidth:20,
+halign:"center"
+}
+},
         })
+
+const finalY =
+(doc as any).lastAutoTable.finalY
+
+doc.setDrawColor(180)
+
+doc.line(
+14,
+finalY+10,
+196,
+finalY+10
+)
+
+doc.setFontSize(9)
+
+doc.setTextColor(120)
+
+doc.text(
+"Documento generado automáticamente por SEITON Soluciones Empresariales",
+14,
+finalY+18
+)
+
+doc.text(
+new Date().toLocaleDateString("es-CO"),
+196,
+finalY+18,
+{
+align:"right"
+}
+)
 
         // DESCARGAR
 
+        doc.setDrawColor(180)
+
+doc.line(
+14,
+finalY+42,
+196,
+finalY+42
+)
+
+doc.setFontSize(9)
+
+doc.setTextColor(120)
+
+doc.text(
+"Documento generado automáticamente por SEITON Soluciones Empresariales",
+14,
+finalY+50
+)
+
+doc.text(
+fechaGeneracion,
+196,
+finalY+50,
+{
+align:"right"
+}
+)
         doc.save(
           `Reporte-${nombreEmpresa}-${mesSeleccionado}.pdf`
         )
@@ -512,10 +686,6 @@ export default function ReportesPage() {
               </th>
 
               <th className="p-5 text-zinc-400">
-                Tarea
-              </th>
-
-              <th className="p-5 text-zinc-400">
                 Horas
               </th>
 
@@ -556,9 +726,6 @@ export default function ReportesPage() {
                   {actividad.descripcion}
                 </td>
 
-                <td className="p-5">
-                  {actividad.tareas?.titulo || "-"}
-                </td>
 
                 <td className="
                   p-5

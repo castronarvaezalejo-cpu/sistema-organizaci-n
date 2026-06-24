@@ -35,10 +35,25 @@ export default function EditarExtintorPage({
     setCodigo,
   ] = useState("");
 
-  const [
-    empresa,
-    setEmpresa,
-  ] = useState("");
+const [
+  empresaId,
+  setEmpresaId,
+] = useState("");
+
+const [
+  empresas,
+  setEmpresas,
+] = useState<any[]>([]);
+
+const [
+  responsableId,
+  setResponsableId,
+] = useState("");
+
+const [
+  colaboradores,
+  setColaboradores,
+] = useState<any[]>([]);
 
   const [
     ubicacion,
@@ -60,11 +75,46 @@ export default function EditarExtintorPage({
     setFechaRecarga,
   ] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
 
-    cargarExtintor();
+  cargarEmpresas();
 
-  }, []);
+  cargarColaboradores();
+
+  cargarExtintor();
+
+}, []);
+
+async function cargarEmpresas() {
+
+  const { data } = await supabase
+    .from("empresas")
+    .select("id, nombre")
+    .eq("activa", true)
+    .order("nombre");
+
+  if (data) {
+
+    setEmpresas(data);
+
+  }
+
+}
+
+async function cargarColaboradores() {
+
+  const { data } = await supabase
+    .from("colaboradores")
+    .select("id, nombre")
+    .order("nombre");
+
+  if (data) {
+
+    setColaboradores(data);
+
+  }
+
+}
 
   async function cargarExtintor() {
 
@@ -90,17 +140,25 @@ export default function EditarExtintorPage({
       return;
     }
 
-    setCodigo(
-      data.codigo || ""
-    );
+  setCodigo(
+  data.codigo || ""
+);
 
-    setEmpresa(
-      data.empresa || ""
-    );
+setEmpresaId(
+  data.empresa_id || ""
+);
 
-    setUbicacion(
-      data.ubicacion || ""
-    );
+setResponsableId(
+  data.responsable_id || ""
+);
+
+setResponsableId(
+  data.responsable_id || ""
+);
+
+setUbicacion(
+  data.ubicacion || ""
+);
 
     setTipo(
       data.tipo || ""
@@ -117,47 +175,253 @@ export default function EditarExtintorPage({
     setLoading(false);
   }
 
-  async function actualizarExtintor(
-    e: React.FormEvent
-  ) {
+async function crearEventoGoogleCalendar() {
 
-    e.preventDefault();
+  if (!responsableId) return null;
 
-    const { error } =
-      await supabase
-        .from("extintores")
-        .update({
+const empresaSeleccionada =
+  empresas.find(
+    (empresa) =>
+      empresa.id === empresaId
+  );
 
-          codigo,
+const {
+  data: { session },
+} = await supabase.auth.getSession();
 
-          empresa,
+if (!session) return null;
 
-          ubicacion,
+const fechaVencimiento =
+  new Date(fechaRecarga);
 
-          tipo,
+fechaVencimiento.setFullYear(
+  fechaVencimiento.getFullYear() + 1
+);
 
-          capacidad,
+const respuesta = await fetch(
+  "/api/google-calendar/event",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      colaboradorId: responsableId,
+      title: `🧯 Recarga Extintor ${codigo}`,
+      description:
+`Empresa: ${empresaSeleccionada?.nombre}
 
-          fecha_recarga:
-            fechaRecarga,
-        })
-        .eq("id", id);
+Ubicación: ${ubicacion}
 
-    if (error) {
+Tipo: ${tipo}
 
-      alert(
-        "Error actualizando"
-      );
+Capacidad: ${capacidad}`,
+      date:
+        fechaVencimiento
+          .toISOString()
+          .split("T")[0],
+    }),
+  }
+);
 
-      return;
-    }
+const google =
+  await respuesta.json();
 
-    router.push(
-      "/extintores"
+return google;
+
+}
+
+async function actualizarEventoGoogleCalendar(
+  eventId: string
+) {
+
+  if (!responsableId) return;
+
+  const empresaSeleccionada =
+    empresas.find(
+      (empresa) =>
+        empresa.id === empresaId
     );
 
-    router.refresh();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return;
+
+  const fechaVencimiento =
+    new Date(fechaRecarga);
+
+  fechaVencimiento.setFullYear(
+    fechaVencimiento.getFullYear() + 1
+  );
+
+  await fetch(
+    "/api/google-calendar/event",
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventId,
+        colaboradorId: responsableId,
+        title: `🧯 Recarga Extintor ${codigo}`,
+        description:
+`Empresa: ${empresaSeleccionada?.nombre}
+
+Ubicación: ${ubicacion}
+
+Tipo: ${tipo}
+
+Capacidad: ${capacidad}`,
+        date:
+          fechaVencimiento
+            .toISOString()
+            .split("T")[0],
+      }),
+    }
+  );
+
+}
+
+async function eliminarEventoGoogleCalendar(
+  eventId: string,
+  colaboradorId: string
+) {
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return;
+
+const respuesta = await fetch(
+  "/api/google-calendar/event/delete",
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      eventId,
+      colaboradorId,
+    }),
   }
+);
+
+console.log(
+  "ELIMINAR EVENTO GOOGLE:",
+  await respuesta.text()
+);;
+
+}
+
+async function actualizarExtintor(
+  e: React.FormEvent
+) {
+
+  e.preventDefault();
+
+  const {
+    data: extintorActual,
+    error,
+  } = await supabase
+    .from("extintores")
+    .select("google_calendar_event_id,responsable_id")
+    .eq("id", id)
+    .single();
+
+  if (error || !extintorActual) {
+    alert("No se pudo cargar el extintor.");
+    return;
+  }
+
+  let googleEventId =
+    extintorActual.google_calendar_event_id;
+
+  // ===============================
+  // MISMO RESPONSABLE
+  // ===============================
+
+  if (
+    extintorActual.responsable_id === responsableId
+  ) {
+
+    if (googleEventId) {
+
+      await actualizarEventoGoogleCalendar(
+        googleEventId
+      );
+
+    }
+
+  }
+
+  // ===============================
+  // CAMBIÓ EL RESPONSABLE
+  // ===============================
+
+  else {
+
+    if (googleEventId) {
+
+      await eliminarEventoGoogleCalendar(
+        googleEventId,
+        extintorActual.responsable_id
+      );
+
+    }
+
+    const google =
+      await crearEventoGoogleCalendar();
+
+    googleEventId =
+      google?.eventId ?? null;
+
+  }
+
+  const { error: updateError } =
+    await supabase
+      .from("extintores")
+      .update({
+
+        codigo,
+
+        empresa_id: empresaId,
+
+        responsable_id: responsableId,
+
+        ubicacion,
+
+        tipo,
+
+        capacidad,
+
+        fecha_recarga: fechaRecarga,
+
+        google_calendar_event_id:
+          googleEventId,
+
+      })
+      .eq("id", id);
+
+  if (updateError) {
+
+    alert("Error actualizando.");
+
+    return;
+
+  }
+
+  router.push("/extintores");
+
+  router.refresh();
+
+}
 
   if (loading) {
 
@@ -211,13 +475,95 @@ export default function EditarExtintorPage({
           }
         />
 
-        <Input
-          label="Empresa"
-          value={empresa}
-          onChange={
-            setEmpresa
-          }
-        />
+<div className="space-y-2">
+
+  <label className="text-sm text-zinc-400">
+    Empresa
+  </label>
+
+  <select
+    value={empresaId}
+    onChange={(e) =>
+      setEmpresaId(e.target.value)
+    }
+    className="
+      w-full
+      bg-black
+      border
+      border-zinc-800
+      rounded-xl
+      px-4
+      py-3
+      outline-none
+      focus:border-blue-500
+    "
+  >
+
+    <option value="">
+      Seleccione una empresa
+    </option>
+
+    {empresas.map((empresa) => (
+
+      <option
+        key={empresa.id}
+        value={empresa.id}
+      >
+
+        {empresa.nombre}
+
+      </option>
+
+    ))}
+
+  </select>
+
+</div>
+
+<div className="space-y-2">
+
+  <label className="text-sm text-zinc-400">
+    Responsable del calendario
+  </label>
+
+  <select
+    value={responsableId}
+    onChange={(e) =>
+      setResponsableId(e.target.value)
+    }
+    className="
+      w-full
+      bg-black
+      border
+      border-zinc-800
+      rounded-xl
+      px-4
+      py-3
+      outline-none
+      focus:border-blue-500
+    "
+  >
+
+    <option value="">
+      Seleccione un responsable
+    </option>
+
+    {colaboradores.map((colaborador) => (
+
+      <option
+        key={colaborador.id}
+        value={colaborador.id}
+      >
+
+        {colaborador.nombre}
+
+      </option>
+
+    ))}
+
+  </select>
+
+</div>
 
         <Input
           label="Ubicación"

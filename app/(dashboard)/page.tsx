@@ -3,6 +3,8 @@
 import { useEffect, useState }
 from "react";
 
+import Link from "next/link";
+
 import {
 
   AlertTriangle,
@@ -526,6 +528,7 @@ if (
           title="Urgente"
           value={vencidas}
           subtitle="tareas vencidas"
+          href="/alertas?filtro=vencidas"
           color="red"
           icon={
             <AlertTriangle size={22} />
@@ -536,6 +539,7 @@ if (
           title="Pendientes"
           value={pendientes}
           subtitle="tareas pendientes"
+          href="/tareas?filtro=pendientes"
           color="yellow"
           icon={
             <Clock3 size={22} />
@@ -548,6 +552,7 @@ if (
             title="Empresas"
             value={empresas}
             subtitle="empresas activas"
+            href="/empresas"
             color="blue"
             icon={
               <Building2 size={22} />
@@ -560,6 +565,7 @@ if (
           title="Completadas"
           value={completadas}
           subtitle="tareas completadas"
+          href="/tareas?filtro=completadas"
           color="green"
           icon={
             <CheckCircle2 size={22} />
@@ -581,6 +587,7 @@ if (
         <PremiumMiniCard
           title="Horas del Mes"
           value={`${horasMes}h`}
+          href="/horas"
           color="blue"
           icon={
             <Clock3 size={20} />
@@ -593,6 +600,7 @@ if (
             <PremiumMiniCard
               title="Facturación"
               value={`$${valorFacturable.toLocaleString()}`}
+              href="/reportes"
               color="green"
               icon={
                 <DollarSign size={20} />
@@ -602,6 +610,7 @@ if (
             <PremiumMiniCard
               title="Top"
               value={topColaborador || "-"}
+              href="/colaboradores"
               color="yellow"
               icon={
                 <Trophy size={20} />
@@ -859,12 +868,14 @@ function PremiumCard({
   title,
   value,
   subtitle,
+  href,
   color,
   icon,
 }: {
   title: string
   value: number
   subtitle: string
+  href: string
   color:
     | "red"
     | "yellow"
@@ -906,12 +917,22 @@ function PremiumCard({
 
   return (
 
-    <div className={`
+    <Link
+      href={href}
+      aria-label={`Ver ${subtitle}`}
+      className={`
       rounded-3xl
       border
       ${styles[color].border}
       bg-zinc-900/40
       p-5
+      block
+      transition
+      hover:-translate-y-1
+      hover:bg-zinc-900/70
+      focus-visible:outline-none
+      focus-visible:ring-2
+      focus-visible:ring-white/70
     `}>
 
       <div className="
@@ -967,18 +988,20 @@ function PremiumCard({
 
       </p>
 
-    </div>
+    </Link>
   );
 }
 
 function PremiumMiniCard({
   title,
   value,
+  href,
   color,
   icon,
 }: {
   title: string
   value: string
+  href: string
   color:
     | "yellow"
     | "green"
@@ -1000,12 +1023,22 @@ function PremiumMiniCard({
 
   return (
 
-    <div className="
+    <Link
+      href={href}
+      aria-label={`Ver ${title}`}
+      className="
       rounded-3xl
       border
       border-zinc-800
       bg-zinc-900/40
       p-5
+      block
+      transition
+      hover:-translate-y-1
+      hover:bg-zinc-900/70
+      focus-visible:outline-none
+      focus-visible:ring-2
+      focus-visible:ring-white/70
     ">
 
       <div className="
@@ -1058,6 +1091,6 @@ function PremiumMiniCard({
 
       </p>
 
-    </div>
+    </Link>
   );
 }

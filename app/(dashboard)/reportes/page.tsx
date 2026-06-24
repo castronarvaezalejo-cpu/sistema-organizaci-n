@@ -87,6 +87,16 @@ export default function ReportesPage() {
     if (!data) return
 
     setActividades(data)
+    
+    console.table(
+  data.map((a: any) => ({
+    id: a.id,
+    empresa: a.empresas?.nombre,
+    descripcion: a.descripcion,
+    horas: a.horas,
+    horas_trabajo_id: a.horas_trabajo_id,
+  }))
+);
 
     // AGRUPAR HORAS
 

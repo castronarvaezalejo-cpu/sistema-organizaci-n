@@ -66,6 +66,13 @@ export default function TareasPage() {
   )
 
   const [
+  googleEventId,
+  setGoogleEventId,
+] = useState<string | null>(
+  null
+)
+
+  const [
     tareas,
     setTareas,
   ] = useState<any[]>([])
@@ -204,14 +211,60 @@ export default function TareasPage() {
   // CREAR / EDITAR
   // =====================================
 
+async function crearEventoGoogleCalendar(
+  colaboradorIdDestino: string,
+  empresaNombre: string
+): Promise<string | null> {
+  if (!colaboradorIdDestino || !fechaLimite) return null;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) return null;
+
+  console.log("=== EVENTO GOOGLE ===");
+console.log("colaboradorIdDestino:", colaboradorIdDestino);
+console.log("titulo:", titulo);
+console.log("fecha:", fechaLimite);
+console.log("empresa:", empresaNombre);
+
+  const response = await fetch("/api/google-calendar/event", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      colaboradorId: colaboradorIdDestino,
+      title: `Tarea: ${titulo}`,
+      description: `Empresa: ${empresaNombre || "Sin empresa"}\nPrioridad: ${prioridad}`,
+      date: fechaLimite,
+    }),
+  });
+
+const datosGoogle = await response.json();
+
+console.log("GOOGLE EVENT STATUS:", response.status);
+console.log("GOOGLE EVENT RESPONSE:", datosGoogle);
+
+if (datosGoogle.created && datosGoogle.eventId) {
+  return datosGoogle.eventId;
+}
+
+return null;
+}
+
   async function crearTarea() {
 
+    console.log("ENTRÓ A crearTarea");
     if (
       !titulo ||
       !empresaId
     ) return
 
     let error
+    
 
     if (editandoId) {
 
@@ -242,38 +295,180 @@ export default function TareasPage() {
       error =
         response.error
 
-    } else {
+if (!error) {
 
-      const response =
-        await supabase
-          .from("tareas")
-          .insert([
+  console.log("Enviando solicitud a WhatsApp...");
 
-            {
-              titulo,
+console.log("LLAMANDO API WHATSAPP...");
 
-              empresa_id:
-                empresaId,
+  const respuesta = await fetch("/api/whatsapp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+body: JSON.stringify({
+  titulo,
+  prioridad,
+  fechaLimite,
+  colaboradorId,
+  empresaNombre:
+    empresas.find(e => e.id === empresaId)?.nombre,
+}),
+  });
 
-              colaborador_id:
-                colaboradorId,
+  const datos = await respuesta.json();
 
-              prioridad,
+  console.log("WHATSAPP STATUS:", respuesta.status);
+console.log("WHATSAPP RESPUESTA:", datos);
 
-              fecha_limite:
-                fechaLimite,
+  console.log("Status:", respuesta.status);
+  console.log("Respuesta:", datos);
 
-              archivada:
-                false,
 
-              estado:
-                "pendiente",
-            },
-          ])
+const tareaActual = tareas.find(
+  t => t.id === editandoId
+);
 
-      error =
-        response.error
+const googleEventId =
+  tareaActual?.google_calendar_event_id;
+  
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+console.log("SESSION:", session);
+console.log("COLABORADOR ID:", colaboradorId);
+
+console.log(
+  "EVENT ID:",
+  googleEventId
+);
+
+if (session && googleEventId) {
+
+  const respuestaGoogle = await fetch(
+    "/api/google-calendar/event",
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventId: googleEventId,
+        colaboradorId,
+        title: `Tarea: ${titulo}`,
+        description: `Prioridad: ${prioridad}`,
+        date: fechaLimite,
+      }),
     }
+  );
+
+  console.log(
+    "PATCH GOOGLE:",
+    await respuestaGoogle.text()
+  );
+}
+
+}
+
+    } 
+else {
+
+const { data: nuevaTarea, error } =
+  await supabase
+    .from("tareas")
+    .insert([
+      {
+        titulo,
+        empresa_id: empresaId,
+        colaborador_id: colaboradorId,
+        prioridad,
+        fecha_limite: fechaLimite,
+        estado: "pendiente",
+        archivada: false,
+      },
+    ])
+    .select()
+    .single();
+  console.log("2. Se guardó la tarea");
+
+if (!error) {
+
+  console.log("ANTES DEL FETCH");
+
+  try {
+    
+    console.log("3. Va a llamar la API");
+
+    const colaboradorSeleccionado =
+  colaboradores.find(
+    c => c.id === colaboradorId
+  );
+
+const empresaSeleccionada =
+  empresas.find(
+    e => e.id === empresaId
+  );
+
+    const respuesta = await fetch("/api/whatsapp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+body: JSON.stringify({
+
+  titulo,
+
+  prioridad,
+
+  fechaLimite,
+
+  colaboradorId,
+
+  empresaNombre:
+    empresaSeleccionada?.nombre,
+
+}), 
+    });
+
+    console.log("STATUS:", respuesta.status);
+
+const datos = await respuesta.json();
+
+console.log("RESPUESTA:", datos);
+
+// ==========================
+// GOOGLE CALENDAR
+// ==========================
+
+const eventId = await crearEventoGoogleCalendar(
+  colaboradorId,
+  empresaSeleccionada?.nombre || ""
+);
+
+if (eventId) {
+  const { error: updateError } = await supabase
+    .from("tareas")
+    .update({
+      google_calendar_event_id: eventId,
+    })
+    .eq("id", nuevaTarea.id);
+
+  if (updateError) {
+    console.error("Error guardando eventId:", updateError);
+  }
+}
+
+  } catch (e) {
+
+    console.error("ERROR FETCH:", e);
+
+  }
+
+}
+
+}
 
     if (error) {
 
@@ -285,6 +480,8 @@ export default function TareasPage() {
 
       return
     }
+
+
 
     limpiarFormulario()
 
@@ -351,6 +548,12 @@ export default function TareasPage() {
       tarea.id
     )
 
+    setGoogleEventId(
+  tarea.google_calendar_event_id || null
+)
+
+console.log("TAREA COMPLETA:", tarea);
+
     setOpen(true)
   }
 
@@ -369,6 +572,43 @@ export default function TareasPage() {
 
     if (!confirmar)
       return
+
+    const {
+  data: tarea,
+} = await supabase
+  .from("tareas")
+  .select("google_calendar_event_id, colaborador_id")
+  .eq("id", id)
+  .single();
+
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (
+  session &&
+  tarea?.google_calendar_event_id
+) {
+  const respuesta = await fetch(
+    "/api/google-calendar/event/delete",
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventId: tarea.google_calendar_event_id,
+        colaboradorId: tarea.colaborador_id,
+      }),
+    }
+  );
+
+  console.log(
+    "DELETE GOOGLE:",
+    await respuesta.text()
+  );
+}
 
     await supabase
       .from("tareas")
@@ -393,6 +633,7 @@ export default function TareasPage() {
     setFechaLimite("")
     setEstado("pendiente")
     setEditandoId(null)
+    setGoogleEventId(null)
   }
 
   // =====================================
@@ -401,6 +642,22 @@ export default function TareasPage() {
 
   useEffect(() => {
 
+    const filtroUrl =
+      new URLSearchParams(
+        window.location.search
+      ).get("filtro")
+
+    let frame: number | undefined
+
+    if (
+      filtroUrl === "pendientes" ||
+      filtroUrl === "completadas"
+    ) {
+      frame = window.requestAnimationFrame(() => {
+        setFiltro(filtroUrl)
+      })
+    }
+
     obtenerUsuario()
 
     obtenerTareas()
@@ -408,6 +665,12 @@ export default function TareasPage() {
     obtenerEmpresas()
 
     obtenerColaboradores()
+
+    return () => {
+      if (frame !== undefined) {
+        window.cancelAnimationFrame(frame)
+      }
+    }
 
   }, [])
 

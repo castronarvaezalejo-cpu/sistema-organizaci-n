@@ -137,6 +137,50 @@ const [
     }
   }
 
+async function crearEventoGoogleCalendar(): Promise<string | null> {
+  if (!responsableId || !fecha) return null;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return null;
+
+  const empresaSeleccionada = empresas.find(
+    (empresa) => empresa.id === empresaId
+  );
+
+  const response = await fetch("/api/google-calendar/event", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      colaboradorId: responsableId,
+      title: `Capacitación: ${tipo}`,
+      description:
+        observaciones ||
+        `Empresa: ${empresaSeleccionada?.nombre || "Sin empresa"}`,
+      date: fecha,
+      time: hora || undefined,
+      durationMinutes: 60,
+      location: lugar || undefined,
+    }),
+  });
+
+const datos = await response.json();
+
+console.log("GOOGLE STATUS:", response.status);
+console.log("GOOGLE RESPUESTA:", datos);
+
+if (datos.created && datos.eventId) {
+  return datos.eventId;
+}
+
+return null;
+}
+
   async function crearCapacitacion() {
 
     if (
@@ -152,10 +196,13 @@ const [
       return
     }
 
-    const { error } =
-      await supabase
-        .from("capacitaciones")
-        .insert([
+const {
+  data: nuevaCapacitacion,
+  error,
+} = await supabase
+  .from("capacitaciones")
+  .insert([
+    
 
           {
             empresa_id:
@@ -179,6 +226,9 @@ observaciones,
           },
         ])
 
+        .select()
+.single();
+
     if (error) {
 
       console.log(error)
@@ -189,6 +239,17 @@ observaciones,
 
       return
     }
+
+const eventId = await crearEventoGoogleCalendar();
+
+if (eventId) {
+  await supabase
+    .from("capacitaciones")
+    .update({
+      google_calendar_event_id: eventId,
+    })
+    .eq("id", nuevaCapacitacion.id);
+}
 
     alert(
       "Capacitación creada"
@@ -208,10 +269,12 @@ setObservaciones("")
 
   async function actualizarCapacitacion() {
 
-  const { error } =
-    await supabase
-      .from("capacitaciones")
-      .update({
+const {
+  data: capacitacionActualizada,
+  error,
+} = await supabase
+  .from("capacitaciones")
+  .update({
 
         empresa_id:
           empresaId,
@@ -229,11 +292,13 @@ setObservaciones("")
 
         observaciones,
       })
+      
       .eq(
         "id",
         editandoId
       )
-
+.select()
+.single()
   if (error) {
 
     console.log(error)
@@ -244,6 +309,50 @@ setObservaciones("")
 
     return
   }
+
+  if (
+  capacitacionActualizada?.google_calendar_event_id &&
+  responsableId
+) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    const empresaSeleccionada = empresas.find(
+      (empresa) => empresa.id === empresaId
+    );
+
+    const respuestaGoogle = await fetch(
+      "/api/google-calendar/event",
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId:
+            capacitacionActualizada.google_calendar_event_id,
+          colaboradorId: responsableId,
+          title: `Capacitación: ${tipo}`,
+          description:
+            observaciones ||
+            `Empresa: ${empresaSeleccionada?.nombre || "Sin empresa"}`,
+          date: fecha,
+          time: hora || undefined,
+          durationMinutes: 60,
+          location: lugar || undefined,
+        }),
+      }
+    );
+
+    console.log(
+      "PATCH GOOGLE:",
+      await respuestaGoogle.text()
+    );
+  }
+}
 
   alert(
     "Capacitación actualizada"
@@ -329,6 +438,43 @@ async function eliminarCapacitacion(id: string) {
   )
 
   if (!confirmar) return
+  
+  const { data: capacitacion } = await supabase
+  .from("capacitaciones")
+  .select("google_calendar_event_id, responsable_id")
+  .eq("id", id)
+  .single();
+
+  if (
+  capacitacion?.google_calendar_event_id &&
+  capacitacion?.responsable_id
+) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    const respuestaGoogle = await fetch(
+      "/api/google-calendar/event/delete",
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId: capacitacion.google_calendar_event_id,
+          colaboradorId: capacitacion.responsable_id,
+        }),
+      }
+    );
+
+    console.log(
+      "DELETE GOOGLE:",
+      await respuestaGoogle.text()
+    );
+  }
+}
 
   const { error } = await supabase
     .from("capacitaciones")

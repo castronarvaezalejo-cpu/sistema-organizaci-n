@@ -10,6 +10,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  Search,
 } from "lucide-react";
 
 export default function HorasPage() {
@@ -28,6 +29,11 @@ export default function HorasPage() {
     registros,
     setRegistros,
   ] = useState<any[]>([]);
+
+  const [
+  busqueda,
+  setBusqueda,
+] = useState("");
 
   const [
     colaboradorId,
@@ -755,6 +761,46 @@ obtenerRegistros();
 
 </div>
 
+<div className="mb-6">
+
+  <div className="relative max-w-xl">
+
+<Search
+  size={20}
+  className="
+    absolute
+    left-4
+    top-1/2
+    -translate-y-1/2
+    text-zinc-500
+  "
+/>
+
+    <input
+      type="text"
+      placeholder="Buscar empresa o colaborador..."
+      value={busqueda}
+      onChange={(e) =>
+        setBusqueda(e.target.value)
+      }
+      className="
+        w-full
+        bg-zinc-900
+        border
+        border-zinc-800
+        rounded-2xl
+        py-4
+        pl-12
+        pr-4
+        outline-none
+        focus:border-blue-500
+      "
+    />
+
+  </div>
+
+</div>
+
       {/* TABLA */}
 
       <div className="
@@ -807,7 +853,28 @@ obtenerRegistros();
 
           <tbody>
 
-            {registros.map(
+            {registros
+.filter((registro) => {
+
+  const texto =
+    busqueda.toLowerCase();
+
+  return (
+    registro.empresas?.nombre
+      ?.toLowerCase()
+      .includes(texto) ||
+
+    registro.colaboradores?.nombre
+      ?.toLowerCase()
+      .includes(texto) ||
+
+    registro.tipo
+      ?.toLowerCase()
+      .includes(texto)
+  );
+
+})
+.map(
               (registro) => (
 
               <tr

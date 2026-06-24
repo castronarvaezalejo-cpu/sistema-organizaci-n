@@ -25,11 +25,114 @@ export default function CalendarioPage() {
     setFiltro,
   ] = useState("todos")
 
+  const [googleEmail, setGoogleEmail] =
+    useState<string | null>(null)
+
+  const [cargandoGoogle, setCargandoGoogle] =
+    useState(false)
+
   useEffect(() => {
 
     cargarEventos()
+    cargarConexionGoogle()
 
   }, [])
+
+  async function tokenSesion() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    return session?.access_token || null
+  }
+
+  async function cargarConexionGoogle() {
+    const token = await tokenSesion()
+
+    if (!token) return
+
+    const response = await fetch(
+      "/api/google-calendar/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+
+    if (!response.ok) return
+
+    const { connection } = await response.json()
+    setGoogleEmail(connection?.google_email || null)
+  }
+
+  async function conectarGoogleCalendar() {
+    const token = await tokenSesion()
+
+    if (!token) return
+
+    setCargandoGoogle(true)
+
+    try {
+      const response = await fetch(
+        "/api/google-calendar/connect",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      const body = await response.json()
+
+      if (!response.ok || !body.authorizationUrl) {
+        throw new Error(body.error || "No fue posible iniciar la conexión.")
+      }
+
+      window.location.assign(body.authorizationUrl)
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "No fue posible iniciar la conexión con Google."
+      )
+      setCargandoGoogle(false)
+    }
+  }
+
+  async function desconectarGoogleCalendar() {
+    const token = await tokenSesion()
+
+    if (!token) return
+
+    setCargandoGoogle(true)
+
+    try {
+      const response = await fetch(
+        "/api/google-calendar/disconnect",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error("No fue posible desconectar Google Calendar.")
+      }
+
+      setGoogleEmail(null)
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "No fue posible desconectar Google Calendar."
+      )
+    } finally {
+      setCargandoGoogle(false)
+    }
+  }
 
   async function cargarEventos() {
 
@@ -308,17 +411,18 @@ if (extintoresData) {
 
   return (
 
-    <div>
+    <div className="max-w-[1200px]">
 
       {/* HEADER */}
 
       <div className="
-        mb-10
+        mb-8
       ">
 
         <h1 className="
           text-5xl
           font-black
+          tracking-tight
           mb-3
         ">
 
@@ -338,14 +442,71 @@ if (extintoresData) {
 
       </div>
 
+      <div className="
+        mb-8
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-zinc-900/40
+        p-5
+        flex
+        flex-col
+        sm:flex-row
+        sm:items-center
+        sm:justify-between
+        gap-4
+      ">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">
+            Google Calendar
+          </h2>
+          <p className="text-sm text-zinc-400">
+            {googleEmail
+              ? `Conectado como ${googleEmail}`
+              : "Conecta tu cuenta para recibir recordatorios en tu calendario."
+            }
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={
+            googleEmail
+              ? desconectarGoogleCalendar
+              : conectarGoogleCalendar
+          }
+          disabled={cargandoGoogle}
+          className={`
+            px-5
+            py-3
+            rounded-2xl
+            font-medium
+            transition
+            disabled:opacity-60
+            ${googleEmail
+              ? "border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              : "bg-white text-black hover:bg-zinc-200"
+            }
+          `}
+        >
+          {cargandoGoogle
+            ? "Procesando..."
+            : googleEmail
+            ? "Desconectar"
+            : "Conectar Google Calendar"
+          }
+        </button>
+      </div>
+
       {/* CARDS */}
 
       <div className="
         grid
         grid-cols-1
         md:grid-cols-3
+        xl:grid-cols-4
         gap-4
-        mb-10
+        mb-8
       ">
 
         <MiniCard
@@ -403,8 +564,13 @@ if (extintoresData) {
       <div className="
         flex
         gap-3
-        mb-10
+        mb-8
         flex-wrap
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-zinc-900/40
+        p-3
       ">
 
         <FiltroButton
@@ -508,14 +674,31 @@ if (extintoresData) {
               border-zinc-800
             ">
 
-              <h2 className="
-                text-3xl
-                font-black
+              <div className="
+                flex
+                items-center
+                gap-3
               ">
+                <div className="
+                  w-11
+                  h-11
+                  rounded-2xl
+                  bg-blue-500/10
+                  text-blue-400
+                  flex
+                  items-center
+                  justify-center
+                ">
+                  <CalendarDays size={20} />
+                </div>
 
-                📅 {fecha}
-
-              </h2>
+                <h2 className="
+                  text-2xl
+                  font-black
+                ">
+                  {fecha}
+                </h2>
+              </div>
 
             </div>
 
@@ -536,8 +719,13 @@ if (extintoresData) {
                   className="
                     p-6
                     flex
+                    flex-col
+                    sm:flex-row
                     items-center
                     justify-between
+                    gap-4
+                    transition
+                    hover:bg-zinc-800/30
                   "
                 >
 
@@ -710,16 +898,8 @@ function MiniCard({
         flex
         items-center
         justify-between
-        mb-5
+        mb-6
       ">
-
-        <h3 className="
-          font-semibold
-        ">
-
-          {title}
-
-        </h3>
 
         <div className={`
           w-12
@@ -738,10 +918,26 @@ function MiniCard({
 
       </div>
 
-      <p className="
+      <h3 className="
+        text-lg
+        font-semibold
+        mb-2
+      ">
+        {title}
+      </h3>
+
+      <p className={`
         text-4xl
         font-black
-      ">
+        ${color === "red"
+          ? "text-red-400"
+          : color === "yellow"
+          ? "text-yellow-400"
+          : color === "green"
+          ? "text-green-400"
+          : "text-blue-400"
+        }
+      `}>
 
         {value}
 

@@ -44,11 +44,19 @@ function calcularEstado(
   const vencimiento =
     new Date(fechaRecarga);
 
+
   // SUMAR 1 AÑO
 
   vencimiento.setFullYear(
     vencimiento.getFullYear() + 1
   );
+  
+const fechaFormateada =
+  vencimiento.toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   const diferencia =
     vencimiento.getTime() -
@@ -62,42 +70,50 @@ function calcularEstado(
 
   // VENCIDO
 
-  if (dias < 0) {
+if (dias < 0) {
 
-    return {
-      texto: "Vencido",
-      descripcion:
-        `Hace ${Math.abs(dias)} días`,
-      color: "bg-red-500",
-      borde:
-        "border-red-500/40",
-    };
-  }
+  return {
+    texto: "Vencido",
+    descripcion:
+      `Hace ${Math.abs(dias)} días`,
+    fechaTitulo:
+      "Venció el",
+    fecha:
+      fechaFormateada,
+    color: "bg-red-500",
+    borde:
+      "border-red-500/40",
+  };
+}
 
   // PRÓXIMO A VENCER
 
-  if (dias <= 30) {
+if (dias <= 30) {
 
-    return {
-      texto: "Próximo",
-      descripcion:
-        `Vence en ${dias} días`,
-      color: "bg-yellow-500",
-      borde:
-        "border-yellow-500/40",
-    };
-  }
+  return {
+    texto: "Próximo",
+    descripcion:
+      `Vence en ${dias} días`,
+    fechaTitulo:
+      "Vence el",
+    fecha:
+      fechaFormateada,
+    color: "bg-yellow-500",
+    borde:
+      "border-yellow-500/40",
+  };
+}
 
   // VIGENTE
 
-  return {
-    texto: "Vigente",
-    descripcion:
-      `${dias} días restantes`,
-    color: "bg-green-500",
-    borde:
-      "border-green-500/30",
-  };
+return {
+  texto: "Vigente",
+  descripcion: `${dias} días restantes`,
+  fechaTitulo: "Vence el",
+  fecha: fechaFormateada,
+  color: "bg-green-500",
+  borde: "border-green-500/30",
+};  
 }
 
 export default function ExtintoresPage() {
@@ -584,10 +600,27 @@ const agrupados =
                                   Recarga:
                                 </span>{" "}
 
-                                {
-                                  extintor.fecha_recarga
-                                }
+                                {new Date(extintor.fecha_recarga)
+  .toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })}
                               </p>
+
+                              <p>
+  <span
+    className="
+      font-semibold
+      text-white
+    "
+  >
+    Vence:
+  </span>{" "}
+
+  {estado.fecha}
+
+</p>
 
                             </div>
 
@@ -609,36 +642,34 @@ const agrupados =
                               items-center
                             ">
 
-                              <span
-                                className={`
-                                  ${estado.color}
-                                  text-black
-                                  px-4
-                                  py-2
-                                  rounded-full
-                                  text-sm
-                                  font-bold
-                                `}
-                              >
+<span
+  className={`
+    ${estado.color}
+    text-black
+    px-4
+    py-2
+    rounded-full
+    text-sm
+    font-bold
+  `}
+>
 
-                                {
-                                  estado.texto
-                                }
+  {estado.texto}
 
-                              </span>
+</span>
 
-                              <p className="
-                                text-xs
-                                text-zinc-300
-                                mt-2
-                                text-center
-                              ">
+<p
+  className="
+    text-xs
+    text-zinc-300
+    mt-2
+    text-center
+  "
+>
 
-                                {
-                                  estado.descripcion
-                                }
+  {estado.descripcion}
 
-                              </p>
+</p>
 
                             </div>
 

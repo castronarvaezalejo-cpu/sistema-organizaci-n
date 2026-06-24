@@ -6,7 +6,11 @@ import {
 } from "react";
 
 import {
+  AlertTriangle,
+  CalendarDays,
+  Clock3,
   MessageCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 import { supabase }
@@ -92,9 +96,44 @@ export default function AlertasPage() {
     setLoading,
   ] = useState(true);
 
+  const [estadisticas, setEstadisticas] = useState({
+  vencidas: 0,
+  hoy: 0,
+  proximas: 0,
+  extintores: 0,
+});
+
+  const [filtroResumen, setFiltroResumen] = useState(
+    "todas"
+  );
+
   useEffect(() => {
 
+    const filtroUrl =
+      new URLSearchParams(
+        window.location.search
+      ).get("filtro");
+
+    let frame: number | undefined;
+
+    if (
+      filtroUrl === "vencidas" ||
+      filtroUrl === "hoy" ||
+      filtroUrl === "proximas" ||
+      filtroUrl === "extintores"
+    ) {
+      frame = window.requestAnimationFrame(() => {
+        setFiltroResumen(filtroUrl);
+      });
+    }
+
     obtenerAlertas();
+
+    return () => {
+      if (frame !== undefined) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
 
   }, []);
 
@@ -341,6 +380,27 @@ SEITON`;
         ).getTime()
     );
 
+const estadisticas = {
+  vencidas: resultado.filter(
+    (a) => a.tipo === "vencida"
+  ).length,
+
+  hoy: resultado.filter(
+    (a) => a.tipo === "hoy"
+  ).length,
+
+  proximas: resultado.filter(
+    (a) => a.tipo === "proxima"
+  ).length,
+
+  extintores: resultado.filter(
+    (a) =>
+      a.id.startsWith("extintor-")
+  ).length,
+};
+
+setEstadisticas(estadisticas);
+
     setAlertas(
       resultado
     );
@@ -362,6 +422,40 @@ SEITON`;
         Cargando alertas...
       </div>
     );
+  }
+
+  const alertasFiltradas = alertas.filter(
+    (alerta) => {
+      if (filtroResumen === "vencidas") {
+        return alerta.tipo === "vencida";
+      }
+
+      if (filtroResumen === "hoy") {
+        return alerta.tipo === "hoy";
+      }
+
+      if (filtroResumen === "proximas") {
+        return alerta.tipo === "proxima";
+      }
+
+      if (filtroResumen === "extintores") {
+        return alerta.id.startsWith("extintor-");
+      }
+
+      return true;
+    }
+  );
+
+  function seleccionarResumen(
+    filtro: "vencidas" | "hoy" | "proximas" | "extintores"
+  ) {
+    setFiltroResumen(filtro);
+
+    requestAnimationFrame(() => {
+      document
+        .getElementById("lista-alertas")
+        ?.scrollIntoView({ behavior: "smooth" });
+    });
   }
 
   return (
@@ -407,6 +501,53 @@ SEITON`;
 
       </div>
 
+{/* RESUMEN */}
+
+<div className="
+  grid
+  grid-cols-1
+  md:grid-cols-2
+  xl:grid-cols-4
+  gap-4
+  mb-8
+">
+  <AlertSummaryCard
+    title="Urgente"
+    value={estadisticas.vencidas}
+    subtitle="tareas vencidas"
+    color="red"
+    icon={<AlertTriangle size={22} />}
+    onClick={() => seleccionarResumen("vencidas")}
+  />
+
+  <AlertSummaryCard
+    title="Vencen hoy"
+    value={estadisticas.hoy}
+    subtitle="requieren atención"
+    color="yellow"
+    icon={<CalendarDays size={22} />}
+    onClick={() => seleccionarResumen("hoy")}
+  />
+
+  <AlertSummaryCard
+    title="Próximas"
+    value={estadisticas.proximas}
+    subtitle="alertas programadas"
+    color="blue"
+    icon={<Clock3 size={22} />}
+    onClick={() => seleccionarResumen("proximas")}
+  />
+
+  <AlertSummaryCard
+    title="Extintores"
+    value={estadisticas.extintores}
+    subtitle="por revisar"
+    color="green"
+    icon={<ShieldCheck size={22} />}
+    onClick={() => seleccionarResumen("extintores")}
+  />
+</div>
+
       {/* VACÍO */}
 
       {alertas.length === 0 && (
@@ -444,11 +585,27 @@ SEITON`;
 
       {/* ALERTAS */}
 
-      <div className="
+      <div
+        id="lista-alertas"
+        className="
         space-y-5
       ">
 
-        {alertas.map(
+        {filtroResumen !== "todas" && (
+          <button
+            onClick={() => setFiltroResumen("todas")}
+            className="
+              text-sm
+              text-zinc-400
+              hover:text-white
+              transition
+            "
+          >
+            Mostrar todas las alertas
+          </button>
+        )}
+
+        {alertasFiltradas.map(
           (alerta) => (
 
           <div
@@ -556,5 +713,107 @@ SEITON`;
       </div>
 
     </div>
+  );
+}
+
+function AlertSummaryCard({
+  title,
+  value,
+  subtitle,
+  color,
+  icon,
+  onClick,
+}: {
+  title: string;
+  value: number;
+  subtitle: string;
+  color: "red" | "yellow" | "blue" | "green";
+  icon: React.ReactNode;
+  onClick: () => void;
+}) {
+  const styles = {
+    red: {
+      background: "bg-red-500/10",
+      border: "border-red-500/20",
+      text: "text-red-400",
+    },
+    yellow: {
+      background: "bg-yellow-500/10",
+      border: "border-yellow-500/20",
+      text: "text-yellow-400",
+    },
+    blue: {
+      background: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      text: "text-blue-400",
+    },
+    green: {
+      background: "bg-green-500/10",
+      border: "border-green-500/20",
+      text: "text-green-400",
+    },
+  };
+
+  const style = styles[color];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+      rounded-3xl
+      border
+      ${style.border}
+      bg-zinc-900/40
+      p-5
+      text-left
+      transition
+      hover:-translate-y-1
+      hover:bg-zinc-900/70
+      focus-visible:outline-none
+      focus-visible:ring-2
+      focus-visible:ring-white/70
+    `}>
+      <div className="
+        flex
+        items-center
+        justify-between
+        mb-6
+      ">
+        <div className={`
+          w-12
+          h-12
+          rounded-2xl
+          flex
+          items-center
+          justify-center
+          ${style.background}
+          ${style.text}
+        `}>
+          {icon}
+        </div>
+      </div>
+
+      <h2 className="
+        text-lg
+        font-semibold
+        mb-2
+      ">
+        {title}
+      </h2>
+
+      <p className={`
+        text-4xl
+        font-black
+        mb-2
+        ${style.text}
+      `}>
+        {value}
+      </p>
+
+      <p className="text-zinc-500">
+        {subtitle}
+      </p>
+    </button>
   );
 }

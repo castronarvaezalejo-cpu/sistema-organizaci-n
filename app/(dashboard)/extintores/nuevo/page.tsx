@@ -21,6 +21,12 @@
   const [empresas, setEmpresas] =
     useState<any[]>([]);
 
+    const [responsableId, setResponsableId] =
+  useState("");
+
+const [colaboradores, setColaboradores] =
+  useState<any[]>([]);
+
     const [ubicacion, setUbicacion] =
       useState("");
 
@@ -37,10 +43,10 @@
     const [loading, setLoading] =
       useState(false);
 
-      useEffect(() => {
-    cargarEmpresas();
-
-  }, []);
+useEffect(() => {
+  cargarEmpresas();
+  cargarColaboradores();
+}, []);
 
   async function cargarEmpresas() {
 
@@ -56,6 +62,84 @@
 
   }
 
+  async function cargarColaboradores() {
+
+  const { data } = await supabase
+    .from("colaboradores")
+    .select("id, nombre")
+    .order("nombre");
+
+  if (data) {
+
+    setColaboradores(data);
+
+  }
+
+}
+
+async function crearEventoGoogleCalendar() {
+
+  if (!responsableId) {
+
+  alert("Selecciona un responsable del calendario.");
+
+  return null;
+
+}
+
+  const empresaSeleccionada =
+    empresas.find(
+      (empresa) =>
+        empresa.id === empresaId
+    );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return null;
+
+  // La fecha de vencimiento es un año después de la recarga
+
+  const fechaVencimiento =
+    new Date(fechaRecarga);
+
+  fechaVencimiento.setFullYear(
+    fechaVencimiento.getFullYear() + 1
+  );
+
+  const respuesta =
+    await fetch(
+      "/api/google-calendar/event",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+  colaboradorId: responsableId,
+          title: `🧯 Recarga Extintor ${codigo}`,
+          description:
+`Empresa: ${empresaSeleccionada?.nombre}
+
+Ubicación: ${ubicacion}
+
+Tipo: ${tipo}
+
+Capacidad: ${capacidad}`,
+          date:
+            fechaVencimiento
+              .toISOString()
+              .split("T")[0],
+        }),
+      }
+    );
+
+  return await respuesta.json();
+
+}
+
     async function crearExtintor(
       e: React.FormEvent
     ) {
@@ -64,19 +148,27 @@
 
       setLoading(true);
 
-      const { error } = await supabase
-        .from("extintores")
-        .insert([
-          {
-            codigo,
-            empresa_id: empresaId,
-            ubicacion,
-            tipo,
-            capacidad,
-            fecha_recarga: fechaRecarga,
+ const google =
+  await crearEventoGoogleCalendar();
 
-          },
-        ]);
+const googleEventId =
+  google?.eventId || null;
+
+const { error } =
+  await supabase
+    .from("extintores")
+    .insert([
+{
+  codigo,
+  empresa_id: empresaId,
+  responsable_id: responsableId,
+  ubicacion,
+  tipo,
+  capacidad,
+  fecha_recarga: fechaRecarga,
+  google_calendar_event_id: googleEventId,
+},
+    ]);
 
       setLoading(false);
 
@@ -168,6 +260,51 @@
     </select>
 
   </div>
+
+  <div className="space-y-2">
+
+  <label className="text-sm text-zinc-400">
+    Responsable del calendario
+  </label>
+
+  <select
+    value={responsableId}
+    onChange={(e) =>
+      setResponsableId(e.target.value)
+    }
+    className="
+      w-full
+      bg-black
+      border
+      border-zinc-800
+      rounded-xl
+      px-4
+      py-3
+      outline-none
+      focus:border-blue-500
+    "
+  >
+
+    <option value="">
+      Seleccione un responsable
+    </option>
+
+    {colaboradores.map((colaborador) => (
+
+      <option
+        key={colaborador.id}
+        value={colaborador.id}
+      >
+
+        {colaborador.nombre}
+
+      </option>
+
+    ))}
+
+  </select>
+
+</div>
 
           <Input
             label="Ubicación"

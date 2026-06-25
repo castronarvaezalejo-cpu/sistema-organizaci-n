@@ -80,6 +80,7 @@ export default function EmpresasPage() {
     setEmpresas,
   ] = useState<any[]>([])
 
+
   const [
     busqueda,
     setBusqueda,
@@ -136,7 +137,11 @@ export default function EmpresasPage() {
 
     obtenerEmpresas()
 
-  }, [mostrarArchivadas])
+    }, [mostrarArchivadas])
+
+
+
+  
 
   async function obtenerEmpresas() {
 
@@ -198,6 +203,11 @@ export default function EmpresasPage() {
               permiteAcumulado,
 
             activa: true,
+
+            
+            
+
+
           },
         ])
 
@@ -223,8 +233,10 @@ export default function EmpresasPage() {
   // ACTUALIZAR
   // ===================================
 
-  async function actualizarEmpresa() {
+  async function actualizarEmpresa()
+   {
 
+    
     const { error } =
       await supabase
         .from("empresas")
@@ -264,6 +276,19 @@ export default function EmpresasPage() {
 
       return
     }
+
+    await fetch(
+  "/api/empresas/recalcular-facturacion",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      empresaId: empresaEditandoId,
+    }),
+  }
+);
 
     limpiarFormulario()
 

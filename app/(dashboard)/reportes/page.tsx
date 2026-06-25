@@ -53,6 +53,18 @@ export default function ReportesPage() {
     const inicioMes =
       `${mesSeleccionado}-01`
 
+      const [anio, mes] = mesSeleccionado
+  .split("-")
+  .map(Number);
+
+const finMes = new Date(
+  anio,
+  mes,
+  0
+)
+  .toISOString()
+  .split("T")[0];
+
     let query = supabase
       .from("actividades_realizadas")
       .select(`
@@ -68,6 +80,7 @@ export default function ReportesPage() {
         )
       `)
       .gte("fecha", inicioMes)
+.lte("fecha", finMes);
 
     // FILTRO EMPRESA
 
@@ -83,6 +96,14 @@ export default function ReportesPage() {
       "fecha",
       { ascending: false }
     )
+
+    console.table(
+  data?.map((a: any) => ({
+    fecha: a.fecha,
+    empresa: a.empresas?.nombre,
+    descripcion: a.descripcion,
+  }))
+);
 
     if (!data) return
 
@@ -151,12 +172,18 @@ const colaboradoresUnicos = new Set(
 
 const fechaGeneracion = new Date().toLocaleString("es-CO")
 
+const [anio, mes] = mesSeleccionado
+  .split("-")
+  .map(Number);
+
 const periodoTexto = new Date(
-  `${mesSeleccionado}-01`
+  anio,
+  mes - 1,
+  1
 ).toLocaleDateString("es-CO", {
   month: "long",
   year: "numeric",
-})
+});
 
   // EXPORTAR PDF
 
@@ -376,33 +403,6 @@ halign:"center"
 const finalY =
 (doc as any).lastAutoTable.finalY
 
-doc.setDrawColor(180)
-
-doc.line(
-14,
-finalY+10,
-196,
-finalY+10
-)
-
-doc.setFontSize(9)
-
-doc.setTextColor(120)
-
-doc.text(
-"Documento generado automáticamente por SEITON Soluciones Empresariales",
-14,
-finalY+18
-)
-
-doc.text(
-new Date().toLocaleDateString("es-CO"),
-196,
-finalY+18,
-{
-align:"right"
-}
-)
 
         // DESCARGAR
 

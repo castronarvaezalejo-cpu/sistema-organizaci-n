@@ -101,8 +101,15 @@ async function crearEventoGoogleCalendar() {
 
   // La fecha de vencimiento es un año después de la recarga
 
-  const fechaVencimiento =
-    new Date(fechaRecarga);
+const [anio, mes, dia] = fechaRecarga
+  .split("-")
+  .map(Number);
+
+const fechaVencimiento = new Date(
+  anio,
+  mes - 1,
+  dia
+);
 
   fechaVencimiento.setFullYear(
     fechaVencimiento.getFullYear() + 1
@@ -183,7 +190,7 @@ const { error } =
         return;
       }
 
-      router.push("/extintores");
+      router.back();
 
       router.refresh();
     }
@@ -353,7 +360,9 @@ const { error } =
 
   <button
     type="button"
-    onClick={() => router.push("/extintores")}
+    onClick={() =>
+  router.push(`/extintores?empresa=${empresaId}`)
+}
     className="
       bg-zinc-700
       hover:bg-zinc-600

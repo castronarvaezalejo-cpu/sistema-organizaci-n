@@ -36,13 +36,31 @@ type Extintor = {
 };
 
 function calcularEstado(
-  fechaRecarga: string
+  fechaRecarga: string | null
 ) {
+
+  if (!fechaRecarga) {
+    return {
+      texto: "Sin fecha",
+      descripcion: "No registrada",
+      fechaTitulo: "Fecha",
+      fecha: "-",
+      color: "bg-zinc-500",
+      borde: "border-zinc-500/30",
+    };
+  }
 
   const hoy = new Date();
 
-  const vencimiento =
-    new Date(fechaRecarga);
+  const [anio, mes, dia] = fechaRecarga
+    .split("-")
+    .map(Number); 
+
+const vencimiento = new Date(
+  anio,
+  mes - 1,
+  dia
+);
 
 
   // SUMAR 1 AÑO
@@ -206,10 +224,30 @@ export default function ExtintoresPage() {
   // INIT
 
   useEffect(() => {
-
     cargarExtintores();
 
   }, [empresaFiltro]);
+
+
+// ABRIR AUTOMÁTICAMENTE LA EMPRESA
+
+
+  useEffect(() => {
+
+  if (!empresaFiltro || extintores.length === 0) return;
+
+  const extintor = extintores.find(
+    (e) => e.empresa_id === empresaFiltro
+  );
+
+  if (!extintor?.empresas?.nombre) return;
+
+  setAbiertas({
+    [extintor.empresas.nombre]: true,
+  });
+
+}, [empresaFiltro, extintores]);
+
 
   // ELIMINAR
 
@@ -260,9 +298,10 @@ const agrupados =
     .reduce(
       (acc: any, extintor) => {
 
-        const nombre =
-          extintor.empresas?.nombre ||
-          "Sin empresa";
+const nombre =
+  extintor.empresas?.nombre ||
+  "Sin empresa";
+
 
         if (!acc[nombre]) {
           acc[nombre] = [];
@@ -600,12 +639,23 @@ const agrupados =
                                   Recarga:
                                 </span>{" "}
 
-                                {new Date(extintor.fecha_recarga)
-  .toLocaleDateString("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })}
+{extintor.fecha_recarga ? (
+  (() => {
+    const [anio, mes, dia] =
+      extintor.fecha_recarga
+        .split("-")
+        .map(Number);
+
+    return new Date(anio, mes - 1, dia)
+      .toLocaleDateString("es-CO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+  })()
+) : (
+  "Sin fecha"
+)}
                               </p>
 
                               <p>
@@ -674,7 +724,7 @@ const agrupados =
                             </div>
 
                             <Link
-                              href={`/extintores/${extintor.id}`}
+                              href={`/extintores/${extintor.id}?empresa=${extintor.empresa_id}`}
                               className="
                                 bg-blue-600
                                 hover:bg-blue-700

@@ -41,6 +41,11 @@ const [
 ] = useState("");
 
 const [
+  empresaNombre,
+  setEmpresaNombre,
+] = useState("");
+
+const [
   empresas,
   setEmpresas,
 ] = useState<any[]>([]);
@@ -74,6 +79,7 @@ const [
     fechaRecarga,
     setFechaRecarga,
   ] = useState("");
+  
 
 useEffect(() => {
 
@@ -118,14 +124,19 @@ async function cargarColaboradores() {
 
   async function cargarExtintor() {
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from("extintores")
-      .select("*")
-      .eq("id", id)
-      .single();
+const {
+  data,
+  error,
+} = await supabase
+  .from("extintores")
+  .select(`
+    *,
+    empresas (
+      nombre
+    )
+  `)
+  .eq("id", id)
+  .single();
 
     if (error || !data) {
 
@@ -133,9 +144,7 @@ async function cargarColaboradores() {
         "Error cargando extintor"
       );
 
-      router.push(
-        "/extintores"
-      );
+router.back();
 
       return;
     }
@@ -148,8 +157,8 @@ setEmpresaId(
   data.empresa_id || ""
 );
 
-setResponsableId(
-  data.responsable_id || ""
+setEmpresaNombre(
+  data.empresas?.nombre || ""
 );
 
 setResponsableId(
@@ -191,8 +200,15 @@ const {
 
 if (!session) return null;
 
-const fechaVencimiento =
-  new Date(fechaRecarga);
+const [anio, mes, dia] = fechaRecarga
+  .split("-")
+  .map(Number);
+
+const fechaVencimiento = new Date(
+  anio,
+  mes - 1,
+  dia
+);;
 
 fechaVencimiento.setFullYear(
   fechaVencimiento.getFullYear() + 1
@@ -250,8 +266,15 @@ async function actualizarEventoGoogleCalendar(
 
   if (!session) return;
 
-  const fechaVencimiento =
-    new Date(fechaRecarga);
+ const [anio, mes, dia] = fechaRecarga
+  .split("-")
+  .map(Number);
+
+const fechaVencimiento = new Date(
+  anio,
+  mes - 1,
+  dia
+);;
 
   fechaVencimiento.setFullYear(
     fechaVencimiento.getFullYear() + 1
@@ -417,7 +440,7 @@ async function actualizarExtintor(
 
   }
 
-  router.push("/extintores");
+router.push(`/extintores?empresa=${empresaId}`);
 
   router.refresh();
 
@@ -626,11 +649,11 @@ async function actualizarExtintor(
 
           <button
             type="button"
-            onClick={() =>
-              router.push(
-                "/extintores"
-              )
-            }
+           onClick={() =>
+  router.push(
+    `/extintores?empresa=${empresaId}`
+  )
+}
             className="
               bg-zinc-800
               hover:bg-zinc-700

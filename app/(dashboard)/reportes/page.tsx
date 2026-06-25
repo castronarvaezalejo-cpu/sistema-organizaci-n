@@ -19,18 +19,21 @@ export default function ReportesPage() {
   const [empresaSeleccionada, setEmpresaSeleccionada] =
     useState("")
 
-  const mesActual =
-    new Date().toISOString().slice(0, 7)
+const mesActual =
+  new Date().toISOString().slice(0, 7)
 
-  const [mesSeleccionado, setMesSeleccionado] =
-    useState(mesActual)
+const [mesInicio, setMesInicio] =
+  useState(mesActual)
+
+const [mesFin, setMesFin] =
+  useState(mesActual)
 
   useEffect(() => {
 
     obtenerEmpresas()
     cargarReporte()
 
-  }, [mesSeleccionado, empresaSeleccionada])
+}, [mesInicio, mesFin, empresaSeleccionada])
 
   // OBTENER EMPRESAS
 
@@ -50,20 +53,20 @@ export default function ReportesPage() {
 
   async function cargarReporte() {
 
-    const inicioMes =
-      `${mesSeleccionado}-01`
+const inicioMes =
+  `${mesInicio}-01`;
 
-      const [anio, mes] = mesSeleccionado
-  .split("-")
-  .map(Number);
+const [anio, mes] =
+  mesFin
+    .split("-")
+    .map(Number);
 
-const finMes = new Date(
-  anio,
-  mes,
-  0
-)
-  .toISOString()
-  .split("T")[0];
+const finMes =
+  `${mesFin}-${new Date(
+    anio,
+    mes,
+    0
+  ).getDate()}`;
 
     let query = supabase
       .from("actividades_realizadas")
@@ -172,18 +175,27 @@ const colaboradoresUnicos = new Set(
 
 const fechaGeneracion = new Date().toLocaleString("es-CO")
 
-const [anio, mes] = mesSeleccionado
-  .split("-")
-  .map(Number);
+function formatearMes(mes: string) {
 
-const periodoTexto = new Date(
-  anio,
-  mes - 1,
-  1
-).toLocaleDateString("es-CO", {
-  month: "long",
-  year: "numeric",
-});
+  const [anio, numeroMes] = mes
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    anio,
+    numeroMes - 1,
+    1
+  ).toLocaleDateString("es-CO", {
+    month: "long",
+    year: "numeric",
+  });
+
+}
+
+const periodoTexto =
+  mesInicio === mesFin
+    ? formatearMes(mesInicio)
+    : `${formatearMes(mesInicio)} - ${formatearMes(mesFin)}`;
 
   // EXPORTAR PDF
 
@@ -434,7 +446,7 @@ align:"right"
 }
 )
         doc.save(
-          `Reporte-${nombreEmpresa}-${mesSeleccionado}.pdf`
+          `Reporte-${nombreEmpresa}-${mesInicio}_a_${mesFin}.pdf`
         )
       }
 
@@ -487,47 +499,88 @@ align:"right"
 
         {/* MES */}
 
-        <input
-          type="month"
-          value={mesSeleccionado}
-          onChange={(e) =>
-            setMesSeleccionado(
-              e.target.value
-            )
-          }
-          className="
-            bg-[#0b1020]
-            border
-            border-zinc-800
-            rounded-2xl
-            px-5
-            py-3
-            outline-none
-            text-white
-          "
-        />
+<div className="flex gap-4">
 
-        {/* EMPRESA */}
+  <div>
 
-        <select
-          value={empresaSeleccionada}
-          onChange={(e) =>
-            setEmpresaSeleccionada(
-              e.target.value
-            )
-          }
-          className="
-            bg-[#0b1020]
-            border
-            border-zinc-800
-            rounded-2xl
-            px-5
-            py-3
-            outline-none
-            text-white
-          "
-        >
+    <label className="block text-sm text-zinc-400 mb-2">
+      Desde
+    </label>
 
+    <input
+      type="month"
+      value={mesInicio}
+      onChange={(e) =>
+        setMesInicio(e.target.value)
+      }
+      className="
+        bg-[#0b1020]
+        border
+        border-zinc-800
+        rounded-2xl
+        px-5
+        py-3
+        outline-none
+        text-white
+      "
+    />
+
+  </div>
+
+  <div>
+
+    <label className="block text-sm text-zinc-400 mb-2">
+      Hasta
+    </label>
+
+    <input
+      type="month"
+      value={mesFin}
+      onChange={(e) =>
+        setMesFin(e.target.value)
+      }
+      className="
+        bg-[#0b1020]
+        border
+        border-zinc-800
+        rounded-2xl
+        px-5
+        py-3
+        outline-none
+        text-white
+      "
+    />
+
+  </div>
+
+</div>
+
+{/* EMPRESA */}
+
+<div>
+
+  <label className="block text-sm text-zinc-400 mb-2 opacity-0">
+    Empresa
+  </label>
+
+  <select
+    value={empresaSeleccionada}
+    onChange={(e) =>
+      setEmpresaSeleccionada(
+        e.target.value
+      )
+    }
+    className="
+      bg-[#0b1020]
+      border
+      border-zinc-800
+      rounded-2xl
+      px-5
+      py-3
+      outline-none
+      text-white
+    "
+  >
           <option value="">
             Todas las empresas
           </option>
@@ -546,6 +599,8 @@ align:"right"
           ))}
 
         </select>
+
+        </div>
 
         {/* BOTON */}
 

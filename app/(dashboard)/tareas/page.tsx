@@ -397,6 +397,8 @@ if (!error) {
 
   console.log("ANTES DEL FETCH");
 
+  
+
   try {
     
     console.log("3. Va a llamar la API");

@@ -164,6 +164,12 @@ const finMes =
     )?.nombre || "Todas-las-Empresas"
 
 
+    const nitEmpresa =
+  empresas.find(
+    (empresa) =>
+      empresa.id === empresaSeleccionada
+  )?.nit || ""
+
     const totalFacturado = actividades.reduce(
   (acc, actividad) => acc + Number(actividad.total_facturado || 0),
   0
@@ -223,26 +229,30 @@ const periodoTexto =
 
         // LOGO
 
-        doc.addImage(
-          base64data,
-          "JPEG",
-          14,
-          10,
-          65,
-          26
-        )
+doc.addImage(
+base64data,
+"JPEG",
+14,
+10,
+52,
+25
+)
 
         // TITULO
 
 doc.setFont("helvetica", "bold")
-doc.setFontSize(22)
+doc.setFontSize(20)
+
+doc.setTextColor(20,70,140)
 
 doc.text(
-  "REPORTE OPERATIVO MENSUAL",
+  "CUENTA DE COBRO",
   105,
-  48,
+  40,
   { align: "center" }
 )
+
+doc.setTextColor(0)
 
 doc.setFontSize(12)
 
@@ -251,81 +261,110 @@ doc.setFont("helvetica", "normal")
 doc.setFont("helvetica","bold")
 doc.setFontSize(11)
 
+
 doc.text(
 "Empresa",
-14,
-60
+18,
+52
+)
+
+doc.text(
+nombreEmpresa,
+18,
+59
+)
+
+doc.text(
+"NIT",
+18,
+69
+)
+
+doc.text(
+nitEmpresa || "-",
+18,
+76
 )
 
 doc.text(
 "Período",
-14,
-78
-)
-
-doc.text(
-"Fecha de generación",
-14,
-96
-)
-
-doc.setFont("helvetica","normal")
-
-doc.setFontSize(12)
-
-doc.text(
-nombreEmpresa,
-14,
-67
+18,
+86
 )
 
 doc.text(
 periodoTexto.charAt(0).toUpperCase() +
 periodoTexto.slice(1),
-14,
-85
+18,
+93
+)
+
+doc.text(
+"Fecha de generación",
+18,
+103
 )
 
 doc.text(
 new Date().toLocaleDateString(
 "es-CO",
 {
-day:"numeric",
-month:"long",
-year:"numeric"
+  day: "numeric",
+  month: "long",
+  year: "numeric"
 }
 ),
-14,
-103
+18,
+110
 )
 
 doc.setDrawColor(40)
 
-doc.line(14,112,196,112)
+doc.line(18,119,192,119)
+
+doc.setFont("helvetica","normal")
+
+doc.setFontSize(10)
+
+doc.text(
+  "Por medio de la presente se relacionan las actividades ejecutadas durante el período indicado, como soporte de los servicios prestados en Seguridad y Salud en el Trabajo.",
+  18,
+  125,
+  {
+    maxWidth:174
+  }
+)
 
 
 
         // TABLA
 
-        doc.setFillColor(240,245,255)
+// Caja resumen
+
+doc.setDrawColor(
+190,
+215,
+245
+);
+doc.setFillColor(247,251,255);
 
 doc.roundedRect(
-14,
-118,
-182,
-26,
+18,
+132,
+174,
+20,
 2,
 2,
-"F"
-)
+"FD"
+);
 
 doc.setFont("helvetica","bold")
 doc.setFontSize(12)
 
 doc.text(
-"Resumen Ejecutivo",
-18,
-126
+"Descripción de las actividades",
+24,
+139
 )
 
 doc.setFont("helvetica","normal")
@@ -333,30 +372,26 @@ doc.setFontSize(10)
 
 doc.text(
 `Actividades: ${actividades.length}`,
-18,
-134
+24,
+145
 )
 
-doc.text(
-`Colaboradores: ${colaboradoresUnicos}`,
-80,
-104
-)
+
 
 doc.text(
 `Horas: ${totalHoras} h`,
-18,
-141
+24,
+150
 )
 
 doc.text(
-`Facturación: $${totalFacturado.toLocaleString("es-CO")}`,
-80,
-111
+`Valor a cobrar: $${totalFacturado.toLocaleString("es-CO")}`,
+100,
+150
 )
         autoTable(doc, {
 
-          startY: 150,
+          startY: 158,
 
           head: [[
             "Fecha",
@@ -380,30 +415,30 @@ doc.text(
 
           theme: "grid",
 
-          styles: {
-            fillColor: [10, 10, 20],
-            textColor: 255,
-            lineColor: [40, 40, 60],
-            lineWidth: 0.2,
-            fontSize: 10,
-          },
+styles: {
+  fillColor: [255, 255, 255],
+  textColor: [35, 35, 35],
+  lineColor: [195,215,240],
+  lineWidth: 0.2,
+  fontSize: 10,
+},
 
-          headStyles: {
-            fillColor: [30, 64, 175],
-            textColor: 255,
-            fontStyle: "bold",
-          },
+headStyles: {
+  fillColor: [28, 86, 170],
+  textColor: [255,255,255],
+  fontStyle: "bold",
+},
 
-          alternateRowStyles: {
-            fillColor: [18, 18, 30],
-          },
+alternateRowStyles: {
+  fillColor: [247, 251, 255],
+},
 
-          columnStyles:{
-0:{cellWidth:22},
+columnStyles:{
+0:{cellWidth:20},
 
-1:{cellWidth:35},
+1:{cellWidth:32},
 
-2:{cellWidth:115},
+2:{cellWidth:102},
 
 3:{
 cellWidth:20,
@@ -413,7 +448,112 @@ halign:"center"
         })
 
 const finalY =
-(doc as any).lastAutoTable.finalY
+  (doc as any).lastAutoTable.finalY;
+
+let firmaY = finalY + 20;
+
+if (firmaY > 230) {
+
+  doc.addPage();
+
+  firmaY = 25;
+
+}
+
+// Cargar firma
+
+fetch("/firma-jully.png")
+  .then(res => res.blob())
+  .then(blob => {
+
+    const reader = new FileReader();
+
+    reader.readAsDataURL(blob);
+
+    reader.onloadend = () => {
+
+      const firma =
+        reader.result as string;
+
+        doc.addImage(
+firma,
+"PNG",
+18,
+firmaY + 2,
+48,
+28
+)
+
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(0);
+
+      doc.text(
+        "Att.",
+        18,
+        firmaY
+      );
+
+
+      doc.setFontSize(10);
+
+      doc.text(
+        "Jully Dayám Narváez Benavides",
+        18,
+        firmaY + 32
+      );
+
+      doc.text(
+        "C.C. 59.314.290 de Pasto",
+        18,
+        firmaY + 38
+      );
+
+      doc.text(
+        "Terapeuta Ocupacional",
+        18,
+        firmaY + 44
+      );
+
+      doc.text(
+        "Especialista en Gerencia de la Salud Ocupacional",
+        18,
+        firmaY + 50
+      );
+
+      // Cuadro de sello
+
+      doc.setDrawColor(190,220,250);
+
+doc.rect(
+135,
+firmaY,
+60,
+45
+)
+
+      doc.setTextColor(170);
+
+      doc.text(
+        "Espacio para firma y sello de",
+        167.5,
+        firmaY + 20,
+        {
+          align:"center"
+        }
+      );
+
+      doc.text(
+        "cancelado",
+        167.5,
+        firmaY + 27,
+        {
+          align:"center"
+        }
+      );
+
+      // Aquí continúa el pie de página
 
 
         // DESCARGAR
@@ -422,9 +562,9 @@ const finalY =
 
 doc.line(
 14,
-finalY+42,
+firmaY + 60,
 196,
-finalY+42
+firmaY + 60
 )
 
 doc.setFontSize(9)
@@ -434,21 +574,27 @@ doc.setTextColor(120)
 doc.text(
 "Documento generado automáticamente por SEITON Soluciones Empresariales",
 14,
-finalY+50
+firmaY + 68
 )
 
 doc.text(
 fechaGeneracion,
 196,
-finalY+50,
+firmaY + 68,
 {
 align:"right"
 }
 )
-        doc.save(
-          `Reporte-${nombreEmpresa}-${mesInicio}_a_${mesFin}.pdf`
-        )
-      }
+doc.save(
+  `Cuenta de Cobro - ${nombreEmpresa}.pdf`
+);
+      };
+
+      });
+
+  
+     
+     };
 
     } catch (error) {
 

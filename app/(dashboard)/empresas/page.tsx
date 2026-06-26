@@ -56,6 +56,11 @@ export default function EmpresasPage() {
   ] = useState("")
 
   const [
+  nit,
+  setNit,
+] = useState("")
+
+  const [
     tarifaHora,
     setTarifaHora,
   ] = useState("")
@@ -189,6 +194,8 @@ export default function EmpresasPage() {
 
             telefono,
 
+            nit,
+
             tarifa_hora:
               Number(
                 tarifaHora || 0
@@ -247,6 +254,8 @@ export default function EmpresasPage() {
           contacto,
 
           telefono,
+
+          nit,
 
           tarifa_hora:
             Number(
@@ -360,6 +369,10 @@ export default function EmpresasPage() {
       empresa.telefono || ""
     )
 
+    setNit(
+  empresa.nit || ""
+)
+
     setTarifaHora(
       empresa.tarifa_hora
         ?.toString() || ""
@@ -386,6 +399,7 @@ export default function EmpresasPage() {
     setNombre("")
     setContacto("")
     setTelefono("")
+    setNit("")
     setTarifaHora("")
     setHorasContratadas("")
     setPermiteAcumulado(false)
@@ -860,6 +874,23 @@ export default function EmpresasPage() {
                 py-3
               "
             />
+
+            <input
+  value={nit}
+  onChange={(e) =>
+    setNit(e.target.value)
+  }
+  placeholder="NIT"
+  className="
+    w-full
+    bg-zinc-800
+    border
+    border-zinc-700
+    rounded-xl
+    px-4
+    py-3
+  "
+/>
 
             <input
               type="number"

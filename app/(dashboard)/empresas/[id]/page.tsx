@@ -23,6 +23,12 @@ export default function EmpresaDetallePage() {
   const empresaId =
     params.id as string
 
+    const searchParams =
+  useSearchParams()
+
+const tab =
+  searchParams.get("tab")
+
   const [
     empresa,
     setEmpresa,
@@ -58,15 +64,38 @@ export default function EmpresaDetallePage() {
     setFacturacion,
   ] = useState(0)
 
-  useEffect(() => {
+useEffect(() => {
 
-    if (empresaId) {
+  if (empresaId) {
 
-      cargarEmpresa()
+    cargarEmpresa()
 
-    }
+  }
 
-  }, [empresaId])
+  // SCROLL A EXTINTORES
+
+  if (tab === "extintores") {
+
+    setTimeout(() => {
+
+      const seccion =
+        document.getElementById(
+          "extintores"
+        )
+
+      if (seccion) {
+
+        seccion.scrollIntoView({
+          behavior: "smooth",
+        })
+
+      }
+
+    }, 500)
+
+  }
+
+}, [empresaId, tab])
 
   async function cargarEmpresa() {
 
@@ -277,24 +306,51 @@ export default function EmpresaDetallePage() {
         mb-10
       ">
 
-        <h1 className="
-          text-5xl
-          font-black
-          mb-3
-        ">
+<h1 className="
+  text-5xl
+  font-black
+  mb-3
+">
+  {empresa?.nombre}
+</h1>
 
-          {empresa?.nombre}
+<div className="space-y-1 mb-4">
 
-        </h1>
+  {empresa?.nit && (
+    <p className="text-zinc-300">
+      <span className="font-semibold text-white">
+        NIT:
+      </span>{" "}
+      {empresa.nit}
+    </p>
+  )}
 
-        <p className="
-          text-zinc-400
-          text-lg
-        ">
+  {empresa?.contacto && (
+    <p className="text-zinc-300">
+      <span className="font-semibold text-white">
+        Contacto:
+      </span>{" "}
+      {empresa.contacto}
+    </p>
+  )}
 
-          Panel empresarial
+  {empresa?.telefono && (
+    <p className="text-zinc-300">
+      <span className="font-semibold text-white">
+        Teléfono:
+      </span>{" "}
+      {empresa.telefono}
+    </p>
+  )}
 
-        </p>
+</div>
+
+<p className="
+  text-zinc-400
+  text-lg
+">
+  Panel empresarial
+</p>
 
       </div>
 

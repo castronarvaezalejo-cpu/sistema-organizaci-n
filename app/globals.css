@@ -7,8 +7,31 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #050816;
-  --foreground: #ffffff;
+
+  /* Fondo principal */
+
+  --background: #F4F7FB;
+
+  /* Tarjetas */
+
+  --card: #FFFFFF;
+
+  /* Texto */
+
+  --foreground: #1E293B;
+
+  --muted: #64748B;
+
+  /* Azul corporativo */
+
+  --primary: #0B4A92;
+
+  --primary-light: #0B75C9;
+
+  /* Bordes */
+
+  --border: #E2E8F0;
+
 }
 
 * {
@@ -20,52 +43,109 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+body{
 
   background:
-    radial-gradient(
-      circle at top left,
-      rgba(59,130,246,0.15),
-      transparent 30%
-    ),
 
-    radial-gradient(
-      circle at top right,
-      rgba(139,92,246,0.12),
-      transparent 25%
-    ),
+  linear-gradient(
+    180deg,
+    #F8FAFC,
+    #F1F5F9
+  );
 
-    radial-gradient(
-      circle at bottom,
-      rgba(0,212,255,0.08),
-      transparent 35%
-    ),
+  color: var(--foreground);
 
-    #050816;
+  min-height:100vh;
 
-  color: white;
+  overflow-x:hidden;
 
-  min-height: 100vh;
+}
 
-  overflow-x: hidden;
+/* ===========================
+   TARJETAS
+=========================== */
+
+.card{
+
+  background: white;
+
+  border:1px solid var(--border);
+
+  border-radius:22px;
+
+  box-shadow:
+
+  0 2px 8px rgba(15,23,42,.05);
+
+}
+
+/* ===========================
+   INPUTS
+=========================== */
+
+.input{
+
+  background:white;
+
+  border:1px solid var(--border);
+
+  border-radius:14px;
+
+  color:var(--foreground);
+
+  transition:.25s;
+
+}
+
+.input:focus{
+
+  border-color:var(--primary-light);
+
+  box-shadow:
+
+  0 0 0 4px rgba(11,117,201,.12);
+
+}
+
+/* ===========================
+   BOTONES
+=========================== */
+
+.btn-primary{
+
+  background:var(--primary);
+
+  color:white;
+
+  border-radius:14px;
+
+  transition:.25s;
+
+}
+
+.btn-primary:hover{
+
+  background:#0B75C9;
+
 }
 
 /* SCROLLBAR */
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 9px;
+  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #050816;
+  background: #E2E8F0;
 }
 
 ::-webkit-scrollbar-thumb {
 
   background: linear-gradient(
     to bottom,
-    #3b82f6,
-    #8b5cf6
+    #0B4A92,
+    #0B75C9
   );
 
   border-radius: 999px;
@@ -91,11 +171,6 @@ body {
     0 0 40px rgba(59,130,246,0.15);
 }
 
-.purple-glow {
-  box-shadow:
-    0 0 40px rgba(139,92,246,0.15);
-}
-
 /* ANIMACIONES */
 
 .hover-card {
@@ -109,6 +184,149 @@ body {
 
   box-shadow:
     0 0 35px rgba(59,130,246,0.12);
+}
+
+.bg-blue-600,
+.bg-blue-500,
+.bg-\[\#0B4A92\] {
+  color: #FFFFFF !important;
+}
+
+input,
+select,
+textarea {
+  color: #1E293B;
+}
+
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.rounded-2xl {
+  border-radius: 0.9rem !important;
+}
+
+.rounded-xl {
+  border-radius: 0.7rem !important;
+}
+
+@media (max-width: 767px) {
+  h1 {
+    font-size: 1.45rem !important;
+    line-height: 1.8rem !important;
+  }
+
+  h2 {
+    font-size: 1.15rem !important;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 0.78rem !important;
+  }
+
+  input,
+  select,
+  textarea {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+  }
+
+  button {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .rounded-2xl {
+    border-radius: 0.9rem !important;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  thead,
+  tbody,
+  tr {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  th,
+  td {
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  svg {
+    max-width: 1rem;
+    max-height: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 1.55rem !important;
+    line-height: 1.9rem !important;
+  }
+
+  h2 {
+    font-size: 1rem !important;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 0.76rem !important;
+  }
+
+  input,
+  select,
+  textarea {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  button {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  th,
+  td {
+    padding: 0.5rem 0.7rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  svg {
+    max-width: 1.05rem;
+    max-height: 1.05rem;
+  }
+}
+
+th:last-child,
+td:last-child {
+  min-width: 9.5rem;
+  white-space: nowrap;
+}
+
+td:last-child > div,
+td:last-child .flex {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+span[class*="rounded-full"] {
+  padding: 0.2rem 0.55rem !important;
+  font-size: 0.7rem !important;
+  line-height: 1rem !important;
 }
 
 /* TEXTO */

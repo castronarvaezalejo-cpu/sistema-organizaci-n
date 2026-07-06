@@ -307,7 +307,7 @@ useEffect(() => {
       ">
 
 <h1 className="
-  text-5xl
+  text-4xl
   font-black
   mb-3
 ">
@@ -317,8 +317,8 @@ useEffect(() => {
 <div className="space-y-1 mb-4">
 
   {empresa?.nit && (
-    <p className="text-zinc-300">
-      <span className="font-semibold text-white">
+    <p className="text-slate-600">
+      <span className="font-semibold text-slate-800">
         NIT:
       </span>{" "}
       {empresa.nit}
@@ -326,8 +326,8 @@ useEffect(() => {
   )}
 
   {empresa?.contacto && (
-    <p className="text-zinc-300">
-      <span className="font-semibold text-white">
+    <p className="text-slate-600">
+      <span className="font-semibold text-slate-800">
         Contacto:
       </span>{" "}
       {empresa.contacto}
@@ -335,8 +335,8 @@ useEffect(() => {
   )}
 
   {empresa?.telefono && (
-    <p className="text-zinc-300">
-      <span className="font-semibold text-white">
+    <p className="text-slate-600">
+      <span className="font-semibold text-slate-800">
         Teléfono:
       </span>{" "}
       {empresa.telefono}
@@ -346,7 +346,7 @@ useEffect(() => {
 </div>
 
 <p className="
-  text-zinc-400
+  text-slate-500
   text-lg
 ">
   Panel empresarial
@@ -367,15 +367,15 @@ useEffect(() => {
         {/* HORAS */}
 
         <div className="
-          rounded-3xl
+          rounded-2xl
           border
-          border-zinc-800
-          bg-zinc-900/40
-          p-6
+          border-slate-200
+          bg-white/40
+          p-5
         ">
 
           <p className="
-            text-zinc-400
+            text-slate-500
             mb-3
           ">
 
@@ -384,7 +384,7 @@ useEffect(() => {
           </p>
 
           <h2 className="
-            text-5xl
+            text-4xl
             font-black
             text-blue-400
           ">
@@ -400,7 +400,7 @@ useEffect(() => {
             <div className="
               w-full
               h-4
-              bg-zinc-800
+              bg-white
               rounded-full
               overflow-hidden
             ">
@@ -441,7 +441,7 @@ useEffect(() => {
 
             <p className="
               text-sm
-              text-zinc-400
+              text-slate-500
               mt-2
             ">
 
@@ -457,19 +457,19 @@ useEffect(() => {
         {/* RESTANTES */}
 
         <div className={`
-          rounded-3xl
+          rounded-2xl
           border
-          p-6
+          p-5
 
           ${
             horasRestantes < 0
               ? "border-red-500/30 bg-red-500/10"
-              : "border-zinc-800 bg-zinc-900/40"
+              : "border-slate-200 bg-white/40"
           }
         `}>
 
           <p className="
-            text-zinc-400
+            text-slate-500
             mb-3
           ">
 
@@ -478,7 +478,7 @@ useEffect(() => {
           </p>
 
           <h2 className={`
-            text-5xl
+            text-4xl
             font-black
 
             ${
@@ -497,15 +497,15 @@ useEffect(() => {
         {/* FACTURACIÓN */}
 
         <div className="
-          rounded-3xl
+          rounded-2xl
           border
-          border-zinc-800
-          bg-zinc-900/40
-          p-6
+          border-slate-200
+          bg-white/40
+          p-5
         ">
 
           <p className="
-            text-zinc-400
+            text-slate-500
             mb-3
           ">
 
@@ -535,7 +535,7 @@ useEffect(() => {
         <table className="w-full">
 
           <thead className="
-            bg-zinc-950/40
+            bg-blue-50
           ">
 
             <tr>
@@ -569,7 +569,7 @@ useEffect(() => {
                 key={actividad.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 
@@ -616,7 +616,7 @@ useEffect(() => {
         <table className="w-full">
 
           <thead className="
-            bg-zinc-950/40
+            bg-blue-50
           ">
 
             <tr>
@@ -650,7 +650,7 @@ useEffect(() => {
                 key={tarea.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 
@@ -691,7 +691,7 @@ useEffect(() => {
         <table className="w-full">
 
           <thead className="
-            bg-zinc-950/40
+            bg-blue-50
           ">
 
             <tr>
@@ -725,7 +725,7 @@ useEffect(() => {
                 key={capacitacion.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 
@@ -799,7 +799,7 @@ useEffect(() => {
         <table className="w-full">
 
           <thead className="
-            bg-zinc-950/40
+            bg-blue-50
           ">
 
             <tr>
@@ -837,7 +837,7 @@ useEffect(() => {
                 key={extintor.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 
@@ -876,7 +876,7 @@ useEffect(() => {
           <div className="
             p-8
             text-center
-            text-zinc-500
+            text-slate-500
           ">
 
             No hay extintores registrados
@@ -906,18 +906,18 @@ function SectionCard({
   return (
 
     <div className="
-      rounded-3xl
+      rounded-2xl
       border
-      border-zinc-800
-      bg-zinc-900/40
+      border-slate-200
+      bg-white/40
       overflow-hidden
       mb-8
     ">
 
       <div className="
-        p-6
+        p-5
         border-b
-        border-zinc-800
+        border-slate-200
       ">
 
         <h2 className="

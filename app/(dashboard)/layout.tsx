@@ -14,22 +14,11 @@ import Link from "next/link";
 import LogoutButton
 from "@/components/LogoutButton";
 
-import {
+import DesktopSidebar from "@/components/layout/DesktopSidebar";
 
-  LayoutDashboard,
-  Building2,
-  CheckSquare,
-  Users,
-  Bell,
-  ClipboardList,
-  CalendarDays,
-  GraduationCap,
-  BarChart3,
-  ShieldAlert,
-  Bot,
-  Clock3,
+import MobileSidebar from "@/components/layout/MobileSidebar";
 
-} from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -54,6 +43,11 @@ export default function DashboardLayout({
     esAdmin,
     setEsAdmin,
   ] = useState(false);
+
+  const [
+  menuAbierto,
+  setMenuAbierto,
+] = useState(false);
 
   useEffect(() => {
 
@@ -108,14 +102,14 @@ export default function DashboardLayout({
 
     return (
 
-      <div className="
-        min-h-screen
-        bg-black
-        flex
-        items-center
-        justify-center
-        text-white
-      ">
+<div className="
+  min-h-screen
+  bg-slate-100
+  flex
+  items-center
+  justify-center
+  text-slate-800
+">
 
         Cargando...
 
@@ -137,33 +131,33 @@ export default function DashboardLayout({
 
   return (
 
-    <main className="
-      min-h-screen
-      flex
-      flex-col
-      md:flex-row
-      bg-black
-      text-white
-    ">
+<main className="
+  min-h-screen
+  flex
+  bg-slate-100
+  text-slate-800
+  relative
+">
 
       {/* SIDEBAR */}
 
       <aside className="
-        md:w-64
-        md:min-w-64
-        bg-[#050816]
+hidden
+md:flex
+md:w-56
+md:min-w-56
+        bg-[#0B4A92]
         border-r
-        border-zinc-900
-        flex
+        border-slate-200
         flex-col
       ">
 
         {/* LOGO */}
 
         <div className="
-          p-6
+          p-3
           border-b
-          border-zinc-900
+          border-white/20
         ">
 
           <div className="
@@ -175,10 +169,11 @@ export default function DashboardLayout({
               src="/logo.png"
               alt="SEITON"
               className="
-                w-32
-                h-auto
-                object-contain
-              "
+  w-24
+  md:w-20
+  h-auto
+  object-contain
+"
             />
 
           </div>
@@ -187,132 +182,9 @@ export default function DashboardLayout({
 
         {/* NAV */}
 
-        <nav className="
-          flex
-          md:flex-col
-          overflow-x-auto
-          md:overflow-visible
-          p-4
-          gap-2
-        ">
-
-          <SidebarItem
-            icon={
-              <LayoutDashboard size={19} />
-            }
-            title="Dashboard"
-            href="/"
-          />
-
-          <SidebarItem
-            icon={
-              <Building2 size={19} />
-            }
-            title="Empresas"
-            href="/empresas"
-          />
-
-          <SidebarItem
-            icon={
-              <CheckSquare size={19} />
-            }
-            title="Tareas"
-            href="/tareas"
-          />
-
-          <SidebarItem
-            icon={
-              <CalendarDays size={19} />
-            }
-            title="Calendario"
-            
-            href="/calendario"
-            
-          />
-
-          <SidebarItem
-  icon={
-  <GraduationCap size={19} />
-}
-  title="Capacitaciones"
-  href="/capacitaciones"
+ <DesktopSidebar
+  esAdmin={esAdmin}
 />
-
-          {/* SOLO ADMIN */}
-
-          {esAdmin && (
-
-            <SidebarItem
-              icon={
-                <Users size={19} />
-              }
-              title="Colaboradores"
-              href="/colaboradores"
-            />
-
-          )}
-
-          {/* SOLO ADMIN */}
-
-          {esAdmin && (
-
-            <SidebarItem
-              icon={
-                <ClipboardList size={19} />
-              }
-              title="Actividades"
-              href="/actividades"
-            />
-
-          )}
-
-          <SidebarItem
-  icon={
-    <Clock3 size={19} />
-  }
-  title="Horas"
-  href="/horas"
-/>
-
-          <SidebarItem
-            icon={
-              <Bell size={19} />
-            }
-            title="Alertas"
-            href="/alertas"
-          />
-
-          {/* SOLO ADMIN */}
-
-          {esAdmin && (
-
-            <SidebarItem
-              icon={
-                <BarChart3 size={19} />
-              }
-              title="Reportes"
-              href="/reportes"
-            />
-
-          )}
-
-          <SidebarItem
-            icon={
-              <ShieldAlert size={19} />
-            }
-            title="Extintores"
-            href="/extintores"
-          />
-
-          <SidebarItem
-            icon={
-              <Bot size={19} />
-            }
-            title="ChatBot"
-            href="/chatbot"
-          />
-
-        </nav>
 
       </aside>
 
@@ -320,11 +192,10 @@ export default function DashboardLayout({
 
       <section className="
         flex-1
+        w-full
+        min-w-0
         overflow-y-auto
-        bg-gradient-to-br
-        from-black
-        via-[#060816]
-        to-black
+        bg-slate-100
       ">
 
         {/* TOPBAR */}
@@ -334,42 +205,60 @@ export default function DashboardLayout({
           top-0
           z-50
           border-b
-          border-zinc-900
-          bg-[#050816]/80
+          border-slate-200
+          bg-white
           backdrop-blur-2xl
         ">
 
-          <div className="
-            max-w-[1200px]
-            mx-auto
-            px-6
-            py-5
-            flex
-            items-center
-            justify-between
-          ">
+<div className="
+  max-w-[1600px]
+  mx-auto
+  px-4
+  sm:px-5
+  lg:px-6
+  py-2
+  sm:py-3
+  flex
+  items-center
+  justify-between
+">
+
+<button
+  onClick={() => setMenuAbierto(true)}
+  className="
+    md:hidden
+    mr-4
+    p-2
+    rounded-xl
+    hover:bg-blue-500/10
+    transition
+  "
+>
+  <Menu size={28} />
+</button>
 
             <div>
 
-              <h2 className="
-                text-4xl
-                font-black
-              ">
+<h2 className="
+  text-lg
+  sm:text-2xl
+  font-bold
+  text-slate-800
+">
 
-                Panel Empresarial
+  ¡Hola, {colaborador?.nombre?.split(" ")[0] || "Usuario"}! 👋
 
-              </h2>
+</h2>
 
-              <p className="
-                text-zinc-400
-                text-sm
-                mt-2
-                capitalize
-              ">
+<p className="
+  text-slate-500
+  text-xs
+  mt-1
+">
 
-                {fecha}
+  Bienvenido nuevamente a SEITON · {fecha}
 
-              </p>
+</p>
 
             </div>
 
@@ -401,7 +290,7 @@ export default function DashboardLayout({
 
                 <p className="
                   text-sm
-                  text-zinc-500
+                  text-slate-500
                   capitalize
                 ">
 
@@ -424,12 +313,15 @@ export default function DashboardLayout({
 
         {/* PAGE */}
 
-        <div className="
-          max-w-[1200px]
-          mx-auto
-          px-6
-          py-8
-        ">
+<div className="
+  max-w-[1400px]
+  mx-auto
+  px-3
+  sm:px-5
+  lg:px-6
+  py-4
+  sm:py-6
+">
 
           {children}
 
@@ -437,48 +329,13 @@ export default function DashboardLayout({
 
       </section>
 
+<MobileSidebar
+  abierto={menuAbierto}
+  cerrar={() => setMenuAbierto(false)}
+  esAdmin={esAdmin}
+/>
+
     </main>
   );
 }
 
-function SidebarItem({
-  icon,
-  title,
-  href,
-}: {
-  icon: React.ReactNode
-  title: string
-  href: string
-}) {
-
-  return (
-
-    <Link
-      href={href}
-      className="
-        flex
-        items-center
-        gap-3
-        px-4
-        py-3
-        rounded-2xl
-        text-zinc-400
-        hover:bg-blue-500/10
-        hover:text-blue-400
-        transition-all
-      "
-    >
-
-      {icon}
-
-      <span className="
-        font-semibold
-      ">
-
-        {title}
-
-      </span>
-
-    </Link>
-  );
-}

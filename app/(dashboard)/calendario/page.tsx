@@ -6,6 +6,9 @@ from "react"
 import { supabase }
 from "@/lib/supabase"
 
+import PageHeader
+from "@/components/ui/PageHeader"
+
 import {
   CalendarDays,
   CheckSquare,
@@ -413,14 +416,19 @@ if (extintoresData) {
 
     <div className="max-w-[1200px]">
 
+      <PageHeader
+        title="Calendario SST"
+        description="Agenda operativa empresarial y recordatorios de Google Calendar"
+      />
+
       {/* HEADER */}
 
       <div className="
-        mb-8
+        hidden
       ">
 
         <h1 className="
-          text-5xl
+          text-4xl
           font-black
           tracking-tight
           mb-3
@@ -431,7 +439,7 @@ if (extintoresData) {
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
           text-lg
         ">
 
@@ -444,11 +452,12 @@ if (extintoresData) {
 
       <div className="
         mb-8
-        rounded-3xl
+        rounded-2xl
         border
-        border-zinc-800
-        bg-zinc-900/40
+        border-slate-200
+        bg-white
         p-5
+        shadow-sm
         flex
         flex-col
         sm:flex-row
@@ -457,10 +466,10 @@ if (extintoresData) {
         gap-4
       ">
         <div>
-          <h2 className="text-lg font-semibold mb-1">
+          <h2 className="text-lg font-semibold text-slate-800 mb-1">
             Google Calendar
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-slate-500">
             {googleEmail
               ? `Conectado como ${googleEmail}`
               : "Conecta tu cuenta para recibir recordatorios en tu calendario."
@@ -484,8 +493,8 @@ if (extintoresData) {
             transition
             disabled:opacity-60
             ${googleEmail
-              ? "border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-              : "bg-white text-black hover:bg-zinc-200"
+              ? "border border-slate-200 text-slate-600 hover:bg-slate-50"
+              : "bg-[#0B4A92] text-white hover:bg-[#0B75C9]"
             }
           `}
         >
@@ -566,11 +575,12 @@ if (extintoresData) {
         gap-3
         mb-8
         flex-wrap
-        rounded-3xl
+        rounded-2xl
         border
-        border-zinc-800
-        bg-zinc-900/40
+        border-slate-200
+        bg-white
         p-3
+        shadow-sm
       ">
 
         <FiltroButton
@@ -658,20 +668,21 @@ if (extintoresData) {
           <div
             key={fecha}
             className="
-              bg-zinc-900/40
+              bg-white
               border
-              border-zinc-800
-              rounded-3xl
+              border-slate-200
+              rounded-2xl
               overflow-hidden
+              shadow-sm
             "
           >
 
             {/* FECHA */}
 
             <div className="
-              p-6
+              p-5
               border-b
-              border-zinc-800
+              border-slate-200
             ">
 
               <div className="
@@ -683,8 +694,8 @@ if (extintoresData) {
                   w-11
                   h-11
                   rounded-2xl
-                  bg-blue-500/10
-                  text-blue-400
+                  bg-blue-50
+                  text-blue-700
                   flex
                   items-center
                   justify-center
@@ -695,6 +706,7 @@ if (extintoresData) {
                 <h2 className="
                   text-2xl
                   font-black
+                  text-slate-800
                 ">
                   {fecha}
                 </h2>
@@ -706,7 +718,7 @@ if (extintoresData) {
 
             <div className="
               divide-y
-              divide-zinc-800
+              divide-slate-200
             ">
 
               {(eventosDelDia as any[]).map(
@@ -717,7 +729,7 @@ if (extintoresData) {
                     evento.id
                   }
                   className="
-                    p-6
+                    p-5
                     flex
                     flex-col
                     sm:flex-row
@@ -725,7 +737,7 @@ if (extintoresData) {
                     justify-between
                     gap-4
                     transition
-                    hover:bg-zinc-800/30
+                    hover:bg-blue-50/60
                   "
                 >
 
@@ -753,8 +765,8 @@ if (extintoresData) {
   "tarea"
 
   ? `
-    bg-red-500/20
-    text-red-400
+    bg-red-50
+    text-red-700
   `
 
   : evento.tipo
@@ -762,13 +774,13 @@ if (extintoresData) {
     "capacitacion"
 
   ? `
-    bg-blue-500/20
-    text-blue-400
+    bg-blue-50
+    text-blue-700
   `
 
   : `
-    bg-yellow-500/20
-    text-yellow-400
+    bg-amber-50
+    text-amber-700
   `
 }
                       `}>
@@ -794,7 +806,7 @@ if (extintoresData) {
                     </h3>
 
                     <p className="
-                      text-zinc-400
+                      text-slate-500
                     ">
 
                       {
@@ -827,7 +839,7 @@ if (extintoresData) {
 
                       <p className="
                         text-sm
-                        text-zinc-500
+                        text-slate-500
                         capitalize
                         mt-2
                       ">
@@ -872,26 +884,27 @@ function MiniCard({
   const styles: any = {
 
     yellow:
-  "text-yellow-400 bg-yellow-500/10",
+  "text-amber-700 bg-amber-50",
 
     blue:
-      "text-blue-400 bg-blue-500/10",
+      "text-blue-700 bg-blue-50",
 
     red:
-      "text-red-400 bg-red-500/10",
+      "text-red-700 bg-red-50",
 
     green:
-      "text-green-400 bg-green-500/10",
+      "text-emerald-700 bg-emerald-50",
   }
 
   return (
 
     <div className="
-      rounded-3xl
+      rounded-2xl
       border
-      border-zinc-800
-      bg-zinc-900/40
+      border-slate-200
+      bg-white
       p-5
+      shadow-sm
     ">
 
       <div className="
@@ -921,6 +934,7 @@ function MiniCard({
       <h3 className="
         text-lg
         font-semibold
+        text-slate-700
         mb-2
       ">
         {title}
@@ -930,12 +944,12 @@ function MiniCard({
         text-4xl
         font-black
         ${color === "red"
-          ? "text-red-400"
+          ? "text-red-700"
           : color === "yellow"
-          ? "text-yellow-400"
+          ? "text-amber-700"
           : color === "green"
-          ? "text-green-400"
-          : "text-blue-400"
+          ? "text-emerald-700"
+          : "text-blue-700"
         }
       `}>
 
@@ -967,13 +981,16 @@ function FiltroButton({
           active
 
           ? `
-            bg-blue-600
+            bg-[#0B4A92]
             text-white
           `
 
           : `
-            bg-zinc-900
-            text-zinc-400
+            bg-white
+            text-slate-600
+            border
+            border-slate-200
+            hover:bg-blue-50
           `
         }
       `}

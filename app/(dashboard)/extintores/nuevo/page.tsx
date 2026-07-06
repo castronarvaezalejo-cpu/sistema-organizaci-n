@@ -210,12 +210,12 @@ const { error } =
         <form
           onSubmit={crearExtintor}
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
-            p-8
-            space-y-6
+            p-5
+            space-y-5
           "
         >
 
@@ -227,7 +227,7 @@ const { error } =
 
           <div className="space-y-2">
 
-    <label className="text-sm text-zinc-400">
+    <label className="text-sm text-slate-500">
       Empresa
     </label>
 
@@ -238,9 +238,9 @@ const { error } =
       }
       className="
         w-full
-        bg-black
+        bg-white
         border
-        border-zinc-800
+        border-slate-200
         rounded-xl
         px-4
         py-3
@@ -270,7 +270,7 @@ const { error } =
 
   <div className="space-y-2">
 
-  <label className="text-sm text-zinc-400">
+  <label className="text-sm text-slate-500">
     Responsable del calendario
   </label>
 
@@ -281,9 +281,9 @@ const { error } =
     }
     className="
       w-full
-      bg-black
+      bg-white
       border
-      border-zinc-800
+      border-slate-200
       rounded-xl
       px-4
       py-3
@@ -347,7 +347,7 @@ const { error } =
       bg-blue-600
       hover:bg-blue-700
       transition
-      px-6
+      px-5
       py-3
       rounded-xl
       font-semibold
@@ -364,10 +364,10 @@ const { error } =
   router.push(`/extintores?empresa=${empresaId}`)
 }
     className="
-      bg-zinc-700
-      hover:bg-zinc-600
+      bg-slate-100
+      hover:bg-slate-200
       transition
-      px-6
+      px-5
       py-3
       rounded-xl
       font-semibold
@@ -400,7 +400,7 @@ const { error } =
 
         <label className="
           text-sm
-          text-zinc-400
+          text-slate-500
         ">
           {label}
         </label>
@@ -412,9 +412,9 @@ const { error } =
           }
           className="
             w-full
-            bg-black
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-xl
             px-4
             py-3
@@ -443,7 +443,7 @@ const { error } =
 
         <label className="
           text-sm
-          text-zinc-400
+          text-slate-500
         ">
           {label}
         </label>
@@ -456,9 +456,9 @@ const { error } =
           }
           className="
             w-full
-            bg-black
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-xl
             px-4
             py-3

@@ -770,7 +770,7 @@ if (
           </h1>
 
           <p className="
-            text-zinc-400
+            text-slate-500
           ">
 
             Gestión de tareas
@@ -796,8 +796,8 @@ if (
               flex
               items-center
               gap-2
-              bg-white
-              text-black
+              bg-[#0B4A92]
+              text-white
               px-5
               py-3
               rounded-xl
@@ -837,9 +837,9 @@ if (
           "
           className="
             flex-1
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
             py-3
@@ -855,9 +855,9 @@ if (
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
             py-3
@@ -884,9 +884,9 @@ if (
       {/* TABLA */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
+        border-slate-200
         rounded-2xl
         overflow-hidden
       ">
@@ -897,7 +897,7 @@ if (
 
           <thead className="
             border-b
-            border-zinc-800
+            border-slate-200
           ">
 
             <tr>
@@ -935,7 +935,7 @@ if (
                 key={tarea.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 
@@ -1062,9 +1062,9 @@ if (
       >
 
         <DialogContent className="
-          bg-zinc-900
-          border-zinc-800
-          text-white
+          bg-white
+          border-slate-200
+          text-slate-800
           max-w-2xl
         ">
 
@@ -1099,9 +1099,9 @@ if (
               "
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -1118,9 +1118,9 @@ if (
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -1157,9 +1157,9 @@ if (
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -1202,9 +1202,9 @@ if (
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -1237,9 +1237,9 @@ if (
   }
   className="
     w-full
-    bg-zinc-800
+    bg-white
     border
-    border-zinc-700
+    border-slate-200
     rounded-xl
     px-4
     py-3
@@ -1271,9 +1271,9 @@ if (
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -1291,8 +1291,8 @@ if (
                 onClick={crearTarea}
                 className="
                   flex-1
-                  bg-white
-                  text-black
+                  bg-[#0B4A92]
+                  text-white
                   py-3
                   rounded-xl
                   font-medium
@@ -1317,8 +1317,10 @@ if (
                 }}
                 className="
                   flex-1
-                  bg-zinc-800
-                  text-white
+                  bg-white
+                  text-slate-700
+                  border
+                  border-slate-200
                   py-3
                   rounded-xl
                   font-medium

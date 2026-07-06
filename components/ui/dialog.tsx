@@ -25,7 +25,7 @@ export function Dialog({
         flex
         items-center
         justify-center
-        bg-black/70
+        bg-slate-900/40
         backdrop-blur-sm
       "
     >
@@ -49,10 +49,14 @@ export function DialogContent({
     <div
       className={`
         w-full
-        max-w-lg
-        rounded-2xl
-        p-6
-        shadow-2xl
+        max-w-md
+        rounded-xl
+        border
+        border-slate-200
+        bg-white
+        p-4
+        text-slate-800
+        shadow-xl
         ${className}
       `}
     >
@@ -70,7 +74,7 @@ export function DialogHeader({
 }) {
 
   return (
-    <div className="mb-4">
+    <div className="mb-3">
       {children}
     </div>
   )
@@ -86,8 +90,9 @@ export function DialogTitle({
 
     <h2
       className="
-        text-2xl
+        text-lg
         font-bold
+        text-slate-800
       "
     >
 

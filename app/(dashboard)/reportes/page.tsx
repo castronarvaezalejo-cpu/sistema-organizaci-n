@@ -7,17 +7,21 @@ import { useEffect, useState } from "react"
 
 import { supabase } from "@/lib/supabase"
 
+import PageHeader from "@/components/ui/PageHeader"
+
 export default function ReportesPage() {
 
   const [actividades, setActividades] = useState<any[]>([])
-  const [horasPorColaborador, setHorasPorColaborador] =
-    useState<any[]>([])
-
+  const [actividadesSeleccionadas, setActividadesSeleccionadas] =
+    useState<string[]>([])
   const [empresas, setEmpresas] =
     useState<any[]>([])
 
   const [empresaSeleccionada, setEmpresaSeleccionada] =
     useState("")
+
+  const [estadoFacturacion, setEstadoFacturacion] =
+    useState("disponibles")
 
 const mesActual =
   new Date().toISOString().slice(0, 7)
@@ -33,7 +37,7 @@ const [mesFin, setMesFin] =
     obtenerEmpresas()
     cargarReporte()
 
-}, [mesInicio, mesFin, empresaSeleccionada])
+}, [mesInicio, mesFin, empresaSeleccionada, estadoFacturacion])
 
   // OBTENER EMPRESAS
 
@@ -82,8 +86,11 @@ const finMes =
           titulo
         )
       `)
-      .gte("fecha", inicioMes)
-.lte("fecha", finMes);
+      .lte("fecha", finMes);
+
+    if (estadoFacturacion !== "disponibles") {
+      query = query.gte("fecha", inicioMes)
+    }
 
     // FILTRO EMPRESA
 
@@ -95,63 +102,87 @@ const finMes =
       )
     }
 
+    if (estadoFacturacion === "disponibles") {
+      query = query.eq("facturada", false)
+    }
+
+    if (estadoFacturacion === "facturadas") {
+      query = query.eq("facturada", true)
+    }
+
     const { data } = await query.order(
       "fecha",
       { ascending: false }
     )
 
-    console.table(
-  data?.map((a: any) => ({
-    fecha: a.fecha,
-    empresa: a.empresas?.nombre,
-    descripcion: a.descripcion,
-  }))
-);
-
     if (!data) return
 
     setActividades(data)
+    setActividadesSeleccionadas(
+      data.map((actividad: any) => actividad.id)
+    )
     
-    console.table(
-  data.map((a: any) => ({
-    id: a.id,
-    empresa: a.empresas?.nombre,
-    descripcion: a.descripcion,
-    horas: a.horas,
-    horas_trabajo_id: a.horas_trabajo_id,
-  }))
-);
+  }
 
-    // AGRUPAR HORAS
+  const actividadesParaCuenta =
+    actividades.filter((actividad) =>
+      actividadesSeleccionadas.includes(
+        actividad.id
+      )
+    )
 
-    const agrupadas: Record<string, number> = {}
+  const horasPorColaboradorSeleccionadas =
+    Object.entries(
+      actividadesParaCuenta.reduce(
+        (
+          acc: Record<string, number>,
+          actividad: any
+        ) => {
+          const nombre =
+            actividad.colaboradores?.nombre ||
+            "Sin nombre"
 
-    data.forEach((actividad: any) => {
+          acc[nombre] =
+            (acc[nombre] || 0) +
+            Number(actividad.horas)
 
-      const nombre =
-        actividad.colaboradores?.nombre ||
-        "Sin nombre"
-
-      agrupadas[nombre] =
-        (agrupadas[nombre] || 0) +
-        Number(actividad.horas)
-    })
-
-    const resultado = Object.entries(
-      agrupadas
+          return acc
+        },
+        {}
+      )
     ).map(([nombre, horas]) => ({
       nombre,
       horas,
     }))
 
-    setHorasPorColaborador(resultado)
+  function alternarActividad(id: string) {
+    setActividadesSeleccionadas((actuales) =>
+      actuales.includes(id)
+        ? actuales.filter((item) => item !== id)
+        : [...actuales, id]
+    )
+  }
+
+  function alternarTodas() {
+    if (
+      actividadesSeleccionadas.length ===
+      actividades.length
+    ) {
+      setActividadesSeleccionadas([])
+      return
+    }
+
+    setActividadesSeleccionadas(
+      actividades.map((actividad) => actividad.id)
+    )
   }
 
   // TOTAL HORAS
 
   const totalHoras =
-    horasPorColaborador.reduce(
-      (acc, item) => acc + item.horas,
+    actividadesParaCuenta.reduce(
+      (acc, actividad) =>
+        acc + Number(actividad.horas),
       0
     )
 
@@ -170,14 +201,10 @@ const finMes =
       empresa.id === empresaSeleccionada
   )?.nit || ""
 
-    const totalFacturado = actividades.reduce(
+    const totalFacturado = actividadesParaCuenta.reduce(
   (acc, actividad) => acc + Number(actividad.total_facturado || 0),
   0
 )
-
-const colaboradoresUnicos = new Set(
-  actividades.map(a => a.colaboradores?.nombre)
-).size
 
 const fechaGeneracion = new Date().toLocaleString("es-CO")
 
@@ -203,9 +230,70 @@ const periodoTexto =
     ? formatearMes(mesInicio)
     : `${formatearMes(mesInicio)} - ${formatearMes(mesFin)}`;
 
+  async function marcarActividadesFacturadas(
+    cuentaCobroId: string
+  ) {
+    const actividadIds =
+      actividadesParaCuenta.map(
+        (actividad) => actividad.id
+      )
+
+    if (actividadIds.length === 0) {
+      return false
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session?.access_token) {
+      alert("No hay una sesión válida para facturar.")
+      return false
+    }
+
+    const response = await fetch(
+      "/api/reportes/facturar",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          actividadIds,
+          cuentaCobroId,
+        }),
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok || !result.ok) {
+      console.error(result)
+      alert(
+        result.error ||
+        "No fue posible marcar las actividades como facturadas."
+      )
+      return false
+    }
+
+    await cargarReporte()
+
+    return true
+  }
+
   // EXPORTAR PDF
 
   async function exportarPDF() {
+
+    if (actividadesParaCuenta.length === 0) {
+      alert("Selecciona al menos una actividad para generar la cuenta de cobro.")
+      return
+    }
+
+    const cuentaCobroId =
+      crypto.randomUUID()
 
     const doc = new jsPDF()
 
@@ -371,7 +459,7 @@ doc.setFont("helvetica","normal")
 doc.setFontSize(10)
 
 doc.text(
-`Actividades: ${actividades.length}`,
+`Actividades: ${actividadesParaCuenta.length}`,
 24,
 145
 )
@@ -400,7 +488,7 @@ doc.text(
             "Horas",
           ]],
 
-          body: actividades.map(
+          body: actividadesParaCuenta.map(
             (actividad) => [
 
               actividad.fecha,
@@ -470,7 +558,7 @@ fetch("/firma-jully.png")
 
     reader.readAsDataURL(blob);
 
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
 
       const firma =
         reader.result as string;
@@ -585,6 +673,15 @@ firmaY + 68,
 align:"right"
 }
 )
+const facturacionGuardada =
+  await marcarActividadesFacturadas(
+    cuentaCobroId
+  );
+
+if (!facturacionGuardada) {
+  return;
+}
+
 doc.save(
   `Cuenta de Cobro - ${nombreEmpresa}.pdf`
 );
@@ -607,40 +704,25 @@ doc.save(
   return (
     <div className="max-w-[1200px]">
 
-      {/* HEADER */}
-
-      <div className="mb-10">
-
-        <h1 className="
-          text-5xl
-          font-black
-          tracking-tight
-          mb-3
-        ">
-
-          Reportes
-
-        </h1>
-
-        <p className="
-          text-zinc-400
-          text-lg
-        ">
-
-          Reporte operativo mensual
-
-        </p>
-
-      </div>
+      <PageHeader
+        title="Reportes"
+        description="Reporte operativo mensual y cuentas de cobro"
+      />
 
       {/* FILTROS */}
 
       <div className="
         flex
         flex-wrap
-        items-center
+        items-end
         gap-4
-        mb-8
+        mb-6
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        p-4
+        shadow-sm
       ">
 
         {/* MES */}
@@ -649,7 +731,7 @@ doc.save(
 
   <div>
 
-    <label className="block text-sm text-zinc-400 mb-2">
+    <label className="block text-sm font-medium text-slate-600 mb-2">
       Desde
     </label>
 
@@ -660,14 +742,16 @@ doc.save(
         setMesInicio(e.target.value)
       }
       className="
-        bg-[#0b1020]
+        bg-white
         border
-        border-zinc-800
-        rounded-2xl
-        px-5
-        py-3
+        border-slate-200
+        rounded-xl
+        px-4
+        py-2.5
         outline-none
-        text-white
+        text-sm
+        text-slate-800
+        shadow-sm
       "
     />
 
@@ -675,7 +759,7 @@ doc.save(
 
   <div>
 
-    <label className="block text-sm text-zinc-400 mb-2">
+    <label className="block text-sm font-medium text-slate-600 mb-2">
       Hasta
     </label>
 
@@ -686,14 +770,16 @@ doc.save(
         setMesFin(e.target.value)
       }
       className="
-        bg-[#0b1020]
+        bg-white
         border
-        border-zinc-800
-        rounded-2xl
-        px-5
-        py-3
+        border-slate-200
+        rounded-xl
+        px-4
+        py-2.5
         outline-none
-        text-white
+        text-sm
+        text-slate-800
+        shadow-sm
       "
     />
 
@@ -705,7 +791,7 @@ doc.save(
 
 <div>
 
-  <label className="block text-sm text-zinc-400 mb-2 opacity-0">
+  <label className="block text-sm font-medium text-slate-600 mb-2">
     Empresa
   </label>
 
@@ -717,14 +803,16 @@ doc.save(
       )
     }
     className="
-      bg-[#0b1020]
+      bg-white
       border
-      border-zinc-800
-      rounded-2xl
-      px-5
-      py-3
+      border-slate-200
+      rounded-xl
+      px-4
+      py-2.5
       outline-none
-      text-white
+      text-sm
+      text-slate-800
+      shadow-sm
     "
   >
           <option value="">
@@ -748,20 +836,62 @@ doc.save(
 
         </div>
 
+{/* ESTADO FACTURACIÓN */}
+
+<div>
+
+  <label className="block text-sm font-medium text-slate-600 mb-2">
+    Estado
+  </label>
+
+  <select
+    value={estadoFacturacion}
+    onChange={(e) =>
+      setEstadoFacturacion(e.target.value)
+    }
+    className="
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-2.5
+      outline-none
+      text-sm
+      text-slate-800
+      shadow-sm
+    "
+  >
+    <option value="disponibles">
+      Disponibles
+    </option>
+
+    <option value="facturadas">
+      Facturadas
+    </option>
+
+    <option value="todas">
+      Todas
+    </option>
+  </select>
+
+</div>
+
         {/* BOTON */}
 
         <button
           onClick={exportarPDF}
           className="
-            px-6
-            py-3
-            rounded-2xl
+            px-5
+            py-2.5
+            rounded-xl
             font-semibold
-            bg-blue-500
-            hover:bg-blue-400
+            bg-[#0B4A92]
+            hover:bg-[#0B75C9]
+            text-white
             transition
-            shadow-lg
-            shadow-blue-500/20
+            shadow-sm
+            h-[42px]
           "
         >
 
@@ -777,30 +907,28 @@ doc.save(
         grid
         grid-cols-1
         md:grid-cols-3
-        gap-5
-        mb-10
+        gap-4
+        mb-6
       ">
 
-        {horasPorColaborador.map((item) => (
+        {horasPorColaboradorSeleccionadas.map((item) => (
 
           <div
             key={item.nombre}
             className="
-              rounded-3xl
+              rounded-2xl
               border
-              border-zinc-800
-              bg-gradient-to-br
-              from-[#0b1020]
-              to-[#050816]
-              p-6
-              shadow-xl
+              border-slate-200
+              bg-white
+              p-4
+              shadow-sm
             "
           >
 
             <h2 className="
-              text-lg
-              text-zinc-400
-              mb-3
+              text-sm
+              text-slate-500
+              mb-2
             ">
 
               {item.nombre}
@@ -808,9 +936,9 @@ doc.save(
             </h2>
 
             <p className="
-              text-5xl
+              text-3xl
               font-black
-              text-green-400
+              text-emerald-700
             ">
 
               {item.horas}h
@@ -826,21 +954,20 @@ doc.save(
       {/* TOTAL */}
 
       <div className="
-        mb-10
-        rounded-3xl
+        mb-6
+        rounded-2xl
         border
-        border-zinc-800
-        bg-gradient-to-br
-        from-[#0b1020]
-        to-[#050816]
-        p-7
-        shadow-xl
+        border-slate-200
+        bg-white
+        p-5
+        shadow-sm
       ">
 
         <h2 className="
-          text-xl
-          text-zinc-400
-          mb-3
+          text-sm
+          font-semibold
+          text-slate-500
+          mb-2
         ">
 
           Total mensual
@@ -848,9 +975,9 @@ doc.save(
         </h2>
 
         <p className="
-          text-6xl
+          text-4xl
           font-black
-          text-blue-400
+          text-blue-700
         ">
 
           {totalHoras}h
@@ -861,43 +988,68 @@ doc.save(
 
       {/* TABLA */}
 
+      <div className="mb-3 text-sm text-slate-500">
+        Se incluirán {actividadesParaCuenta.length} de {actividades.length} actividades en la cuenta de cobro.
+      </div>
+
       <div className="
         overflow-hidden
-        rounded-3xl
+        rounded-2xl
         border
-        border-zinc-800
-        bg-[#0b1020]
-        shadow-2xl
+        border-slate-200
+        bg-white
+        shadow-sm
       ">
 
         <table className="w-full">
 
           <thead className="
-            bg-zinc-950/50
+            bg-blue-50
             border-b
-            border-zinc-800
+            border-slate-200
           ">
 
             <tr className="text-left">
 
-              <th className="p-5 text-zinc-400">
+              <th className="p-4 text-slate-600">
+                <button
+                  type="button"
+                  onClick={alternarTodas}
+                  className="
+                    text-xs
+                    font-semibold
+                    text-blue-700
+                    hover:underline
+                  "
+                >
+                  {actividadesSeleccionadas.length === actividades.length
+                    ? "Quitar"
+                    : "Todas"}
+                </button>
+              </th>
+
+              <th className="p-4 text-slate-600">
                 Fecha
               </th>
 
-              <th className="p-5 text-zinc-400">
+              <th className="p-4 text-slate-600">
                 Colaborador
               </th>
 
-              <th className="p-5 text-zinc-400">
+              <th className="p-4 text-slate-600">
                 Empresa
               </th>
 
-              <th className="p-5 text-zinc-400">
+              <th className="p-4 text-slate-600">
                 Actividad
               </th>
 
-              <th className="p-5 text-zinc-400">
+              <th className="p-4 text-slate-600">
                 Horas
+              </th>
+
+              <th className="p-4 text-slate-600">
+                Estado
               </th>
 
             </tr>
@@ -912,38 +1064,77 @@ doc.save(
                 key={actividad.id}
                 className="
                   border-b
-                  border-zinc-800
-                  hover:bg-white/5
+                  border-slate-200
+                  hover:bg-blue-50/60
                   transition
                 "
               >
 
-                <td className="p-5">
+                <td className="p-4">
+                  <input
+                    type="checkbox"
+                    checked={actividadesSeleccionadas.includes(
+                      actividad.id
+                    )}
+                    onChange={() =>
+                      alternarActividad(actividad.id)
+                    }
+                    className="
+                      h-4
+                      w-4
+                      rounded
+                      border-slate-300
+                      accent-[#0B4A92]
+                    "
+                    aria-label="Incluir actividad en cuenta de cobro"
+                  />
+                </td>
+
+                <td className="p-4">
                   {actividad.fecha}
                 </td>
 
                 <td className="
-                  p-5
+                  p-4
                   font-semibold
                 ">
                   {actividad.colaboradores?.nombre}
                 </td>
 
-                <td className="p-5">
+                <td className="p-4">
                   {actividad.empresas?.nombre}
                 </td>
 
-                <td className="p-5">
+                <td className="p-4">
                   {actividad.descripcion}
                 </td>
 
 
                 <td className="
-                  p-5
-                  text-green-400
+                  p-4
+                  text-emerald-700
                   font-bold
                 ">
                   {actividad.horas}h
+                </td>
+
+                <td className="p-4">
+                  <span className={`
+                    inline-flex
+                    rounded-full
+                    px-3
+                    py-1
+                    text-xs
+                    font-semibold
+                    ${actividad.facturada
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-blue-50 text-blue-700"
+                    }
+                  `}>
+                    {actividad.facturada
+                      ? "Facturada"
+                      : "Disponible"}
+                  </span>
                 </td>
 
               </tr>

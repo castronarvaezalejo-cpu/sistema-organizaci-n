@@ -208,7 +208,7 @@ export default function ColaboradoresPage() {
           </h1>
 
           <p className="
-            text-zinc-400
+            text-slate-500
           ">
             Gestión de personal operativo
           </p>
@@ -227,8 +227,8 @@ export default function ColaboradoresPage() {
               flex
               items-center
               gap-2
-              bg-white
-              text-black
+              bg-[#0B4A92]
+              text-white
               px-5
               py-3
               rounded-xl
@@ -251,9 +251,9 @@ export default function ColaboradoresPage() {
       {/* TABLA */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
+        border-slate-200
         rounded-2xl
         overflow-hidden
       ">
@@ -262,15 +262,15 @@ export default function ColaboradoresPage() {
 
           <thead className="
             border-b
-            border-zinc-800
-            bg-zinc-950/40
+            border-slate-200
+            bg-blue-50
           ">
 
             <tr className="text-left">
 
               <th className="
                 p-5
-                text-zinc-400
+                text-slate-500
                 font-medium
               ">
                 Nombre
@@ -278,7 +278,7 @@ export default function ColaboradoresPage() {
 
               <th className="
                 p-5
-                text-zinc-400
+                text-slate-500
                 font-medium
               ">
                 Cargo
@@ -286,7 +286,7 @@ export default function ColaboradoresPage() {
 
               <th className="
                 p-5
-                text-zinc-400
+                text-slate-500
                 font-medium
               ">
                 Email
@@ -294,7 +294,7 @@ export default function ColaboradoresPage() {
 
               <th className="
                 p-5
-                text-zinc-400
+                text-slate-500
                 font-medium
               ">
                 Rol
@@ -302,7 +302,7 @@ export default function ColaboradoresPage() {
 
               <th className="
                 p-5
-                text-zinc-400
+                text-slate-500
                 font-medium
               ">
                 Teléfono
@@ -312,7 +312,7 @@ export default function ColaboradoresPage() {
 
                 <th className="
                   p-5
-                  text-zinc-400
+                  text-slate-500
                   font-medium
                 ">
                   Acciones
@@ -333,8 +333,8 @@ export default function ColaboradoresPage() {
                   key={colaborador.id}
                   className="
                     border-b
-                    border-zinc-800
-                    hover:bg-zinc-800/40
+                    border-slate-200
+                    hover:bg-white/40
                     transition
                   "
                 >
@@ -371,7 +371,7 @@ export default function ColaboradoresPage() {
                       ${
                         colaborador.rol === "admin"
                         ? "bg-blue-500/10 text-blue-400"
-                        : "bg-zinc-700 text-zinc-300"
+                        : "bg-slate-100 text-slate-600"
                       }
                     `}>
 
@@ -437,9 +437,9 @@ export default function ColaboradoresPage() {
       >
 
         <DialogContent className="
-          bg-zinc-900
-          border-zinc-800
-          text-white
+          bg-white
+          border-slate-200
+          text-slate-800
         ">
 
           <DialogHeader>
@@ -465,9 +465,9 @@ export default function ColaboradoresPage() {
               placeholder="Nombre"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -485,9 +485,9 @@ export default function ColaboradoresPage() {
               placeholder="Cargo"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -505,9 +505,9 @@ export default function ColaboradoresPage() {
               placeholder="Teléfono"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -525,9 +525,9 @@ export default function ColaboradoresPage() {
               placeholder="Correo login"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -544,9 +544,9 @@ export default function ColaboradoresPage() {
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -564,23 +564,53 @@ export default function ColaboradoresPage() {
 
             </select>
 
-            <button
-              onClick={
-                crearColaborador
-              }
-              className="
-                w-full
-                bg-white
-                text-black
-                py-3
-                rounded-xl
-                font-medium
-              "
-            >
+            <div className="
+              flex
+              gap-3
+            ">
+
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="
+                  flex-1
+                  bg-white
+                  text-slate-700
+                  border
+                  border-slate-200
+                  py-3
+                  rounded-xl
+                  font-medium
+                  hover:bg-slate-50
+                  transition
+                "
+              >
+
+                Cancelar
+
+              </button>
+
+              <button
+                onClick={
+                  crearColaborador
+                }
+                className="
+                  flex-1
+                  bg-[#0B4A92]
+                  text-white
+                  py-3
+                  rounded-xl
+                  font-medium
+                  hover:bg-[#0B75C9]
+                  transition
+                "
+              >
 
               Guardar Colaborador
 
-            </button>
+              </button>
+
+            </div>
 
           </div>
 

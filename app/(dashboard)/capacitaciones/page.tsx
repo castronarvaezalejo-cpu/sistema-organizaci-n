@@ -531,7 +531,7 @@ async function eliminarCapacitacion(id: string) {
       ">
 
         <h1 className="
-          text-5xl
+          text-4xl
           font-black
           mb-3
         ">
@@ -541,7 +541,7 @@ async function eliminarCapacitacion(id: string) {
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
           text-lg
         ">
 
@@ -572,12 +572,12 @@ async function eliminarCapacitacion(id: string) {
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         >
@@ -611,12 +611,12 @@ async function eliminarCapacitacion(id: string) {
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         >
@@ -651,12 +651,12 @@ async function eliminarCapacitacion(id: string) {
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -672,12 +672,12 @@ async function eliminarCapacitacion(id: string) {
     )
   }
   className="
-    bg-zinc-900
+    bg-white
     border
-    border-zinc-800
+    border-slate-200
     rounded-2xl
     px-4
-    py-4
+    py-3
     outline-none
   "
 />
@@ -692,12 +692,12 @@ async function eliminarCapacitacion(id: string) {
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         >
@@ -745,12 +745,12 @@ async function eliminarCapacitacion(id: string) {
     Lugar / Barrio
   "
   className="
-    bg-zinc-900
+    bg-white
     border
-    border-zinc-800
+    border-slate-200
     rounded-2xl
     px-4
-    py-4
+    py-3
     outline-none
   "
 />
@@ -768,12 +768,12 @@ async function eliminarCapacitacion(id: string) {
             Observaciones
           "
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -797,10 +797,11 @@ async function eliminarCapacitacion(id: string) {
       bg-blue-600
       hover:bg-blue-700
       transition
-      px-6
-      py-4
+      px-5
+      py-3
       rounded-2xl
       font-medium
+      text-white
     "
   >
 
@@ -812,16 +813,14 @@ async function eliminarCapacitacion(id: string) {
 
   </button>
 
-  {modoEdicion && (
-
     <button
       onClick={limpiarFormulario}
       className="
-        bg-zinc-700
-        hover:bg-zinc-600
+        bg-slate-100
+        hover:bg-slate-200
         transition
-        px-6
-        py-4
+        px-5
+        py-3
         rounded-2xl
         font-medium
       "
@@ -831,17 +830,15 @@ async function eliminarCapacitacion(id: string) {
 
     </button>
 
-  )}
-
 </div>
 
       {/* TABLA */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
-        rounded-3xl
+        border-slate-200
+        rounded-2xl
         overflow-hidden
       ">
 
@@ -850,9 +847,9 @@ async function eliminarCapacitacion(id: string) {
         ">
 
           <thead className="
-            bg-zinc-950/50
+            bg-blue-50
             border-b
-            border-zinc-800
+            border-slate-200
           ">
 
             <tr>
@@ -904,7 +901,7 @@ async function eliminarCapacitacion(id: string) {
                 }
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 

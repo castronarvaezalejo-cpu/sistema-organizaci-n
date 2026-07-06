@@ -16,6 +16,9 @@ import {
 import { supabase }
 from "@/lib/supabase";
 
+import PageHeader
+from "@/components/ui/PageHeader";
+
 type Alerta = {
   id: string;
   tipo: string;
@@ -62,7 +65,7 @@ function calcularEstadoExtintor(
       texto:
         `Vencido hace ${Math.abs(dias)} días`,
       color:
-        "border-red-500 bg-red-500/10 text-red-400",
+        "border-red-200 bg-red-50 text-red-700",
     };
   }
 
@@ -75,7 +78,7 @@ function calcularEstadoExtintor(
       texto:
         `Vence en ${dias} días`,
       color:
-        "border-yellow-500 bg-yellow-500/10 text-yellow-400",
+        "border-amber-200 bg-amber-50 text-amber-700",
     };
   }
 
@@ -240,7 +243,7 @@ SEITON`;
           "proxima";
 
         let color =
-          "border-blue-500 bg-blue-500/10 text-blue-400";
+          "border-blue-200 bg-blue-50 text-blue-700";
 
         let descripcion =
           "Próxima";
@@ -253,7 +256,7 @@ SEITON`;
             "vencida";
 
           color =
-            "border-red-500 bg-red-500/10 text-red-400";
+            "border-red-200 bg-red-50 text-red-700";
 
           descripcion =
             "Tarea vencida";
@@ -269,7 +272,7 @@ SEITON`;
           tipo = "hoy";
 
           color =
-            "border-yellow-500 bg-yellow-500/10 text-yellow-400";
+            "border-amber-200 bg-amber-50 text-amber-700";
 
           descripcion =
             "Vence hoy";
@@ -382,7 +385,7 @@ SEITON`;
 
 const estadisticas = {
   vencidas: resultado.filter(
-    (a) => a.tipo === "vencida"
+    (a) => a.tipo === "vencida" || a.tipo === "vencido"
   ).length,
 
   hoy: resultado.filter(
@@ -390,7 +393,7 @@ const estadisticas = {
   ).length,
 
   proximas: resultado.filter(
-    (a) => a.tipo === "proxima"
+    (a) => a.tipo === "proxima" || a.tipo === "proximo"
   ).length,
 
   extintores: resultado.filter(
@@ -427,7 +430,7 @@ setEstadisticas(estadisticas);
   const alertasFiltradas = alertas.filter(
     (alerta) => {
       if (filtroResumen === "vencidas") {
-        return alerta.tipo === "vencida";
+        return alerta.tipo === "vencida" || alerta.tipo === "vencido";
       }
 
       if (filtroResumen === "hoy") {
@@ -435,7 +438,7 @@ setEstadisticas(estadisticas);
       }
 
       if (filtroResumen === "proximas") {
-        return alerta.tipo === "proxima";
+        return alerta.tipo === "proxima" || alerta.tipo === "proximo";
       }
 
       if (filtroResumen === "extintores") {
@@ -462,10 +465,15 @@ setEstadisticas(estadisticas);
 
     <div>
 
+      <PageHeader
+        title="Alertas"
+        description={`Seguimiento automático de tareas y extintores · ${alertas.length} alertas activas`}
+      />
+
       {/* HEADER */}
 
       <div className="
-        mb-10
+        hidden
       ">
 
         <h1 className="
@@ -477,7 +485,7 @@ setEstadisticas(estadisticas);
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
         ">
 
           Seguimiento automático
@@ -486,7 +494,7 @@ setEstadisticas(estadisticas);
         </p>
 
         <p className="
-          text-zinc-500
+          text-slate-500
           text-sm
           mt-3
         ">
@@ -553,9 +561,9 @@ setEstadisticas(estadisticas);
       {alertas.length === 0 && (
 
         <div className="
-          bg-zinc-900
+          bg-white
           border
-          border-zinc-800
+          border-slate-200
           rounded-2xl
           p-10
           text-center
@@ -572,7 +580,7 @@ setEstadisticas(estadisticas);
           </h2>
 
           <p className="
-            text-zinc-400
+          text-slate-500
           ">
 
             No hay tareas
@@ -596,8 +604,8 @@ setEstadisticas(estadisticas);
             onClick={() => setFiltroResumen("todas")}
             className="
               text-sm
-              text-zinc-400
-              hover:text-white
+              text-slate-500
+              hover:text-blue-700
               transition
             "
           >
@@ -613,7 +621,7 @@ setEstadisticas(estadisticas);
             className={`
               border
               rounded-2xl
-              p-6
+              p-5
               transition
               ${alerta.color}
             `}
@@ -625,7 +633,7 @@ setEstadisticas(estadisticas);
               lg:flex-row
               lg:items-start
               lg:justify-between
-              gap-6
+              gap-5
             ">
 
               {/* INFO */}
@@ -636,7 +644,7 @@ setEstadisticas(estadisticas);
                   text-xl
                   font-semibold
                   mb-2
-                  text-white
+                  text-slate-800
                 ">
 
                   {alerta.titulo}
@@ -644,7 +652,7 @@ setEstadisticas(estadisticas);
                 </h2>
 
                 <p className="
-                  text-zinc-300
+                  text-slate-600
                   mb-3
                 ">
 
@@ -656,7 +664,7 @@ setEstadisticas(estadisticas);
 
                 <p className="
                   text-sm
-                  text-zinc-400
+                  text-slate-500
                 ">
 
                   {
@@ -733,24 +741,24 @@ function AlertSummaryCard({
 }) {
   const styles = {
     red: {
-      background: "bg-red-500/10",
-      border: "border-red-500/20",
-      text: "text-red-400",
+      background: "bg-red-50",
+      border: "border-red-100",
+      text: "text-red-700",
     },
     yellow: {
-      background: "bg-yellow-500/10",
-      border: "border-yellow-500/20",
-      text: "text-yellow-400",
+      background: "bg-amber-50",
+      border: "border-amber-100",
+      text: "text-amber-700",
     },
     blue: {
-      background: "bg-blue-500/10",
-      border: "border-blue-500/20",
-      text: "text-blue-400",
+      background: "bg-blue-50",
+      border: "border-blue-100",
+      text: "text-blue-700",
     },
     green: {
-      background: "bg-green-500/10",
-      border: "border-green-500/20",
-      text: "text-green-400",
+      background: "bg-emerald-50",
+      border: "border-emerald-100",
+      text: "text-emerald-700",
     },
   };
 
@@ -761,18 +769,19 @@ function AlertSummaryCard({
       type="button"
       onClick={onClick}
       className={`
-      rounded-3xl
+      rounded-2xl
       border
       ${style.border}
-      bg-zinc-900/40
+      bg-white
       p-5
       text-left
+      shadow-sm
       transition
       hover:-translate-y-1
-      hover:bg-zinc-900/70
+      hover:shadow-md
       focus-visible:outline-none
       focus-visible:ring-2
-      focus-visible:ring-white/70
+      focus-visible:ring-blue-200
     `}>
       <div className="
         flex
@@ -811,7 +820,7 @@ function AlertSummaryCard({
         {value}
       </p>
 
-      <p className="text-zinc-500">
+      <p className="text-slate-500">
         {subtitle}
       </p>
     </button>

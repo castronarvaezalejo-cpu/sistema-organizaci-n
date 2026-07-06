@@ -489,7 +489,7 @@ if (
       ">
 
         <h1 className="
-          text-5xl
+          text-4xl
           font-black
           tracking-tight
           mb-2
@@ -500,7 +500,7 @@ if (
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
           text-lg
         ">
 
@@ -667,11 +667,12 @@ if (
             <div
               key={empresa.nombre}
               className="
-                rounded-3xl
+                rounded-2xl
                 border
-                border-zinc-800
-                bg-zinc-900/40
+                border-slate-200
+                bg-white
                 p-5
+                shadow-sm
               "
             >
 
@@ -692,7 +693,7 @@ if (
                 </h3>
 
                 <span className="
-                  text-zinc-400
+                  text-slate-500
                   text-sm
                 ">
 
@@ -710,7 +711,7 @@ if (
                 w-full
                 h-4
                 rounded-full
-                bg-zinc-800
+                bg-slate-100
                 overflow-hidden
               ">
 
@@ -745,7 +746,7 @@ if (
                   ? (
 
                     <span className="
-                      text-red-400
+                      text-red-700
                     ">
 
                       Horas excedidas
@@ -758,7 +759,7 @@ if (
                   ? (
 
                     <span className="
-                      text-yellow-400
+                      text-amber-700
                     ">
 
                       Próximo al límite
@@ -769,7 +770,7 @@ if (
                   : (
 
                     <span className="
-                      text-green-400
+                      text-emerald-700
                     ">
 
                       Dentro del rango
@@ -797,11 +798,12 @@ if (
 
         <div className="
           mt-8
-          rounded-3xl
+          rounded-2xl
           border
-          border-zinc-800
-          bg-zinc-900/40
-          p-6
+          border-slate-200
+          bg-white
+          p-5
+          shadow-sm
         ">
 
           <h2 className="
@@ -887,31 +889,31 @@ function PremiumCard({
   const styles = {
 
     red: {
-      bg: "bg-red-500/10",
-      text: "text-red-400",
+      bg: "bg-red-50",
+      text: "text-red-700",
       border:
-        "border-red-500/20",
+        "border-red-100",
     },
 
     yellow: {
-      bg: "bg-yellow-500/10",
-      text: "text-yellow-400",
+      bg: "bg-amber-50",
+      text: "text-amber-700",
       border:
-        "border-yellow-500/20",
+        "border-amber-100",
     },
 
     blue: {
-      bg: "bg-blue-500/10",
-      text: "text-blue-400",
+      bg: "bg-blue-50",
+      text: "text-blue-700",
       border:
-        "border-blue-500/20",
+        "border-blue-100",
     },
 
     green: {
-      bg: "bg-green-500/10",
-      text: "text-green-400",
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
       border:
-        "border-green-500/20",
+        "border-emerald-100",
     },
   };
 
@@ -921,18 +923,19 @@ function PremiumCard({
       href={href}
       aria-label={`Ver ${subtitle}`}
       className={`
-      rounded-3xl
+      rounded-2xl
       border
       ${styles[color].border}
-      bg-zinc-900/40
+      bg-white
       p-5
       block
+      shadow-sm
       transition
       hover:-translate-y-1
-      hover:bg-zinc-900/70
+      hover:shadow-md
       focus-visible:outline-none
       focus-visible:ring-2
-      focus-visible:ring-white/70
+      focus-visible:ring-blue-200
     `}>
 
       <div className="
@@ -981,7 +984,7 @@ function PremiumCard({
       </p>
 
       <p className="
-        text-zinc-500
+        text-slate-500
       ">
 
         {subtitle}
@@ -1012,13 +1015,13 @@ function PremiumMiniCard({
   const styles = {
 
     yellow:
-      "text-yellow-400 bg-yellow-500/10",
+      "text-amber-700 bg-amber-50",
 
     green:
-      "text-green-400 bg-green-500/10",
+      "text-emerald-700 bg-emerald-50",
 
     blue:
-      "text-blue-400 bg-blue-500/10",
+      "text-blue-700 bg-blue-50",
   };
 
   return (
@@ -1027,18 +1030,19 @@ function PremiumMiniCard({
       href={href}
       aria-label={`Ver ${title}`}
       className="
-      rounded-3xl
+      rounded-2xl
       border
-      border-zinc-800
-      bg-zinc-900/40
+      border-slate-200
+      bg-white
       p-5
       block
+      shadow-sm
       transition
       hover:-translate-y-1
-      hover:bg-zinc-900/70
+      hover:shadow-md
       focus-visible:outline-none
       focus-visible:ring-2
-      focus-visible:ring-white/70
+      focus-visible:ring-blue-200
     ">
 
       <div className="
@@ -1078,12 +1082,12 @@ function PremiumMiniCard({
         font-black
 
         ${color === "green"
-          ? "text-green-400"
+          ? "text-emerald-700"
 
           : color === "yellow"
-          ? "text-yellow-400"
+          ? "text-amber-700"
 
-          : "text-blue-400"
+          : "text-blue-700"
         }
       `}>
 

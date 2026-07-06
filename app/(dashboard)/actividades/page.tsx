@@ -421,7 +421,7 @@ async function eliminarActividad(
           </h1>
 
           <p className="
-            text-zinc-400
+            text-slate-500
           ">
 
             Registro operativo y control de horas
@@ -436,8 +436,8 @@ async function eliminarActividad(
             flex
             items-center
             gap-2
-            bg-white
-            text-black
+            bg-[#0B4A92]
+            text-white
             px-5
             py-3
             rounded-xl
@@ -479,12 +479,12 @@ async function eliminarActividad(
             Buscar empresa
           "
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -502,12 +502,12 @@ async function eliminarActividad(
             Buscar colaborador
           "
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -522,12 +522,12 @@ async function eliminarActividad(
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         >
@@ -564,12 +564,12 @@ async function eliminarActividad(
             Año
           "
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -579,9 +579,9 @@ async function eliminarActividad(
       {/* TABLA */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
+        border-slate-200
         rounded-2xl
         overflow-hidden
       ">
@@ -590,41 +590,41 @@ async function eliminarActividad(
 
           <thead className="
             border-b
-            border-zinc-800
-            bg-zinc-950/40
+            border-slate-200
+            bg-blue-50
           ">
 
             <tr className="text-left">
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Fecha
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Colaborador
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Empresa
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Actividad
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Tarea
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Horas
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Facturación
               </th>
 
-              <th className="p-5 text-zinc-400 font-medium">
+              <th className="p-5 text-slate-500 font-medium">
                 Acciones
               </th>
 
@@ -641,8 +641,8 @@ async function eliminarActividad(
                 key={actividad.id}
                 className="
                   border-b
-                  border-zinc-800
-                  hover:bg-zinc-800/40
+                  border-slate-200
+                  hover:bg-white/40
                   transition
                 "
               >
@@ -739,9 +739,9 @@ async function eliminarActividad(
       >
 
         <DialogContent className="
-          bg-zinc-900
-          border-zinc-800
-          text-white
+          bg-white
+          border-slate-200
+          text-slate-800
         ">
 
           <DialogHeader>
@@ -769,9 +769,9 @@ async function eliminarActividad(
               "
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -792,9 +792,9 @@ async function eliminarActividad(
               "
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -812,9 +812,9 @@ async function eliminarActividad(
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -831,9 +831,9 @@ async function eliminarActividad(
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -870,9 +870,9 @@ async function eliminarActividad(
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -909,9 +909,9 @@ async function eliminarActividad(
               }
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -939,21 +939,51 @@ async function eliminarActividad(
 
             </select>
 
-            <button
-              onClick={crearActividad}
-              className="
-                w-full
-                bg-white
-                text-black
-                py-3
-                rounded-xl
-                font-medium
-              "
-            >
+            <div className="
+              flex
+              gap-3
+            ">
+
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="
+                  flex-1
+                  bg-white
+                  text-slate-700
+                  border
+                  border-slate-200
+                  py-3
+                  rounded-xl
+                  font-medium
+                  hover:bg-slate-50
+                  transition
+                "
+              >
+
+                Cancelar
+
+              </button>
+
+              <button
+                onClick={crearActividad}
+                className="
+                  flex-1
+                  bg-[#0B4A92]
+                  text-white
+                  py-3
+                  rounded-xl
+                  font-medium
+                  hover:bg-[#0B75C9]
+                  transition
+                "
+              >
 
               Guardar Actividad
 
-            </button>
+              </button>
+
+            </div>
 
           </div>
 

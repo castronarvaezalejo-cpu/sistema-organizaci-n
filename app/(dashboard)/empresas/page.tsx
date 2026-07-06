@@ -23,6 +23,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import PageHeader from "@/components/ui/PageHeader";
+
+import Link from "next/link";
+
 export default function EmpresasPage() {
 
   const [
@@ -445,72 +449,37 @@ export default function EmpresasPage() {
 
     <div>
 
-      {/* HEADER */}
-
-      <div className="
+<PageHeader
+  title="Empresas"
+  description="Gestión de empresas y clientes"
+action={
+  esAdmin && (
+    <button
+      onClick={() => {
+        limpiarFormulario();
+        setOpen(true);
+      }}
+      className="
         flex
-        flex-col
-        md:flex-row
-        md:items-center
-        md:justify-between
-        gap-6
-        mb-10
-      ">
-
-        <div>
-
-          <h1 className="
-            text-4xl
-            font-bold
-            mb-2
-          ">
-
-            Empresas
-
-          </h1>
-
-          <p className="
-            text-zinc-400
-          ">
-
-            Gestión de empresas y clientes
-
-          </p>
-
-        </div>
-
-        {esAdmin && (
-
-          <button
-            onClick={() => {
-
-              limpiarFormulario()
-
-              setOpen(true)
-
-            }}
-            className="
-              flex
-              items-center
-              gap-2
-              bg-white
-              text-black
-              px-5
-              py-3
-              rounded-xl
-              font-medium
-            "
-          >
-
-            <Plus size={18} />
-
-            Nueva Empresa
-
-          </button>
-
-        )}
-
-      </div>
+        items-center
+        gap-2
+        px-5
+        py-3
+        rounded-xl
+        bg-[#0B4A92]
+        hover:bg-[#0B75C9]
+        text-white
+        font-semibold
+        transition
+        shadow-sm
+      "
+    >
+      <Plus size={20} />
+      Nueva Empresa
+    </button>
+  )
+}
+/>
 
       {/* BUSCADOR */}
 
@@ -528,7 +497,7 @@ export default function EmpresasPage() {
               left-4
               top-1/2
               -translate-y-1/2
-              text-zinc-500
+              text-slate-400
             "
           />
 
@@ -542,17 +511,24 @@ export default function EmpresasPage() {
             placeholder="
               Buscar empresa...
             "
-            className="
-              w-full
-              bg-zinc-900
-              border
-              border-zinc-800
-              rounded-2xl
-              pl-11
-              pr-4
-              py-3
-              outline-none
-            "
+className="
+  w-full
+  bg-white
+  border
+  border-slate-200
+  rounded-xl
+  pl-11
+  pr-4
+  py-3
+  outline-none
+  text-slate-800
+  placeholder:text-slate-400
+  shadow-sm
+  focus:border-blue-500
+  focus:ring-4
+  focus:ring-blue-100
+  transition
+"
           />
 
         </div>
@@ -561,53 +537,65 @@ export default function EmpresasPage() {
 
       {/* TABLA */}
 
-      <div className="
-        bg-zinc-900
-        border
-        border-zinc-800
-        rounded-2xl
-        overflow-hidden
-      ">
+<div
+className="
+bg-white
+border
+border-slate-200
+rounded-2xl
+overflow-hidden
+shadow-sm
+"
+>
 
         <table className="
           w-full
         ">
 
-          <thead className="
-            border-b
-            border-zinc-800
-            bg-zinc-950/40
-          ">
+<thead
+className="
+bg-blue-50
+border-b
+border-slate-200
+"
+>
 
             <tr>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-left text-slate-700
+font-semibold">
                 Empresa
               </th>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-left text-slate-700
+font-semibold">
                 Contacto
               </th>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-left text-slate-700
+font-semibold">
                 Teléfono
               </th>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-left text-slate-700
+font-semibold">
                 Tarifa
               </th>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-left text-slate-700
+font-semibold">
                 Horas
               </th>
 
-              <th className="p-5 text-left text-zinc-400">
+              <th className="p-5 text-lefttext-slate-700
+font-semibold">
                 Acumulado
               </th>
 
               {esAdmin && (
 
-                <th className="p-5 text-left text-zinc-400">
+                <th className="p-5 text-left text-slate-700
+font-semibold">
                   Acciones
                 </th>
 
@@ -624,12 +612,12 @@ export default function EmpresasPage() {
 
               <tr
                 key={empresa.id}
-                className="
-                  border-b
-                  border-zinc-800
-                  hover:bg-zinc-800/30
-                  transition
-                "
+className="
+border-b
+border-slate-200
+hover:bg-blue-50
+transition-colors
+"
               >
 
                 <td className="
@@ -643,8 +631,8 @@ export default function EmpresasPage() {
         `/empresas/${empresa.id}`
     }
     className="
-      text-white
-      hover:text-blue-400
+text-slate-800
+hover:text-blue-700
       transition
       hover:underline
       text-left
@@ -665,15 +653,26 @@ export default function EmpresasPage() {
                   {empresa.telefono || "-"}
                 </td>
 
-                <td className="
-                  p-5
-                  text-green-400
-                ">
+                <td className="p-5">
 
-                  $
-                  {Number(
-                    empresa.tarifa_hora || 0
-                  ).toLocaleString()}
+<span
+className="
+inline-flex
+items-center
+rounded-full
+bg-green-100
+text-green-700
+px-3
+py-1
+text-sm
+font-semibold
+"
+>
+$
+{Number(
+empresa.tarifa_hora || 0
+).toLocaleString("es-CO")}
+</span>
 
                 </td>
 
@@ -796,9 +795,9 @@ export default function EmpresasPage() {
       >
 
         <DialogContent className="
-          bg-zinc-900
-          border-zinc-800
-          text-white
+          bg-white
+          border-slate-200
+          text-slate-800
         ">
 
           <DialogHeader>
@@ -828,9 +827,9 @@ export default function EmpresasPage() {
               placeholder="Nombre"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -847,9 +846,9 @@ export default function EmpresasPage() {
               placeholder="Contacto"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -866,9 +865,9 @@ export default function EmpresasPage() {
               placeholder="Teléfono"
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -883,9 +882,9 @@ export default function EmpresasPage() {
   placeholder="NIT"
   className="
     w-full
-    bg-zinc-800
+    bg-white
     border
-    border-zinc-700
+    border-slate-200
     rounded-xl
     px-4
     py-3
@@ -905,9 +904,9 @@ export default function EmpresasPage() {
               "
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -927,9 +926,9 @@ export default function EmpresasPage() {
               "
               className="
                 w-full
-                bg-zinc-800
+                bg-white
                 border
-                border-zinc-700
+                border-slate-200
                 rounded-xl
                 px-4
                 py-3
@@ -941,7 +940,7 @@ export default function EmpresasPage() {
               items-center
               gap-3
               text-sm
-              text-zinc-300
+              text-slate-600
             ">
 
               <input
@@ -975,8 +974,8 @@ export default function EmpresasPage() {
                 }}
                 className="
                   flex-1
-                  bg-zinc-800
-                  hover:bg-zinc-700
+                  bg-white
+                  hover:bg-slate-100
                   transition
                   py-3
                   rounded-xl
@@ -996,8 +995,8 @@ export default function EmpresasPage() {
                 }
                 className="
                   flex-1
-                  bg-white
-                  text-black
+                  bg-[#0B4A92]
+                  text-white
                   py-3
                   rounded-xl
                   font-medium

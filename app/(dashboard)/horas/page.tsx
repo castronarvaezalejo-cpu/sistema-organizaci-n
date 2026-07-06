@@ -503,7 +503,7 @@ obtenerRegistros();
           </h1>
 
           <p className="
-            text-zinc-400
+            text-slate-500
           ">
 
             Registro operativo
@@ -538,12 +538,12 @@ obtenerRegistros();
               )
             }
             className="
-              bg-zinc-900
+              bg-white
               border
-              border-zinc-800
+              border-slate-200
               rounded-2xl
               px-4
-              py-4
+              py-3
               outline-none
             "
           >
@@ -570,12 +570,12 @@ obtenerRegistros();
         ) : (
 
           <div className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
           ">
 
             {usuario?.nombre}
@@ -594,12 +594,12 @@ obtenerRegistros();
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         >
@@ -635,12 +635,12 @@ obtenerRegistros();
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -656,12 +656,12 @@ obtenerRegistros();
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -679,12 +679,12 @@ obtenerRegistros();
             )
           }
           className="
-            bg-zinc-900
+            bg-white
             border
-            border-zinc-800
+            border-slate-200
             rounded-2xl
             px-4
-            py-4
+            py-3
             outline-none
           "
         />
@@ -698,12 +698,12 @@ obtenerRegistros();
     rows={4}
     className="
       w-full
-      bg-zinc-900
+      bg-white
       border
-      border-zinc-800
+      border-slate-200
       rounded-2xl
       px-4
-      py-4
+      py-3
       outline-none
       resize-none
     "
@@ -726,10 +726,11 @@ obtenerRegistros();
       bg-blue-600
       hover:bg-blue-700
       transition
-      px-6
-      py-4
+      px-5
+      py-3
       rounded-2xl
       font-medium
+      text-white
     "
   >
 
@@ -741,23 +742,19 @@ obtenerRegistros();
 
   </button>
 
-  {editando && (
-
     <button
       onClick={limpiarFormulario}
       className="
-        bg-zinc-700
-        hover:bg-zinc-600
+        bg-slate-100
+        hover:bg-slate-200
         transition
-        px-6
-        py-4
+        px-5
+        py-3
         rounded-2xl
       "
     >
       Cancelar
     </button>
-
-  )}
 
 </div>
 
@@ -772,7 +769,7 @@ obtenerRegistros();
     left-4
     top-1/2
     -translate-y-1/2
-    text-zinc-500
+    text-slate-500
   "
 />
 
@@ -785,11 +782,11 @@ obtenerRegistros();
       }
       className="
         w-full
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
+        border-slate-200
         rounded-2xl
-        py-4
+        py-3
         pl-12
         pr-4
         outline-none
@@ -804,10 +801,10 @@ obtenerRegistros();
       {/* TABLA */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
-        rounded-3xl
+        border-slate-200
+        rounded-2xl
         overflow-hidden
       ">
 
@@ -816,9 +813,9 @@ obtenerRegistros();
         ">
 
           <thead className="
-            bg-zinc-950/50
+            bg-blue-50
             border-b
-            border-zinc-800
+            border-slate-200
           ">
 
             <tr>
@@ -881,7 +878,7 @@ obtenerRegistros();
                 key={registro.id}
                 className="
                   border-b
-                  border-zinc-800
+                  border-slate-200
                 "
               >
 

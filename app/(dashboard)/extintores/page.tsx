@@ -45,8 +45,8 @@ function calcularEstado(
       descripcion: "No registrada",
       fechaTitulo: "Fecha",
       fecha: "-",
-      color: "bg-zinc-500",
-      borde: "border-zinc-500/30",
+      color: "bg-slate-500",
+      borde: "border-slate-500/30",
     };
   }
 
@@ -343,7 +343,7 @@ const nombre =
 
   return (
 
-    <div className="p-6">
+    <div className="p-5">
 
       {/* HEADER */}
 
@@ -353,7 +353,7 @@ const nombre =
         md:flex-row
         md:items-center
         md:justify-between
-        gap-6
+        gap-5
         mb-10
       ">
 
@@ -368,7 +368,7 @@ const nombre =
           </h1>
 
           <p className="
-            text-zinc-400
+            text-slate-500
           ">
 
             Gestión agrupada
@@ -377,7 +377,7 @@ const nombre =
           </p>
 
           <p className="
-            text-zinc-500
+            text-slate-500
             text-sm
             mt-2
           ">
@@ -402,6 +402,7 @@ const nombre =
             py-3
             rounded-xl
             font-medium
+            text-white
             text-center
           "
         >
@@ -421,7 +422,7 @@ const nombre =
       left-4
       top-1/2
       -translate-y-1/2
-      text-zinc-500
+      text-slate-500
     "
   />
 
@@ -434,9 +435,9 @@ const nombre =
     }
     className="
       w-full
-      bg-zinc-900
+      bg-white
       border
-      border-zinc-800
+      border-slate-200
       rounded-2xl
       py-3
       pl-12
@@ -467,9 +468,9 @@ const nombre =
             <div
               key={empresa}
               className="
-                bg-zinc-900
+                bg-white
                 border
-                border-zinc-800
+                border-slate-200
                 rounded-2xl
                 overflow-hidden
               "
@@ -488,8 +489,8 @@ const nombre =
                   flex
                   items-center
                   justify-between
-                  p-6
-                  hover:bg-zinc-800/40
+                  p-5
+                  hover:bg-white/40
                   transition
                 "
               >
@@ -506,7 +507,7 @@ const nombre =
                   </h2>
 
                   <p className="
-                    text-zinc-400
+                    text-slate-500
                     mt-1
                   ">
 
@@ -533,8 +534,8 @@ const nombre =
 
                 <div className="
                   border-t
-                  border-zinc-800
-                  p-6
+                  border-slate-200
+                  p-5
                   space-y-4
                 ">
 
@@ -556,7 +557,7 @@ const nombre =
                           extintor.id
                         }
                         className={`
-                          bg-black/30
+                          bg-slate-100
                           border
                           ${estado.borde}
                           rounded-2xl
@@ -570,7 +571,7 @@ const nombre =
                           lg:flex-row
                           lg:items-start
                           lg:justify-between
-                          gap-6
+                          gap-5
                         ">
 
                           {/* INFO */}
@@ -589,13 +590,13 @@ const nombre =
 
                             <div className="
                               space-y-1
-                              text-zinc-300
+                              text-slate-600
                             ">
 
                               <p>
                                 <span className="
                                   font-semibold
-                                  text-white
+                                  text-slate-800
                                 ">
                                   Ubicación:
                                 </span>{" "}
@@ -608,7 +609,7 @@ const nombre =
                               <p>
                                 <span className="
                                   font-semibold
-                                  text-white
+                                  text-slate-800
                                 ">
                                   Tipo:
                                 </span>{" "}
@@ -621,7 +622,7 @@ const nombre =
                               <p>
                                 <span className="
                                   font-semibold
-                                  text-white
+                                  text-slate-800
                                 ">
                                   Capacidad:
                                 </span>{" "}
@@ -634,7 +635,7 @@ const nombre =
                               <p>
                                 <span className="
                                   font-semibold
-                                  text-white
+                                  text-slate-800
                                 ">
                                   Recarga:
                                 </span>{" "}
@@ -662,7 +663,7 @@ const nombre =
   <span
     className="
       font-semibold
-      text-white
+      text-slate-800
     "
   >
     Vence:
@@ -711,7 +712,7 @@ const nombre =
 <p
   className="
     text-xs
-    text-zinc-300
+    text-slate-600
     mt-2
     text-center
   "
@@ -733,6 +734,7 @@ const nombre =
                                 py-2
                                 rounded-lg
                                 text-sm
+                                text-white
                                 font-semibold
                               "
                             >
@@ -755,6 +757,7 @@ const nombre =
                                 py-2
                                 rounded-lg
                                 text-sm
+                                text-white
                                 font-semibold
                               "
                             >

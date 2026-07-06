@@ -451,7 +451,7 @@ router.push(`/extintores?empresa=${empresaId}`);
     return (
 
       <div className="
-        p-6
+        p-5
       ">
 
         Cargando...
@@ -481,12 +481,12 @@ router.push(`/extintores?empresa=${empresaId}`);
           actualizarExtintor
         }
         className="
-          bg-zinc-900
+          bg-white
           border
-          border-zinc-800
+          border-slate-200
           rounded-2xl
-          p-8
-          space-y-6
+          p-5
+          space-y-5
         "
       >
 
@@ -500,7 +500,7 @@ router.push(`/extintores?empresa=${empresaId}`);
 
 <div className="space-y-2">
 
-  <label className="text-sm text-zinc-400">
+  <label className="text-sm text-slate-500">
     Empresa
   </label>
 
@@ -511,9 +511,9 @@ router.push(`/extintores?empresa=${empresaId}`);
     }
     className="
       w-full
-      bg-black
+      bg-white
       border
-      border-zinc-800
+      border-slate-200
       rounded-xl
       px-4
       py-3
@@ -545,7 +545,7 @@ router.push(`/extintores?empresa=${empresaId}`);
 
 <div className="space-y-2">
 
-  <label className="text-sm text-zinc-400">
+  <label className="text-sm text-slate-500">
     Responsable del calendario
   </label>
 
@@ -556,9 +556,9 @@ router.push(`/extintores?empresa=${empresaId}`);
     }
     className="
       w-full
-      bg-black
+      bg-white
       border
-      border-zinc-800
+      border-slate-200
       rounded-xl
       px-4
       py-3
@@ -636,7 +636,7 @@ router.push(`/extintores?empresa=${empresaId}`);
               bg-blue-600
               hover:bg-blue-700
               transition
-              px-6
+              px-5
               py-3
               rounded-xl
               font-semibold
@@ -655,10 +655,10 @@ router.push(`/extintores?empresa=${empresaId}`);
   )
 }
             className="
-              bg-zinc-800
-              hover:bg-zinc-700
+              bg-white
+              hover:bg-slate-100
               transition
-              px-6
+              px-5
               py-3
               rounded-xl
               font-semibold
@@ -697,7 +697,7 @@ function Input({
 
       <label className="
         text-sm
-        text-zinc-400
+        text-slate-500
       ">
 
         {label}
@@ -713,9 +713,9 @@ function Input({
         }
         className="
           w-full
-          bg-black
+          bg-white
           border
-          border-zinc-800
+          border-slate-200
           rounded-xl
           px-4
           py-3
@@ -748,7 +748,7 @@ function DateInput({
 
       <label className="
         text-sm
-        text-zinc-400
+        text-slate-500
       ">
 
         {label}
@@ -765,9 +765,9 @@ function DateInput({
         }
         className="
           w-full
-          bg-black
+          bg-white
           border
-          border-zinc-800
+          border-slate-200
           rounded-xl
           px-4
           py-3

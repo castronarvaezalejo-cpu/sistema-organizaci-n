@@ -50,23 +50,22 @@ export default function LoginPage() {
       flex
       items-center
       justify-center
-      bg-black
-      px-6
+      bg-slate-100
+      px-4
     ">
 
       <div className="
         w-full
         max-w-md
         border
-        border-zinc-800
-        bg-zinc-900/40
-        backdrop-blur-xl
-        rounded-3xl
-        p-8
-        shadow-2xl
+        border-slate-200
+        bg-white
+        rounded-2xl
+        p-6
+        shadow-sm
       ">
 
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
 
           <div className="flex justify-center mb-6">
 
@@ -74,7 +73,7 @@ export default function LoginPage() {
     src="/logo.png"
     alt="SEITON"
     className="
-      w-40
+      w-32
       h-auto
       object-contain
     "
@@ -85,11 +84,11 @@ export default function LoginPage() {
         </div>
 
         <h1 className="
-          text-3xl
+          text-2xl
           font-black
           text-center
           mb-2
-          text-white
+          text-slate-800
         ">
 
           Iniciar Sesión
@@ -97,9 +96,9 @@ export default function LoginPage() {
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
           text-center
-          mb-8
+          mb-6
         ">
 
           Plataforma empresarial SEITON
@@ -117,14 +116,18 @@ export default function LoginPage() {
             }
             className="
               w-full
-              bg-zinc-800
+              bg-white
               border
-              border-zinc-700
-              rounded-2xl
+              border-slate-200
+              rounded-xl
               px-4
               py-3
               outline-none
-              text-white
+              text-slate-800
+              shadow-sm
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-100
             "
           />
 
@@ -137,14 +140,18 @@ export default function LoginPage() {
             }
             className="
               w-full
-              bg-zinc-800
+              bg-white
               border
-              border-zinc-700
-              rounded-2xl
+              border-slate-200
+              rounded-xl
               px-4
               py-3
               outline-none
-              text-white
+              text-slate-800
+              shadow-sm
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-100
             "
           />
 
@@ -153,12 +160,12 @@ export default function LoginPage() {
             disabled={loading}
             className="
               w-full
-              bg-white
-              text-black
-              py-3
-              rounded-2xl
+              bg-[#0B4A92]
+              text-white
+              py-2.5
+              rounded-xl
               font-bold
-              hover:opacity-90
+              hover:bg-[#0B75C9]
               transition
             "
           >

@@ -76,7 +76,7 @@ export default function ChatbotPage() {
     <div className="
       max-w-5xl
       mx-auto
-      p-6
+      p-5
     ">
 
       {/* HEADER */}
@@ -94,7 +94,7 @@ export default function ChatbotPage() {
         </h1>
 
         <p className="
-          text-zinc-400
+          text-slate-500
         ">
           Consulta rápida inteligente
         </p>
@@ -104,17 +104,17 @@ export default function ChatbotPage() {
       {/* CHAT */}
 
       <div className="
-        bg-zinc-900
+        bg-white
         border
-        border-zinc-800
-        rounded-3xl
+        border-slate-200
+        rounded-2xl
         overflow-hidden
       ">
 
         {/* RESPUESTAS */}
 
         <div className="
-          p-6
+          p-5
           min-h-[500px]
           space-y-6
         ">
@@ -132,7 +132,7 @@ export default function ChatbotPage() {
                 bg-blue-600
                 rounded-2xl
                 px-5
-                py-4
+                py-3
                 max-w-[80%]
               ">
 
@@ -171,12 +171,12 @@ export default function ChatbotPage() {
           ">
 
             <div className="
-              bg-black/40
+              bg-white
               border
-              border-zinc-800
+              border-slate-200
               rounded-2xl
               px-5
-              py-4
+              py-3
               max-w-[80%]
               whitespace-pre-line
             ">
@@ -200,7 +200,7 @@ export default function ChatbotPage() {
               </div>
 
               <p className="
-                text-zinc-200
+                text-slate-600
                 leading-7
               ">
 
@@ -230,7 +230,7 @@ Prueba:
 
         <div className="
           border-t
-          border-zinc-800
+          border-slate-200
           p-5
           flex
           gap-3
@@ -257,12 +257,12 @@ Escribe un mensaje...
             "
             className="
               flex-1
-              bg-black/40
+              bg-white
               border
-              border-zinc-800
+              border-slate-200
               rounded-xl
               px-5
-              py-4
+              py-3
               outline-none
             "
           />
@@ -275,7 +275,7 @@ Escribe un mensaje...
               bg-blue-600
               hover:bg-blue-700
               transition
-              px-6
+              px-5
               rounded-xl
               flex
               items-center

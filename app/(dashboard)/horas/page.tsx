@@ -323,9 +323,9 @@ const valorHora =
   tarifaMensual /
   horasContratadas;
 
-const totalFacturado =
+const totalFacturado = Math.round(
   valorHora *
-  Number(horas);
+  Number(horas));
 
 // ===================================
 // GUARDAR / ACTUALIZAR EN HORAS
@@ -457,12 +457,15 @@ if (editando) {
 
 }
 
-    if (errorActividad) {
+if (errorActividad) {
 
-      console.log(
-        errorActividad
-      );
-    }
+  console.error("ERROR ACTIVIDAD:", errorActividad);
+
+  alert(JSON.stringify(errorActividad));
+
+  return;
+
+}
 
 alert(
 

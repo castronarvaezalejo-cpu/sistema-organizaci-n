@@ -47,11 +47,19 @@ function calendarTimes({ date, time, durationMinutes = 60 }: CalendarEventReques
 }
 
 async function googleAccessToken(colaboradorId: string) {
+
+  console.log("=================================");
+  console.log("BUSCANDO TOKEN PARA:", colaboradorId);
+
   const { data: connection } = await serverSupabase()
     .from("google_calendar_connections")
-    .select("refresh_token_encrypted")
+    .select("colaborador_id, google_email, refresh_token_encrypted")
     .eq("colaborador_id", colaboradorId)
     .maybeSingle();
+
+  console.log("CONEXIÓN ENCONTRADA:");
+  console.dir(connection, { depth: null });
+  console.log("=================================");
 
   if (!connection) {
     return null;
@@ -82,6 +90,10 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
+
+console.log("CREANDO EVENTO PARA:");
+console.log(event.colaboradorId);
+console.log(event.title);
 
 const accessToken = await googleAccessToken(event.colaboradorId);
 
@@ -131,11 +143,21 @@ if (!response.ok) {
       eventId: calendarEvent.id,
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "No fue posible crear el evento." },
-      { status: 500 }
-    );
-  }
+  console.error("ERROR GOOGLE CALENDAR:");
+  console.error(error);
+
+  return NextResponse.json(
+    {
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error),
+    },
+    {
+      status: 500,
+    }
+  );
+}
 }
 
 export async function PATCH(request: NextRequest) {

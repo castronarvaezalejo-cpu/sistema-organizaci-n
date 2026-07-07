@@ -135,6 +135,15 @@ export async function accessTokenFromRefreshToken(refreshToken: string) {
 
   const body = await response.json();
 
+
+
+console.log("=================================");
+console.log("STATUS GOOGLE:", response.status);
+console.log("BODY GOOGLE:");
+console.dir(body, { depth: null });
+console.log("=================================");
+
+
   if (!response.ok || !body.access_token) {
     throw new Error("La conexión con Google Calendar expiró.");
   }

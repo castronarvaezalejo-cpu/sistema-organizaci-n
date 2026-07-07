@@ -106,10 +106,40 @@ console.log({
         body: JSON.stringify({
           messaging_product: "whatsapp",
           to: telefono,
+type: "template",
+template: {
+  name: "nueva_tarea",
+  language: {
+    code: "es_CO",
+  },
+  components: [
+    {
+      type: "body",
+      parameters: [
+        {
           type: "text",
-          text: {
-            body: mensaje,
-          },
+          text: colaboradorNombre,
+        },
+        {
+          type: "text",
+          text: empresaNombre,
+        },
+        {
+          type: "text",
+          text: titulo,
+        },
+        {
+          type: "text",
+          text: prioridad,
+        },
+        {
+          type: "text",
+          text: fechaLimite,
+        },
+      ],
+    },
+  ],
+},
         }),
       }
     );

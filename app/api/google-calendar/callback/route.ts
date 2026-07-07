@@ -23,12 +23,44 @@ export async function GET(request: NextRequest) {
   console.log("COOKIE STATE:", cookieState);
   console.log("COLABORADOR:", colaboradorId);
 
-  if (!state || !code || !cookieState || state !== cookieState || !colaboradorId) {
-    return NextResponse.redirect(errorUrl);
-  }
+console.log("========== CALLBACK ==========");
+console.log("state URL:", state);
+console.log("state cookie:", cookieState);
+console.log("code:", code);
+console.log("colaborador:", colaboradorId);
+console.log("==============================");
+
+if (!state) {
+  console.log("ERROR: state vacío");
+  return NextResponse.redirect(errorUrl);
+}
+
+if (!code) {
+  console.log("ERROR: code vacío");
+  return NextResponse.redirect(errorUrl);
+}
+
+if (!cookieState) {
+  console.log("ERROR: cookieState vacío");
+  return NextResponse.redirect(errorUrl);
+}
+
+if (state !== cookieState) {
+  console.log("ERROR: state diferente");
+  return NextResponse.redirect(errorUrl);
+}
+
+if (!colaboradorId) {
+  console.log("ERROR: colaborador vacío");
+  return NextResponse.redirect(errorUrl);
+}
 
   try {
     const tokens = await exchangeGoogleCode(code);
+
+    console.log("TOKENS GOOGLE:");
+console.dir(tokens, { depth: null });
+
     const email = await googleEmail(tokens.access_token);
     const supabase = serverSupabase();
     const { error } = await supabase
@@ -51,8 +83,10 @@ export async function GET(request: NextRequest) {
     response.cookies.delete("google_calendar_colaborador");
 
     return response;
-  } catch (error) {
-    console.error("GOOGLE CALLBACK ERROR:", error);
-    return NextResponse.redirect(errorUrl);
-  }
+} catch (error) {
+  console.error("CALLBACK ERROR:");
+  console.error(error);
+
+  return NextResponse.redirect(errorUrl);
+}
 }

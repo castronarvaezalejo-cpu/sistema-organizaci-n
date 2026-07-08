@@ -53,11 +53,15 @@ export default function MobileSidebar({
           justify-between
         ">
 
-          <img
-            src="/logo.png"
-            alt="SEITON"
-            className="w-28"
-          />
+<img
+  src="/logo.png"
+  alt="SEITON"
+  className="
+    w-56
+    h-auto
+    object-contain
+  "
+/>
 
           <button
             type="button"

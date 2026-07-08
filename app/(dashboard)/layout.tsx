@@ -165,16 +165,15 @@ md:min-w-56
             justify-center
           ">
 
-            <img
-              src="/logo.png"
-              alt="SEITON"
-              className="
-  w-24
-  md:w-20
-  h-auto
-  object-contain
-"
-            />
+<img
+  src="/logo.png"
+  alt="SEITON"
+  className="
+    w-56
+    h-auto
+    object-contain
+  "
+/>
 
           </div>
 

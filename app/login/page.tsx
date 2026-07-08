@@ -69,15 +69,15 @@ export default function LoginPage() {
 
           <div className="flex justify-center mb-6">
 
-  <img
-    src="/logo.png"
-    alt="SEITON"
-    className="
-      w-32
-      h-auto
-      object-contain
-    "
-  />
+<img
+  src="/logo.png"
+  alt="SEITON"
+  className="
+    w-56
+    h-auto
+    object-contain
+  "
+/>
 
 </div>
 

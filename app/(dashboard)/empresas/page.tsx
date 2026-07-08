@@ -100,6 +100,15 @@ export default function EmpresasPage() {
     setEsAdmin,
   ] = useState(false)
 
+  const [representanteNombre, setRepresentanteNombre] = useState("")
+const [representanteTelefono, setRepresentanteTelefono] = useState("")
+
+const [administradorNombre, setAdministradorNombre] = useState("")
+const [administradorTelefono, setAdministradorTelefono] = useState("")
+
+const [sstNombre, setSstNombre] = useState("")
+const [sstTelefono, setSstTelefono] = useState("")
+
   // ===================================
   // VERIFICAR ROL
   // ===================================
@@ -215,6 +224,15 @@ export default function EmpresasPage() {
 
             activa: true,
 
+
+            representante_nombre: representanteNombre,
+representante_telefono: representanteTelefono,
+
+administrador_nombre: administradorNombre,
+administrador_telefono: administradorTelefono,
+
+sst_nombre: sstNombre,
+sst_telefono: sstTelefono,
             
             
 
@@ -273,6 +291,18 @@ export default function EmpresasPage() {
 
           permite_acumulado:
             permiteAcumulado,
+
+
+            representante_nombre: representanteNombre,
+representante_telefono: representanteTelefono,
+
+administrador_nombre: administradorNombre,
+administrador_telefono: administradorTelefono,
+
+sst_nombre: sstNombre,
+sst_telefono: sstTelefono,
+
+
         })
         .eq(
           "id",
@@ -373,6 +403,30 @@ export default function EmpresasPage() {
       empresa.telefono || ""
     )
 
+    setRepresentanteNombre(
+  empresa.representante_nombre || ""
+)
+
+setRepresentanteTelefono(
+  empresa.representante_telefono || ""
+)
+
+setAdministradorNombre(
+  empresa.administrador_nombre || ""
+)
+
+setAdministradorTelefono(
+  empresa.administrador_telefono || ""
+)
+
+setSstNombre(
+  empresa.sst_nombre || ""
+)
+
+setSstTelefono(
+  empresa.sst_telefono || ""
+)
+
     setNit(
   empresa.nit || ""
 )
@@ -403,6 +457,17 @@ export default function EmpresasPage() {
     setNombre("")
     setContacto("")
     setTelefono("")
+
+    setRepresentanteNombre("")
+setRepresentanteTelefono("")
+
+setAdministradorNombre("")
+setAdministradorTelefono("")
+
+setSstNombre("")
+setSstTelefono("")
+
+  
     setNit("")
     setTarifaHora("")
     setHorasContratadas("")
@@ -794,11 +859,16 @@ empresa.tarifa_hora || 0
         onOpenChange={setOpen}
       >
 
-        <DialogContent className="
-          bg-white
-          border-slate-200
-          text-slate-800
-        ">
+<DialogContent
+  className="
+    bg-white
+    border-slate-200
+    text-slate-800
+    max-h-[90vh]
+    overflow-y-auto
+    max-w-2xl
+  "
+>
 
           <DialogHeader>
 
@@ -924,6 +994,8 @@ empresa.tarifa_hora || 0
               placeholder="
                 Horas contratadas
               "
+
+              
               className="
                 w-full
                 bg-white
@@ -934,6 +1006,171 @@ empresa.tarifa_hora || 0
                 py-3
               "
             />
+
+<div className="pt-4 border-t border-slate-200">
+  <h3 className="text-lg font-semibold text-slate-800">
+    Contactos adicionales
+  </h3>
+
+  <p className="text-sm text-slate-500 mt-1">
+    Responsables específicos de la empresa.
+  </p>
+</div>
+
+<div
+  className="
+    mt-4
+    rounded-xl
+    border
+    border-slate-200
+    p-4
+    space-y-3
+  "
+>
+
+  <p className="font-medium text-slate-700">
+    👤 Representante Legal
+  </p>
+
+  <input
+    value={representanteNombre}
+    onChange={(e) =>
+      setRepresentanteNombre(e.target.value)
+    }
+    placeholder="Nombre del representante"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+  <input
+    value={representanteTelefono}
+    onChange={(e) =>
+      setRepresentanteTelefono(e.target.value)
+    }
+    placeholder="Teléfono del representante"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+</div>
+
+
+<div
+  className="
+    mt-4
+    rounded-xl
+    border
+    border-slate-200
+    p-4
+    space-y-3
+  "
+>
+
+  <p className="font-medium text-slate-700">
+    👨‍💼 Administrador
+  </p>
+
+  <input
+    value={administradorNombre}
+    onChange={(e) =>
+      setAdministradorNombre(e.target.value)
+    }
+    placeholder="Nombre del administrador"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+  <input
+    value={administradorTelefono}
+    onChange={(e) =>
+      setAdministradorTelefono(e.target.value)
+    }
+    placeholder="Teléfono del administrador"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+</div>
+
+
+<div
+  className="
+    mt-4
+    rounded-xl
+    border
+    border-slate-200
+    p-4
+    space-y-3
+  "
+>
+
+  <p className="font-medium text-slate-700">
+    🦺 Responsable SST
+  </p>
+
+  <input
+    value={sstNombre}
+    onChange={(e) =>
+      setSstNombre(e.target.value)
+    }
+    placeholder="Nombre del responsable SST"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+  <input
+    value={sstTelefono}
+    onChange={(e) =>
+      setSstTelefono(e.target.value)
+    }
+    placeholder="Teléfono del responsable SST"
+    className="
+      w-full
+      bg-white
+      border
+      border-slate-200
+      rounded-xl
+      px-4
+      py-3
+    "
+  />
+
+</div>
 
             <label className="
               flex

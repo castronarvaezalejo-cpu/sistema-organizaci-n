@@ -151,8 +151,8 @@ export default function AlertasPage() {
     if (!alerta.telefono) {
 
       alert(
-        "Esta empresa no tiene teléfono registrado"
-      );
+  "Esta empresa no tiene registrado un teléfono del administrador ni un teléfono principal."
+);
 
       return;
     }
@@ -310,17 +310,19 @@ SEITON`;
     // EXTINTORES
     // ===================================
 
-    const {
-      data: extintores,
-    } = await supabase
-      .from("extintores")
-      .select(`
-        *,
-        empresas (
-          nombre,
-          telefono
-        )
-      `);
+ const {
+  data: extintores,
+} = await supabase
+  .from("extintores")
+  .select(`
+    *,
+    empresas (
+      nombre,
+      telefono,
+      administrador_nombre,
+      administrador_telefono
+    )
+  `);
 
     if (extintores) {
 
@@ -361,7 +363,8 @@ SEITON`;
             estado.color,
 
           telefono:
-            extintor.empresas?.telefono,
+  extintor.empresas?.administrador_telefono ||
+  extintor.empresas?.telefono,
 
           empresa:
             extintor.empresas?.nombre,
@@ -689,18 +692,19 @@ setEstadisticas(estadisticas);
                       alerta
                     )
                   }
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    bg-green-600
-                    hover:bg-green-700
-                    transition
-                    px-4
-                    py-3
-                    rounded-xl
-                    font-medium
-                  "
+               className="
+  flex
+  items-center
+  gap-2
+  bg-green-600
+  hover:bg-green-700
+  text-white
+  transition
+  px-4
+  py-3
+  rounded-xl
+  font-medium
+"
                 >
 
                   <MessageCircle

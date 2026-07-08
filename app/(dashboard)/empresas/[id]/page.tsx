@@ -528,6 +528,87 @@ useEffect(() => {
 
       </div>
 
+
+      <SectionCard title="👥 Contactos">
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5">
+
+    {/* Representante */}
+
+    <div className="
+      rounded-xl
+      border
+      border-slate-200
+      p-4
+      bg-white
+    ">
+
+      <h3 className="font-semibold text-slate-800 mb-3">
+        👤 Representante Legal
+      </h3>
+
+      <p className="text-slate-700">
+        {empresa?.representante_nombre || "-"}
+      </p>
+
+      <p className="text-slate-500 mt-2">
+        📞 {empresa?.representante_telefono || "-"}
+      </p>
+
+    </div>
+
+    {/* Administrador */}
+
+    <div className="
+      rounded-xl
+      border
+      border-slate-200
+      p-4
+      bg-white
+    ">
+
+      <h3 className="font-semibold text-slate-800 mb-3">
+        👨‍💼 Administrador
+      </h3>
+
+      <p className="text-slate-700">
+        {empresa?.administrador_nombre || "-"}
+      </p>
+
+      <p className="text-slate-500 mt-2">
+        📞 {empresa?.administrador_telefono || "-"}
+      </p>
+
+    </div>
+
+    {/* SST */}
+
+    <div className="
+      rounded-xl
+      border
+      border-slate-200
+      p-4
+      bg-white
+    ">
+
+      <h3 className="font-semibold text-slate-800 mb-3">
+        🦺 Responsable SST
+      </h3>
+
+      <p className="text-slate-700">
+        {empresa?.sst_nombre || "-"}
+      </p>
+
+      <p className="text-slate-500 mt-2">
+        📞 {empresa?.sst_telefono || "-"}
+      </p>
+
+    </div>
+
+  </div>
+
+</SectionCard>
+
       {/* ACTIVIDADES */}
 
       <SectionCard title="Actividades">

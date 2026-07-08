@@ -362,3 +362,27 @@ span[class*="rounded-full"] {
 
   background-size: 40px 40px;
 }
+
+
+/* =========================================
+   SCROLLBAR GLOBAL - SEITON
+========================================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E5E7EB;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0B4A92;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0B75C9;
+}

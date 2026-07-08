@@ -15,6 +15,22 @@ import {
   supabase,
 } from "@/lib/supabase"
 
+
+import {
+  UserCheck,
+  Building2,
+  Shield,
+  Phone,
+  Users,
+} from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
 export default function EmpresaDetallePage() {
 
   const params =
@@ -63,6 +79,20 @@ const tab =
     facturacion,
     setFacturacion,
   ] = useState(0)
+
+
+  const [
+  descripcionSeleccionada,
+  setDescripcionSeleccionada,
+] = useState("")
+
+const [
+  openDescripcion,
+  setOpenDescripcion,
+] = useState(false)
+
+
+
 
 useEffect(() => {
 
@@ -360,7 +390,7 @@ useEffect(() => {
         grid
         grid-cols-1
         md:grid-cols-3
-        gap-4
+        gap-6
         mb-8
       ">
 
@@ -529,7 +559,20 @@ useEffect(() => {
       </div>
 
 
-      <SectionCard title="👥 Contactos">
+     <SectionCard
+  title={
+    <div className="flex items-center gap-3">
+      <Users
+        size={24}
+        className="text-blue-600"
+      />
+
+      <span>
+        Contactos
+      </span>
+    </div>
+  }
+>
 
   <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5">
 
@@ -539,71 +582,176 @@ useEffect(() => {
       rounded-xl
       border
       border-slate-200
-      p-4
+      p-6
       bg-white
+      hover:shadow-md
+transition
     ">
 
-      <h3 className="font-semibold text-slate-800 mb-3">
-        👤 Representante Legal
-      </h3>
+<div className="flex items-center gap-3 mb-4">
+
+  <div
+    className="
+      w-11
+      h-11
+      rounded-xl
+      bg-blue-50
+      flex
+      items-center
+      justify-center
+    "
+  >
+
+    <UserCheck
+      size={22}
+      className="text-blue-600"
+    />
+
+  </div>
+
+  <h3 className="font-semibold text-slate-800">
+    Representante Legal
+  </h3>
+
+</div>
 
       <p className="text-slate-700">
         {empresa?.representante_nombre || "-"}
       </p>
 
-      <p className="text-slate-500 mt-2">
-        📞 {empresa?.representante_telefono || "-"}
-      </p>
+<div className="flex items-center gap-2 mt-3">
+
+  <Phone
+    size={16}
+    className="text-slate-400"
+  />
+
+  <span className="text-slate-500">
+    {empresa?.representante_telefono || "-"}
+  </span>
+
+</div>
 
     </div>
 
     {/* Administrador */}
 
-    <div className="
-      rounded-xl
-      border
-      border-slate-200
-      p-4
-      bg-white
-    ">
+<div
+  className="
+    rounded-xl
+    border
+    border-slate-200
+    p-6
+    bg-white
+    hover:shadow-md
+    transition
+  "
+>
 
-      <h3 className="font-semibold text-slate-800 mb-3">
-        👨‍💼 Administrador
-      </h3>
+  <div className="flex items-center gap-3 mb-4">
 
-      <p className="text-slate-700">
-        {empresa?.administrador_nombre || "-"}
-      </p>
+    <div
+      className="
+        w-11
+        h-11
+        rounded-xl
+        bg-emerald-50
+        flex
+        items-center
+        justify-center
+      "
+    >
 
-      <p className="text-slate-500 mt-2">
-        📞 {empresa?.administrador_telefono || "-"}
-      </p>
+      <Building2
+        size={22}
+        className="text-emerald-600"
+      />
 
     </div>
 
+    <h3 className="font-semibold text-slate-800">
+      Administrador
+    </h3>
+
+  </div>
+
+  <p className="text-slate-700">
+    {empresa?.administrador_nombre || "-"}
+  </p>
+
+  <div className="flex items-center gap-2 mt-3">
+
+    <Phone
+      size={16}
+      className="text-slate-400"
+    />
+
+    <span className="text-slate-500">
+      {empresa?.administrador_telefono || "-"}
+    </span>
+
+  </div>
+
+</div>
     {/* SST */}
 
-    <div className="
-      rounded-xl
-      border
-      border-slate-200
-      p-4
-      bg-white
-    ">
+<div
+  className="
+    rounded-xl
+    border
+    border-slate-200
+    p-6
+    bg-white
+    hover:shadow-md
+    transition
+  "
+>
 
-      <h3 className="font-semibold text-slate-800 mb-3">
-        🦺 Responsable SST
-      </h3>
+  <div className="flex items-center gap-3 mb-4">
 
-      <p className="text-slate-700">
-        {empresa?.sst_nombre || "-"}
-      </p>
+    <div
+      className="
+        w-11
+        h-11
+        rounded-xl
+        bg-amber-50
+        flex
+        items-center
+        justify-center
+      "
+    >
 
-      <p className="text-slate-500 mt-2">
-        📞 {empresa?.sst_telefono || "-"}
-      </p>
+      <Shield
+        size={22}
+        className="text-amber-500"
+      />
 
     </div>
+
+    <h3 className="font-semibold text-slate-800">
+      Responsable SST
+    </h3>
+
+  </div>
+
+  <p className="text-slate-700">
+    {empresa?.sst_nombre || "-"}
+  </p>
+
+  <div className="flex items-center gap-2 mt-3">
+
+    <Phone
+      size={16}
+      className="text-slate-400"
+    />
+
+    <span className="text-slate-500">
+      {empresa?.sst_telefono || "-"}
+    </span>
+
+  </div>
+
+</div>
 
   </div>
 
@@ -674,12 +822,34 @@ useEffect(() => {
                   {actividad.horas}h
                 </td>
 
-                <td className="p-5">
-                  {
-                    actividad.descripcion
-                  }
-                </td>
+                <td className="p-5 max-w-sm">
 
+  <p className="truncate">
+    {actividad.descripcion}
+  </p>
+
+  <button
+    onClick={() => {
+
+      setDescripcionSeleccionada(
+        actividad.descripcion
+      )
+
+      setOpenDescripcion(true)
+
+    }}
+    className="
+      mt-2
+      text-sm
+      text-blue-600
+      hover:text-blue-700
+      font-medium
+    "
+  >
+    Ver más
+  </button>
+
+</td>
               </tr>
 
             ))}
@@ -966,11 +1136,68 @@ useEffect(() => {
 
         )}
 
-      </SectionCard>
+            </SectionCard>
 
-      </div>
+      </div> 
 
-    </div>
+
+      <Dialog
+        open={openDescripcion}
+        onOpenChange={setOpenDescripcion}
+      >
+
+        <DialogContent className="max-w-2xl bg-white">
+
+          <DialogHeader>
+
+            <DialogTitle>
+              📄 Descripción de la actividad
+            </DialogTitle>
+
+          </DialogHeader>
+
+          <div
+            className="
+              whitespace-pre-wrap
+              leading-7
+              text-slate-700
+              mt-4
+            "
+          >
+
+            {descripcionSeleccionada}
+
+          </div>
+
+          <div className="mt-6 flex justify-end">
+
+  <button
+    onClick={() =>
+      setOpenDescripcion(false)
+    }
+    className="
+      bg-[#0B4A92]
+      hover:bg-[#0D5DB8]
+      text-white
+      px-5
+      py-2
+      rounded-xl
+      transition
+    "
+  >
+    Cerrar
+  </button>
+
+</div>
+
+        </DialogContent>
+
+      </Dialog>
+
+
+    </div> 
+
+
 
   )
 
@@ -980,7 +1207,7 @@ function SectionCard({
   title,
   children,
 }: {
-  title: string
+  title: React.ReactNode
   children: React.ReactNode
 }) {
 
@@ -1010,9 +1237,13 @@ function SectionCard({
 
         </h2>
 
+
+
       </div>
 
       {children}
+
+
 
     </div>
 

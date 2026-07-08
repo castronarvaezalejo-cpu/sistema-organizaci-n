@@ -27,6 +27,12 @@ import PageHeader from "@/components/ui/PageHeader";
 
 import Link from "next/link";
 
+import {
+  UserCheck,
+  Building2,
+  Shield,
+} from "lucide-react";
+
 export default function EmpresasPage() {
 
   const [
@@ -1028,9 +1034,32 @@ empresa.tarifa_hora || 0
   "
 >
 
-  <p className="font-medium text-slate-700">
-    👤 Representante Legal
+<div className="flex items-center gap-3">
+
+  <div
+    className="
+      w-10
+      h-10
+      rounded-lg
+      bg-blue-50
+      flex
+      items-center
+      justify-center
+    "
+  >
+
+    <UserCheck
+      size={20}
+      className="text-blue-600"
+    />
+
+  </div>
+
+  <p className="font-semibold text-slate-800">
+    Representante Legal
   </p>
+
+</div>
 
   <input
     value={representanteNombre}
@@ -1080,9 +1109,34 @@ empresa.tarifa_hora || 0
   "
 >
 
-  <p className="font-medium text-slate-700">
-    👨‍💼 Administrador
+
+    <div className="flex items-center gap-3">
+
+  <div
+    className="
+      w-10
+      h-10
+      rounded-lg
+      bg-emerald-50
+      flex
+      items-center
+      justify-center
+    "
+  >
+
+    <Building2
+      size={20}
+      className="text-emerald-600"
+    />
+
+  </div>
+
+  <p className="font-semibold text-slate-800">
+    Administrador
   </p>
+
+</div>
+  
 
   <input
     value={administradorNombre}
@@ -1132,9 +1186,34 @@ empresa.tarifa_hora || 0
   "
 >
 
-  <p className="font-medium text-slate-700">
-    🦺 Responsable SST
+ 
+    <div className="flex items-center gap-3">
+
+  <div
+    className="
+      w-10
+      h-10
+      rounded-lg
+      bg-amber-50
+      flex
+      items-center
+      justify-center
+    "
+  >
+
+    <Shield
+      size={20}
+      className="text-amber-500"
+    />
+
+  </div>
+
+  <p className="font-semibold text-slate-800">
+    Responsable SST
   </p>
+
+</div>
+  
 
   <input
     value={sstNombre}

@@ -94,13 +94,16 @@ export default function TrabajadorTable({
                   py-1
                   text-xs
                   font-semibold
-                  ${trabajador.estado === "Activo"
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-red-50 text-red-700"
-                  }
+${
+  trabajador.estado?.toLowerCase() === "activo"
+    ? "bg-emerald-50 text-emerald-700"
+    : "bg-red-50 text-red-700"
+}
                 `}
               >
-                {trabajador.estado || "-"}
+                {trabajador.estado?.toLowerCase() === "activo"
+  ? "Activo"
+  : "Inactivo"}
               </span>
             </div>
 

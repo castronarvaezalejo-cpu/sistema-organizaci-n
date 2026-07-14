@@ -94,7 +94,7 @@ export async function POST(request: Request) {
         telefono,
         fecha_nacimiento: fechaNacimiento,
         cargo,
-        estado: "activo",
+        estado: "Activo",
         foto_url: fotoPath,
       });
 

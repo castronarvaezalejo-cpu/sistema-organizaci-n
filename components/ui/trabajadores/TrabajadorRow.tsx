@@ -15,7 +15,10 @@ export default function TrabajadorRow({
   onEdit,
   onDelete,
 }: TrabajadorRowProps) {
-  const activo = trabajador.estado === "Activo";
+  const activo =
+  trabajador.estado?.toLowerCase() === "activo";
+
+
 
   return (
     <div
@@ -70,7 +73,7 @@ export default function TrabajadorRow({
           }
         `}
       >
-        {trabajador.estado || "Sin estado"}
+        {activo ? "Activo" : "Inactivo"}
       </span>
 
       <TrabajadorActions

@@ -562,6 +562,10 @@ export default function ColaboradoresPage() {
                 Admin
               </option>
 
+              <option value="trabajador">
+                Trabajador
+              </option>
+
             </select>
 
             <div className="

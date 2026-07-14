@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   Clock3,
   Building2,
+  Cake,
   CheckCircle2,
   DollarSign,
   Trophy,
@@ -55,6 +56,11 @@ export default function Home() {
   const [
     vencidas,
     setVencidas,
+  ] = useState(0);
+
+  const [
+    cumpleanosHoy,
+    setCumpleanosHoy,
   ] = useState(0);
 
   const [
@@ -205,6 +211,27 @@ export default function Home() {
     setVencidas(
       vencidasCount || 0
     );
+
+    const { data: trabajadoresCumpleanos } =
+      await supabase
+        .from("trabajadores_empresa")
+        .select("fecha_nacimiento")
+        .not("fecha_nacimiento", "is", null);
+
+    const hoyFecha = new Date();
+    const totalCumpleanosHoy =
+      trabajadoresCumpleanos?.filter((trabajador: any) => {
+        const fecha = new Date(
+          `${trabajador.fecha_nacimiento}T00:00:00`
+        );
+
+        return (
+          fecha.getDate() === hoyFecha.getDate() &&
+          fecha.getMonth() === hoyFecha.getMonth()
+        );
+      }).length || 0;
+
+    setCumpleanosHoy(totalCumpleanosHoy);
 
     // ===================================
 // HORAS POR EMPRESA
@@ -569,6 +596,17 @@ if (
           color="green"
           icon={
             <CheckCircle2 size={22} />
+          }
+        />
+
+        <PremiumCard
+          title="Cumpleaños"
+          value={cumpleanosHoy}
+          subtitle="hoy"
+          href="/cumpleanos"
+          color="blue"
+          icon={
+            <Cake size={22} />
           }
         />
 

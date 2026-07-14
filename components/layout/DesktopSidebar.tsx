@@ -3,17 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { menuItems, adminMenuItems } from "./menuItems";
+import {
+  menuItems,
+  adminMenuItems,
+  trabajadorMenuItems,
+} from "./menuItems";
 
 type Props = {
   esAdmin: boolean;
+  rol?: string | null;
 };
 
 export default function DesktopSidebar({
   esAdmin,
+  rol,
 }: Props) {
 
   const pathname = usePathname();
+  const items =
+    rol === "trabajador"
+      ? trabajadorMenuItems
+      : [
+          ...menuItems,
+          ...(esAdmin ? adminMenuItems : []),
+        ];
 
   function Item({
     title,
@@ -85,7 +98,7 @@ py-4
       "
     >
 
-      {menuItems.map((item) => (
+      {items.map((item) => (
 
         <Item
           key={item.href}
@@ -95,18 +108,6 @@ py-4
         />
 
       ))}
-
-      {esAdmin &&
-        adminMenuItems.map((item) => (
-
-          <Item
-            key={item.href}
-            title={item.title}
-            href={item.href}
-            Icon={item.icon}
-          />
-
-        ))}
 
     </nav>
 

@@ -3,21 +3,35 @@
 import Link from "next/link";
 import { X } from "lucide-react";
 
-import { adminMenuItems, menuItems } from "./menuItems";
+import {
+  adminMenuItems,
+  menuItems,
+  trabajadorMenuItems,
+} from "./menuItems";
 
 type Props = {
   abierto: boolean;
   cerrar: () => void;
   esAdmin: boolean;
+  rol?: string | null;
 };
 
 export default function MobileSidebar({
   abierto,
   cerrar,
   esAdmin,
+  rol,
 }: Props) {
 
   if (!abierto) return null;
+
+  const items =
+    rol === "trabajador"
+      ? trabajadorMenuItems
+      : [
+          ...menuItems,
+          ...(esAdmin ? adminMenuItems : []),
+        ];
 
   return (
 
@@ -86,7 +100,7 @@ export default function MobileSidebar({
           gap-2
           p-4
         ">
-          {[...menuItems, ...(esAdmin ? adminMenuItems : [])].map(
+          {items.map(
             (item) => {
               const Icon = item.icon;
 

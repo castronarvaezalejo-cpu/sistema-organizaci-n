@@ -6,6 +6,9 @@ from "react";
 import { useRouter }
 from "next/navigation";
 
+import { usePathname }
+from "next/navigation";
+
 import { supabase }
 from "@/lib/supabase";
 
@@ -29,6 +32,9 @@ export default function DashboardLayout({
   const router =
     useRouter();
 
+  const pathname =
+    usePathname();
+
   const [
     loading,
     setLoading,
@@ -43,6 +49,11 @@ export default function DashboardLayout({
     esAdmin,
     setEsAdmin,
   ] = useState(false);
+
+  const [
+    rol,
+    setRol,
+  ] = useState<string | null>(null);
 
   const [
   menuAbierto,
@@ -88,10 +99,37 @@ export default function DashboardLayout({
     if (data) {
 
       setColaborador(data);
+      setRol(data.rol || null);
 
       if (data.rol === "admin") {
 
         setEsAdmin(true);
+      }
+
+      if (
+        data.rol === "trabajador" &&
+        !rutaPermitidaTrabajador(pathname)
+      ) {
+        router.replace("/mi-perfil");
+      }
+    } else {
+      const { data: trabajador } = await supabase
+        .from("trabajadores_empresa")
+        .select("id, nombre, correo")
+        .eq("correo", session.user.email)
+        .single();
+
+      if (trabajador) {
+        setColaborador({
+          nombre: trabajador.nombre,
+          email: trabajador.correo,
+          rol: "trabajador",
+        });
+        setRol("trabajador");
+
+        if (!rutaPermitidaTrabajador(pathname)) {
+          router.replace("/mi-perfil");
+        }
       }
     }
 
@@ -183,6 +221,7 @@ md:min-w-56
 
  <DesktopSidebar
   esAdmin={esAdmin}
+  rol={rol}
 />
 
       </aside>
@@ -332,9 +371,19 @@ md:min-w-56
   abierto={menuAbierto}
   cerrar={() => setMenuAbierto(false)}
   esAdmin={esAdmin}
+  rol={rol}
 />
 
     </main>
   );
+}
+
+function rutaPermitidaTrabajador(pathname: string) {
+  return [
+    "/mi-perfil",
+    "/mis-capacitaciones",
+    "/mis-actividades",
+    "/mis-documentos",
+  ].some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`));
 }
 

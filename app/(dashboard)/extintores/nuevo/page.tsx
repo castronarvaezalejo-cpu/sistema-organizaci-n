@@ -147,6 +147,87 @@ Capacidad: ${capacidad}`,
 
 }
 
+async function crearEventosGoogleCalendarExtintor() {
+
+  if (!responsableId) {
+    alert("Selecciona un responsable del calendario.");
+    return null;
+  }
+
+  const empresaSeleccionada =
+    empresas.find((empresa) => empresa.id === empresaId);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return null;
+
+  const [anio, mes, dia] = fechaRecarga
+    .split("-")
+    .map(Number);
+
+  const fechaVencimiento = new Date(
+    anio,
+    mes - 1,
+    dia
+  );
+
+  fechaVencimiento.setFullYear(
+    fechaVencimiento.getFullYear() + 1
+  );
+
+  const responsablesCalendario =
+    responsableId === "todos"
+      ? colaboradores.map((colaborador) => colaborador.id)
+      : [responsableId];
+
+  const eventos = [];
+
+  for (const colaboradorId of responsablesCalendario) {
+    const respuesta = await fetch(
+      "/api/google-calendar/event",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          colaboradorId,
+          title: `🧯 Recarga Extintor ${codigo}`,
+          description:
+`Empresa: ${empresaSeleccionada?.nombre}
+
+Ubicación: ${ubicacion}
+
+Tipo: ${tipo}
+
+Capacidad: ${capacidad}`,
+          date:
+            fechaVencimiento
+              .toISOString()
+              .split("T")[0],
+        }),
+      }
+    );
+
+    const google = await respuesta.json();
+
+    if (google?.eventId) {
+      eventos.push({
+        colaborador_id: colaboradorId,
+        event_id: google.eventId,
+      });
+    }
+  }
+
+  return {
+    eventId: eventos[0]?.event_id || null,
+    eventIds: eventos,
+  };
+}
+
     async function crearExtintor(
       e: React.FormEvent
     ) {
@@ -156,10 +237,13 @@ Capacidad: ${capacidad}`,
       setLoading(true);
 
  const google =
-  await crearEventoGoogleCalendar();
+  await crearEventosGoogleCalendarExtintor();
 
 const googleEventId =
   google?.eventId || null;
+
+const googleEventIds =
+  google?.eventIds || [];
 
 const { error } =
   await supabase
@@ -168,12 +252,20 @@ const { error } =
 {
   codigo,
   empresa_id: empresaId,
-  responsable_id: responsableId,
+  responsable_id:
+    responsableId === "todos"
+      ? null
+      : responsableId,
+  responsable_calendario:
+    responsableId === "todos"
+      ? "todos"
+      : responsableId,
   ubicacion,
   tipo,
   capacidad,
   fecha_recarga: fechaRecarga,
   google_calendar_event_id: googleEventId,
+  google_calendar_event_ids: googleEventIds,
 },
     ]);
 
@@ -294,6 +386,10 @@ const { error } =
 
     <option value="">
       Seleccione un responsable
+    </option>
+
+    <option value="todos">
+      Todos
     </option>
 
     {colaboradores.map((colaborador) => (

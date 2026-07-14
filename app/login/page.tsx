@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     setLoading(true)
 
-    const { error } =
+    const { data, error } =
       await supabase.auth.signInWithPassword({
 
         email,
@@ -38,7 +38,28 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/")
+    const correo =
+      data.session?.user.email || email
+
+    const { data: colaborador } =
+      await supabase
+        .from("colaboradores")
+        .select("rol")
+        .eq("email", correo)
+        .single()
+
+    if (colaborador?.rol === "trabajador") {
+      router.push("/mi-perfil")
+    } else {
+      const { data: trabajador } =
+        await supabase
+          .from("trabajadores_empresa")
+          .select("id")
+          .eq("correo", correo)
+          .single()
+
+      router.push(trabajador ? "/mi-perfil" : "/")
+    }
 
     router.refresh()
   }

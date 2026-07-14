@@ -162,7 +162,9 @@ setEmpresaNombre(
 );
 
 setResponsableId(
-  data.responsable_id || ""
+  data.responsable_calendario === "todos"
+    ? "todos"
+    : data.responsable_id || ""
 );
 
 setUbicacion(
@@ -246,6 +248,87 @@ const google =
 
 return google;
 
+}
+
+async function crearEventosGoogleCalendarExtintor() {
+
+  if (!responsableId) return null;
+
+  const empresaSeleccionada =
+    empresas.find(
+      (empresa) =>
+        empresa.id === empresaId
+    );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return null;
+
+  const [anio, mes, dia] = fechaRecarga
+    .split("-")
+    .map(Number);
+
+  const fechaVencimiento = new Date(
+    anio,
+    mes - 1,
+    dia
+  );
+
+  fechaVencimiento.setFullYear(
+    fechaVencimiento.getFullYear() + 1
+  );
+
+  const responsablesCalendario =
+    responsableId === "todos"
+      ? colaboradores.map((colaborador) => colaborador.id)
+      : [responsableId];
+
+  const eventos = [];
+
+  for (const colaboradorId of responsablesCalendario) {
+    const respuesta = await fetch(
+      "/api/google-calendar/event",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          colaboradorId,
+          title: `🧯 Recarga Extintor ${codigo}`,
+          description:
+`Empresa: ${empresaSeleccionada?.nombre}
+
+Ubicación: ${ubicacion}
+
+Tipo: ${tipo}
+
+Capacidad: ${capacidad}`,
+          date:
+            fechaVencimiento
+              .toISOString()
+              .split("T")[0],
+        }),
+      }
+    );
+
+    const google = await respuesta.json();
+
+    if (google?.eventId) {
+      eventos.push({
+        colaborador_id: colaboradorId,
+        event_id: google.eventId,
+      });
+    }
+  }
+
+  return {
+    eventId: eventos[0]?.event_id || null,
+    eventIds: eventos,
+  };
 }
 
 async function actualizarEventoGoogleCalendar(
@@ -354,7 +437,7 @@ async function actualizarExtintor(
     error,
   } = await supabase
     .from("extintores")
-    .select("google_calendar_event_id,responsable_id")
+    .select("google_calendar_event_id,responsable_id,responsable_calendario,google_calendar_event_ids")
     .eq("id", id)
     .single();
 
@@ -365,6 +448,9 @@ async function actualizarExtintor(
 
   let googleEventId =
     extintorActual.google_calendar_event_id;
+
+  let googleEventIds =
+    extintorActual.google_calendar_event_ids || [];
 
   // ===============================
   // MISMO RESPONSABLE
@@ -390,7 +476,10 @@ async function actualizarExtintor(
 
   else {
 
-    if (googleEventId) {
+    if (
+      googleEventId &&
+      extintorActual.responsable_id
+    ) {
 
       await eliminarEventoGoogleCalendar(
         googleEventId,
@@ -399,11 +488,25 @@ async function actualizarExtintor(
 
     }
 
+    if (Array.isArray(extintorActual.google_calendar_event_ids)) {
+      for (const evento of extintorActual.google_calendar_event_ids) {
+        if (evento?.event_id && evento?.colaborador_id) {
+          await eliminarEventoGoogleCalendar(
+            evento.event_id,
+            evento.colaborador_id
+          );
+        }
+      }
+    }
+
     const google =
-      await crearEventoGoogleCalendar();
+      await crearEventosGoogleCalendarExtintor();
 
     googleEventId =
       google?.eventId ?? null;
+
+    googleEventIds =
+      google?.eventIds || [];
 
   }
 
@@ -416,7 +519,15 @@ async function actualizarExtintor(
 
         empresa_id: empresaId,
 
-        responsable_id: responsableId,
+        responsable_id:
+          responsableId === "todos"
+            ? null
+            : responsableId,
+
+        responsable_calendario:
+          responsableId === "todos"
+            ? "todos"
+            : responsableId,
 
         ubicacion,
 
@@ -428,6 +539,9 @@ async function actualizarExtintor(
 
         google_calendar_event_id:
           googleEventId,
+
+        google_calendar_event_ids:
+          googleEventIds,
 
       })
       .eq("id", id);
@@ -569,6 +683,10 @@ router.push(`/extintores?empresa=${empresaId}`);
 
     <option value="">
       Seleccione un responsable
+    </option>
+
+    <option value="todos">
+      Todos
     </option>
 
     {colaboradores.map((colaborador) => (

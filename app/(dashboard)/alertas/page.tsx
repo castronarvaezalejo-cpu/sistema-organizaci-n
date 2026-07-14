@@ -19,6 +19,11 @@ from "@/lib/supabase";
 import PageHeader
 from "@/components/ui/PageHeader";
 
+import { obtenerInfoCumpleanos }
+from "@/lib/cumpleanos";
+
+
+
 type Alerta = {
   id: string;
   tipo: string;
@@ -368,6 +373,52 @@ SEITON`;
 
           empresa:
             extintor.empresas?.nombre,
+        });
+      });
+    }
+
+    // ===================================
+    // CUMPLEAÑOS
+    // ===================================
+
+    const {
+      data: trabajadoresCumpleanos,
+    } = await supabase
+      .from("trabajadores_empresa")
+      .select(`
+        id,
+        nombre,
+        cargo,
+        fecha_nacimiento,
+        empresas (
+          nombre
+        )
+      `)
+      .not("fecha_nacimiento", "is", null);
+
+    if (trabajadoresCumpleanos) {
+      trabajadoresCumpleanos.forEach((trabajador: any) => {
+        const info = obtenerInfoCumpleanos(
+          trabajador.fecha_nacimiento,
+          hoy
+        );
+
+        if (!info?.esHoy) return;
+
+        resultado.push({
+          id: `cumpleanos-${trabajador.id}`,
+          tipo: "hoy",
+          titulo: `Cumpleaños: ${trabajador.nombre}`,
+          descripcion:
+            `Hoy cumple ${info.edad} años • ${trabajador.empresas?.nombre || "Sin empresa"}`,
+          fecha:
+            new Date()
+              .toISOString()
+              .split("T")[0],
+          color:
+            "border-blue-200 bg-blue-50 text-blue-700",
+          empresa:
+            trabajador.empresas?.nombre,
         });
       });
     }

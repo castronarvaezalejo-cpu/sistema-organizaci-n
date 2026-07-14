@@ -22,6 +22,13 @@ import {
   Shield,
   Phone,
   Users,
+  UserPlus,
+  User,
+  Briefcase,
+  CalendarDays,
+  Mail,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
 import {
@@ -31,13 +38,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import TrabajadorDialog from "@/components/ui/trabajadores/TrabajadorDialog"
+
+import TrabajadorCard from "@/components/ui/trabajadores/TrabajadorCard"
+
+import { Search } from "lucide-react"
+
 export default function EmpresaDetallePage() {
 
   const params =
     useParams()
 
   const empresaId =
-    params.id as string
+    params.id as string 
 
     const searchParams =
   useSearchParams()
@@ -71,6 +84,22 @@ const tab =
   ] = useState<any[]>([])
 
   const [
+  trabajadores,
+  setTrabajadores,
+] = useState<any[]>([])
+
+const [
+  busquedaTrabajador,
+  setBusquedaTrabajador,
+] = useState("")
+
+const [
+  filtroEstado,
+  setFiltroEstado,
+] = useState("Todos")
+
+
+  const [
     horasMes,
     setHorasMes,
   ] = useState(0)
@@ -91,16 +120,54 @@ const [
   setOpenDescripcion,
 ] = useState(false)
 
+const [
+  openTrabajador,
+  setOpenTrabajador,
+] = useState(false)
+
+const [
+  trabajadorSeleccionado,
+  setTrabajadorSeleccionado,
+] = useState<any>(null)
+
+
+
+
+
+
+const trabajadoresFiltrados =
+  trabajadores.filter((trabajador) => {
+
+    const coincideNombre =
+      trabajador.nombre
+        ?.toLowerCase()
+        .includes(
+          busquedaTrabajador.toLowerCase()
+        )
+
+    const coincideEstado =
+      filtroEstado === "Todos"
+        ?   true
+        : trabajador.estado === filtroEstado
+
+    return (
+      coincideNombre &&
+      coincideEstado
+    )
+
+  })
 
 
 
 useEffect(() => {
 
-  if (empresaId) {
+if (empresaId) {
 
-    cargarEmpresa()
+  cargarEmpresa()
 
-  }
+  cargarTrabajadores()
+
+}
 
   // SCROLL A EXTINTORES
 
@@ -124,8 +191,12 @@ useEffect(() => {
     }, 500)
 
   }
+  
 
 }, [empresaId, tab])
+
+
+
 
   async function cargarEmpresa() {
 
@@ -319,6 +390,53 @@ useEffect(() => {
     }
 
   }
+
+  async function cargarTrabajadores() {
+
+  const { data, error } = await supabase
+    .from("trabajadores_empresa")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .order("nombre")
+
+  if (error) {
+
+    console.error(error)
+
+    return
+
+  }
+
+  setTrabajadores(data || [])
+
+}
+
+async function eliminarTrabajador(id: string) {
+
+  const confirmar = confirm(
+    "¿Deseas eliminar este trabajador?"
+  )
+
+  if (!confirmar) return
+
+  const { error } = await supabase
+    .from("trabajadores_empresa")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+
+    console.error(error)
+
+    alert("No fue posible eliminar el trabajador.")
+
+    return
+
+  }
+
+  cargarTrabajadores()
+
+}
 
   const horasLimite =
     empresa?.horas_contratadas || 0
@@ -754,6 +872,201 @@ transition
 </div>
 
   </div>
+
+</SectionCard>
+
+<SectionCard
+  title={
+    <div className="flex items-center justify-between w-full">
+
+      <div className="flex items-center gap-3">
+
+        <UserPlus
+          size={24}
+          className="text-blue-600"
+        />
+
+        <span>
+          Trabajadores
+        </span>
+
+      </div>
+
+
+
+    </div>
+  }
+>
+
+ <div
+  className="
+    p-6
+  "
+>
+
+
+
+<div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+  <div className="relative w-full md:w-96">
+
+  <Search
+    size={22}
+    className="
+      absolute
+      left-4
+      top-1/2
+      -translate-y-1/2
+      text-slate-400
+    "
+  />
+
+  <input
+    value={busquedaTrabajador}
+    onChange={(e) =>
+      setBusquedaTrabajador(e.target.value)
+    }
+    placeholder="Buscar por nombre..."
+    className="
+      w-full
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      py-3
+      pl-14
+      pr-4
+      text-slate-700
+      placeholder:text-slate-400
+      focus:border-[#0B4A92]
+      focus:outline-none
+      transition
+    "
+  />
+
+  </div>
+
+  <select
+  value={filtroEstado}
+  onChange={(e) =>
+    setFiltroEstado(e.target.value)
+  }
+  className="
+    rounded-xl
+    border
+    border-slate-200
+    bg-white
+    px-4
+    py-3
+    text-slate-700
+    outline-none
+    focus:border-[#0B4A92]
+  "
+>
+
+  <option value="Todos">
+    Todos
+  </option>
+
+  <option value="Activo">
+    Activo
+  </option>
+
+  <option value="Inactivo">
+    Inactivo
+  </option>
+
+</select>
+
+
+
+  <button
+    onClick={() => {
+      setTrabajadorSeleccionado(null)
+      setOpenTrabajador(true)
+    }}
+    className="
+      bg-[#0B4A92]
+      hover:bg-[#0D5DB8]
+      text-white
+      px-6
+      py-3
+      rounded-xl
+      font-medium
+      transition
+    "
+  >
+    + Nuevo trabajador
+  </button>
+
+</div>
+
+  {trabajadoresFiltrados.length === 0 ? (
+
+    <>
+
+      <div
+        className="
+          w-20
+          h-20
+          rounded-2xl
+          bg-blue-50
+          flex
+          items-center
+          justify-center
+          mb-5
+        "
+      >
+
+        <UserPlus
+          size={42}
+          className="text-blue-600"
+        />
+
+      </div>
+
+      <h3 className="text-xl font-semibold text-slate-800">
+        No hay trabajadores registrados
+      </h3>
+
+      <p className="mt-3 max-w-xl text-slate-500">
+        Registra los trabajadores de esta empresa para gestionar
+        cumpleaños, aniversarios laborales y futuras funcionalidades
+        del sistema.
+      </p>
+
+    </>
+
+  ) : (
+
+    <div className="w-full grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+{trabajadoresFiltrados.map((trabajador) => (
+
+  <TrabajadorCard
+    key={trabajador.id}
+    trabajador={trabajador}
+    onEdit={() => {
+
+      setTrabajadorSeleccionado(trabajador)
+
+      setOpenTrabajador(true)
+
+    }}
+    onDelete={() =>
+      eliminarTrabajador(trabajador.id)
+    }
+  />
+
+))}
+
+    </div>
+
+  )}
+
+
+
+</div>
 
 </SectionCard>
 
@@ -1193,6 +1506,27 @@ transition
         </DialogContent>
 
       </Dialog>
+
+<TrabajadorDialog
+  key={
+    `${trabajadorSeleccionado?.id ?? "nuevo"}-${openTrabajador}`
+  }
+  open={openTrabajador}
+  onOpenChange={(open) => {
+
+    setOpenTrabajador(open)
+
+    if (!open) {
+
+      setTrabajadorSeleccionado(null)
+
+    }
+
+  }}
+  empresaId={empresaId}
+  onCreated={cargarTrabajadores}
+  trabajador={trabajadorSeleccionado}
+/>Fconst [estado, setEstado] = useState("Activo")
 
 
     </div> 

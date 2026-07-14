@@ -39,6 +39,11 @@ export default function TareasPage() {
   ] = useState("")
 
   const [
+    empresasSeleccionadas,
+    setEmpresasSeleccionadas,
+  ] = useState<string[]>([])
+
+  const [
     colaboradorId,
     setColaboradorId,
   ] = useState("")
@@ -258,9 +263,18 @@ return null;
   async function crearTarea() {
 
     console.log("ENTRÓ A crearTarea");
+    const empresasParaGuardar =
+      editandoId
+        ? [empresaId]
+        : empresasSeleccionadas.length > 0
+          ? empresasSeleccionadas
+          : empresaId
+            ? [empresaId]
+            : []
+
     if (
       !titulo ||
-      !empresaId
+      empresasParaGuardar.length === 0
     ) return
 
     let error
@@ -375,22 +389,24 @@ if (session && googleEventId) {
     } 
 else {
 
-const { data: nuevaTarea, error } =
+const tareasParaCrear =
+  empresasParaGuardar.map(
+    (empresaSeleccionadaId) => ({
+      titulo,
+      empresa_id: empresaSeleccionadaId,
+      colaborador_id: colaboradorId,
+      prioridad,
+      fecha_limite: fechaLimite,
+      estado: "pendiente",
+      archivada: false,
+    })
+  )
+
+const { data: nuevasTareas, error } =
   await supabase
     .from("tareas")
-    .insert([
-      {
-        titulo,
-        empresa_id: empresaId,
-        colaborador_id: colaboradorId,
-        prioridad,
-        fecha_limite: fechaLimite,
-        estado: "pendiente",
-        archivada: false,
-      },
-    ])
-    .select()
-    .single();
+    .insert(tareasParaCrear)
+    .select();
   console.log("2. Se guardó la tarea");
 
 if (!error) {
@@ -408,9 +424,11 @@ if (!error) {
     c => c.id === colaboradorId
   );
 
+for (const nuevaTarea of nuevasTareas || []) {
+
 const empresaSeleccionada =
   empresas.find(
-    e => e.id === empresaId
+    e => e.id === nuevaTarea.empresa_id
   );
 
     const respuesta = await fetch("/api/whatsapp", {
@@ -460,6 +478,8 @@ if (eventId) {
   if (updateError) {
     console.error("Error guardando eventId:", updateError);
   }
+}
+
 }
 
   } catch (e) {
@@ -525,6 +545,12 @@ if (eventId) {
 
     setEmpresaId(
       tarea.empresa_id
+    )
+
+    setEmpresasSeleccionadas(
+      tarea.empresa_id
+        ? [tarea.empresa_id]
+        : []
     )
 
     setColaboradorId(
@@ -630,12 +656,46 @@ if (
 
     setTitulo("")
     setEmpresaId("")
+    setEmpresasSeleccionadas([])
     setColaboradorId("")
     setPrioridad("media")
     setFechaLimite("")
     setEstado("pendiente")
     setEditandoId(null)
     setGoogleEventId(null)
+  }
+
+  function alternarEmpresaTarea(
+    id: string
+  ) {
+    setEmpresasSeleccionadas(
+      (actuales) => {
+        const nuevas = actuales.includes(id)
+          ? actuales.filter((empresa) => empresa !== id)
+          : [...actuales, id]
+
+        setEmpresaId(nuevas[0] || "")
+
+        return nuevas
+      }
+    )
+  }
+
+  function alternarTodasEmpresasTarea() {
+    setEmpresasSeleccionadas(
+      (actuales) => {
+        const todasSeleccionadas =
+          actuales.length === empresas.length
+
+        const nuevas = todasSeleccionadas
+          ? []
+          : empresas.map((empresa) => empresa.id)
+
+        setEmpresaId(nuevas[0] || "")
+
+        return nuevas
+      }
+    )
   }
 
   // =====================================
@@ -1061,12 +1121,16 @@ if (
         onOpenChange={setOpen}
       >
 
-        <DialogContent className="
-          bg-white
-          border-slate-200
-          text-slate-800
-          max-w-2xl
-        ">
+<DialogContent
+  className="
+    bg-white
+    border-slate-200
+    text-slate-800
+    max-w-2xl
+    max-h-[90vh]
+    overflow-y-auto
+  "
+>
 
           <DialogHeader>
 
@@ -1109,44 +1173,86 @@ if (
               "
             />
 
-            <select
-              value={empresaId}
-              onChange={(e) =>
-                setEmpresaId(
-                  e.target.value
-                )
-              }
-              className="
-                w-full
-                bg-white
-                border
-                border-slate-200
-                rounded-xl
-                px-4
-                py-3
-                outline-none
-              "
-            >
+            <div className="space-y-3">
 
-              <option value="">
-                Empresa
-              </option>
+  <label className="font-medium">
 
-              {empresas.map(
-                (empresa) => (
+    Empresas
 
-                <option
-                  key={empresa.id}
-                  value={empresa.id}
-                >
+  </label>
 
-                  {empresa.nombre}
+  {!editandoId && (
 
-                </option>
+    <label
+      className="
+        flex
+        items-center
+        gap-2
+        cursor-pointer
+      "
+    >
 
-              ))}
+      <input
+        type="checkbox"
+        checked={
+          empresasSeleccionadas.length === empresas.length
+        }
+        onChange={alternarTodasEmpresasTarea}
+      />
 
-            </select>
+      Todas las empresas
+
+    </label>
+
+  )}
+
+  <div
+    className="
+      max-h-56
+      overflow-y-auto
+      border
+      border-slate-200
+      rounded-xl
+      p-3
+      space-y-2
+    "
+  >
+
+    {empresas.map((empresa) => (
+
+      <label
+        key={empresa.id}
+        className="
+          flex
+          items-center
+          gap-2
+          cursor-pointer
+        "
+      >
+
+        <input
+          type="checkbox"
+          checked={
+            empresasSeleccionadas.includes(
+              empresa.id
+            )
+          }
+          onChange={() =>
+            alternarEmpresaTarea(
+              empresa.id
+            )
+          }
+        />
+
+        {empresa.nombre}
+
+      </label>
+
+    ))}
+
+  </div>
+
+</div>
 
             <select
               value={colaboradorId}

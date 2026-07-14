@@ -46,6 +46,11 @@ export default function HorasPage() {
   ] = useState("");
 
   const [
+  empresasSeleccionadas,
+  setEmpresasSeleccionadas,
+] = useState<string[]>([]);
+
+  const [
     horas,
     setHoras,
   ] = useState("");
@@ -169,6 +174,38 @@ const {
 
     obtenerRegistros();
   }
+
+  function alternarEmpresaHora(id: string) {
+
+  setEmpresasSeleccionadas((actual) =>
+
+    actual.includes(id)
+      ? actual.filter(e => e !== id)
+      : [...actual, id]
+
+  );
+
+}
+
+function alternarTodasEmpresasHora() {
+
+  if (
+    empresasSeleccionadas.length === empresas.length
+  ) {
+
+    setEmpresasSeleccionadas([]);
+
+  } else {
+
+    setEmpresasSeleccionadas(
+
+      empresas.map(e => e.id)
+
+    );
+
+  }
+
+}
 function editarRegistro(registro: any) {
 
   setEditando(true);
@@ -178,6 +215,10 @@ function editarRegistro(registro: any) {
   setColaboradorId(registro.asesor_id);
 
   setEmpresaId(registro.empresa_id);
+
+  setEmpresasSeleccionadas([
+  registro.empresa_id
+]);
 
   setHoras(String(registro.horas));
 
@@ -198,6 +239,8 @@ function limpiarFormulario() {
   setTipo("");
 
   setEmpresaId("");
+
+  setEmpresasSeleccionadas([]);
 
   setEditando(false);
 
@@ -281,11 +324,21 @@ async function eliminarRegistro(id: string) {
 
   async function guardarHoras() {
 
-    if (
-      !colaboradorId ||
-      !empresaId ||
-      !horas
-    ) {
+const listaEmpresas = editando
+
+  ? [empresaId]
+
+  : empresasSeleccionadas;
+
+if (
+
+  !colaboradorId ||
+
+  listaEmpresas.length === 0 ||
+
+  !horas
+
+) {
 
       alert(
         "Completa los campos"
@@ -362,30 +415,95 @@ if (editando) {
 
 } else {
 
-  const respuesta = await supabase
-    .from("horas_trabajo")
-    .insert([
-      {
+  for (const empresaSeleccionada of listaEmpresas) {
 
-        asesor_id: colaboradorId,
+    const respuesta = await supabase
+      .from("horas_trabajo")
+      .insert([
+        {
 
-        empresa_id: empresaId,
+          asesor_id: colaboradorId,
 
-        fecha,
+          empresa_id: empresaSeleccionada,
 
-        horas: Number(horas),
+          fecha,
 
-        actividad,
+          horas: Number(horas),
 
-        tipo,
+          actividad,
 
-      },
-    ])
-    .select()
-    .single();
+          tipo,
 
-  horaCreada = respuesta.data;
-  error = respuesta.error;
+        },
+      ])
+      .select()
+      .single();
+
+    if (respuesta.error) {
+
+      error = respuesta.error;
+
+      break;
+
+    }
+
+    horaCreada = respuesta.data;
+
+    // ===================================
+    // BUSCAR TARIFA
+    // ===================================
+
+    const {
+      data: empresa,
+    } = await supabase
+      .from("empresas")
+      .select(`
+        tarifa_hora,
+        horas_contratadas
+      `)
+      .eq("id", empresaSeleccionada)
+      .single();
+
+    const tarifaMensual =
+      Number(empresa?.tarifa_hora || 0);
+
+    const horasContratadas =
+      Number(empresa?.horas_contratadas || 1);
+
+    const valorHora =
+      tarifaMensual / horasContratadas;
+
+    const totalFacturado =
+      Math.round(
+        valorHora *
+        Number(horas)
+      );
+
+    await supabase
+      .from("actividades_realizadas")
+      .insert([
+
+        {
+
+          colaborador_id: colaboradorId,
+
+          empresa_id: empresaSeleccionada,
+
+          descripcion: actividad,
+
+          horas: Number(horas),
+
+          fecha,
+
+          horas_trabajo_id: horaCreada.id,
+
+          total_facturado: totalFacturado,
+
+        }
+
+      ]);
+
+  }
 
 }
 
@@ -400,72 +518,7 @@ if (error) {
   return;
 }
 
-  // ===================================
-// GUARDAR / ACTUALIZAR ACTIVIDAD
-// ===================================
-
-let errorActividad = null;
-
-if (editando) {
-
-  const respuestaActividad = await supabase
-    .from("actividades_realizadas")
-    .update({
-
-      colaborador_id: colaboradorId,
-
-      empresa_id: empresaId,
-
-      descripcion: actividad,
-
-      horas: Number(horas),
-
-      fecha,
-
-      total_facturado: totalFacturado,
-
-    })
-    .eq("horas_trabajo_id", editandoId);
-
-  errorActividad = respuestaActividad.error;
-
-} else {
-
-  const respuestaActividad = await supabase
-    .from("actividades_realizadas")
-    .insert([
-      {
-
-        colaborador_id: colaboradorId,
-
-        empresa_id: empresaId,
-
-        descripcion: actividad,
-
-        horas: Number(horas),
-
-        fecha,
-
-        horas_trabajo_id: horaCreada.id,
-
-        total_facturado: totalFacturado,
-
-      },
-    ]);
-
-  errorActividad = respuestaActividad.error;
-
-}
-
-if (errorActividad) {
-
-  console.error("ERROR ACTIVIDAD:", errorActividad);
-
-  alert(JSON.stringify(errorActividad));
-
-  return;
-
-}
+ 
 
 alert(
 
@@ -589,42 +642,129 @@ obtenerRegistros();
 
         {/* EMPRESA */}
 
-        <select
-          value={empresaId}
-          onChange={(e) =>
-            setEmpresaId(
-              e.target.value
-            )
-          }
+<div className="md:col-span-2 xl:col-span-3">
+
+  <label className="font-medium">
+
+    Empresas
+
+  </label>
+
+  {!editando && (
+
+    <label
+      className="
+        flex
+        items-center
+        gap-2
+        mt-2
+        mb-2
+        cursor-pointer
+      "
+    >
+
+      <input
+        type="checkbox"
+        checked={
+          empresasSeleccionadas.length === empresas.length
+        }
+        onChange={alternarTodasEmpresasHora}
+      />
+
+      Todas las empresas
+
+    </label>
+
+  )}
+
+  {editando ? (
+
+    <select
+      value={empresaId}
+      onChange={(e)=>
+        setEmpresaId(e.target.value)
+      }
+      className="
+        w-full
+        bg-white
+        border
+        border-slate-200
+        rounded-2xl
+        px-4
+        py-3
+      "
+    >
+
+      <option value="">
+        Empresa
+      </option>
+
+      {empresas.map((empresa)=>(
+
+        <option
+          key={empresa.id}
+          value={empresa.id}
+        >
+
+          {empresa.nombre}
+
+        </option>
+
+      ))}
+
+    </select>
+
+  ) : (
+
+    <div
+      className="
+        max-h-56
+        overflow-y-auto
+        border
+        border-slate-200
+        rounded-2xl
+        p-3
+        space-y-2
+      "
+    >
+
+      {empresas.map((empresa)=>(
+
+        <label
+          key={empresa.id}
           className="
-            bg-white
-            border
-            border-slate-200
-            rounded-2xl
-            px-4
-            py-3
-            outline-none
+            flex
+            items-center
+            gap-2
+            cursor-pointer
           "
         >
 
-          <option value="">
-            Empresa
-          </option>
+          <input
+            type="checkbox"
+            checked={
+              empresasSeleccionadas.includes(
+                empresa.id
+              )
+            }
+            onChange={()=>
+              alternarEmpresaHora(
+                empresa.id
+              )
+            }
+          />
 
-          {empresas.map(
-            (empresa) => (
+          {empresa.nombre}
 
-            <option
-              key={empresa.id}
-              value={empresa.id}
-            >
+        </label>
 
-              {empresa.nombre}
+      ))}
 
-            </option>
-          ))}
+    </div>
 
-        </select>
+  )}
+
+</div>
 
         {/* HORAS */}
 

@@ -4,6 +4,7 @@ import {
   CheckSquare,
   Users,
   Bell,
+  Cake,
   ClipboardList,
   CalendarDays,
   GraduationCap,
@@ -11,6 +12,8 @@ import {
   ShieldAlert,
   Bot,
   Clock3,
+  FileText,
+  UserRound,
 } from "lucide-react";
 
 export const menuItems = [
@@ -24,6 +27,19 @@ export const menuItems = [
     href: "/empresas",
     icon: Building2,
   },
+
+  {
+  title: "Trabajadores",
+  href: "/trabajadores",
+  icon: Users,
+},
+
+  {
+    title: "Cumpleaños",
+    href: "/cumpleanos",
+    icon: Cake,
+  },
+
   {
     title: "Tareas",
     href: "/tareas",
@@ -76,5 +92,28 @@ export const adminMenuItems = [
     title: "Reportes",
     href: "/reportes",
     icon: BarChart3,
+  },
+];
+
+export const trabajadorMenuItems = [
+  {
+    title: "Mi Perfil",
+    href: "/mi-perfil",
+    icon: UserRound,
+  },
+  {
+    title: "Mis Capacitaciones",
+    href: "/mis-capacitaciones",
+    icon: GraduationCap,
+  },
+  {
+    title: "Mis Actividades",
+    href: "/mis-actividades",
+    icon: ClipboardList,
+  },
+  {
+    title: "Mis Documentos",
+    href: "/mis-documentos",
+    icon: FileText,
   },
 ];

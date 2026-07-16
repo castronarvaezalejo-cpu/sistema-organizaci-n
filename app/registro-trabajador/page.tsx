@@ -214,22 +214,28 @@ export default function RegistroTrabajadorPage() {
                 <span className="min-w-0 flex-1 truncate">
                   {foto?.name || "Seleccionar fotografía"}
                 </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  required
-                  onChange={(event) =>
-                    setFoto(event.target.files?.[0] || null)
-                  }
-                  className="hidden"
-                  id="foto-trabajador"
-                />
-                <label
-                  htmlFor="foto-trabajador"
-                  className="cursor-pointer rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200"
-                >
-                  Buscar
-                </label>
+                <div className="relative">
+  <input
+    id="foto-trabajador"
+    type="file"
+    accept="image/*"
+    required
+    onChange={(event) =>
+      setFoto(event.target.files?.[0] || null)
+    }
+    className="
+      absolute
+      inset-0
+      opacity-0
+      cursor-pointer
+      z-10
+    "
+  />
+
+  <div className="cursor-pointer rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200">
+    Buscar
+  </div>
+</div>
               </div>
             </label>
           </div>

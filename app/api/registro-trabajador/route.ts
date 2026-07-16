@@ -31,6 +31,12 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (!(foto instanceof File) || foto.size === 0) {
+  return NextResponse.json(
+    { error: "La fotografía es obligatoria." },
+    { status: 400 }
+  );
+}
 
     const supabase = serverSupabase();
 
@@ -66,24 +72,27 @@ export async function POST(request: Request) {
       );
     }
 
-    let fotoPath: string | null = null;
+const extension =
+  foto.name.split(".").pop() || "jpg";
 
-    if (foto instanceof File && foto.size > 0) {
-      const extension =
-        foto.name.split(".").pop() || "jpg";
-      fotoPath = `${usuario.user.id}-${Date.now()}.${extension}`;
+const fotoPath =
+  `${usuario.user.id}-${Date.now()}.${extension}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("trabajadores")
-        .upload(fotoPath, foto, {
-          contentType: foto.type,
-          upsert: true,
-        });
+const { error: uploadError } = await supabase.storage
+  .from("trabajadores")
+  .upload(fotoPath, foto, {
+    contentType: foto.type,
+    upsert: true,
+  });
 
-      if (uploadError) {
-        fotoPath = null;
-      }
-    }
+if (uploadError) {
+  await supabase.auth.admin.deleteUser(usuario.user.id);
+
+  return NextResponse.json(
+    { error: "No fue posible subir la fotografía." },
+    { status: 400 }
+  );
+}
 
     const { error: trabajadorError } = await supabase
       .from("trabajadores_empresa")

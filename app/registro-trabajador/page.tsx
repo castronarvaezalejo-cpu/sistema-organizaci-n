@@ -207,7 +207,7 @@ export default function RegistroTrabajadorPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-medium text-slate-600">
-                Fotografía opcional
+                Fotografía 
               </span>
               <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
                 <Camera size={16} />
@@ -217,6 +217,7 @@ export default function RegistroTrabajadorPage() {
                 <input
                   type="file"
                   accept="image/*"
+                  required
                   onChange={(event) =>
                     setFoto(event.target.files?.[0] || null)
                   }

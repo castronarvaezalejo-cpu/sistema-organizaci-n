@@ -730,6 +730,11 @@ async function eliminarCapacitacion(id: string) {
             Inducción SST
           </option>
 
+          <option>
+            Capacitación al Vigía de SST o COPASST
+          </option>
+
+
         </select>
 
         {/* LUGAR */}

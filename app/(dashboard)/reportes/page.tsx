@@ -72,25 +72,22 @@ const finMes =
     0
   ).getDate()}`;
 
-    let query = supabase
-      .from("actividades_realizadas")
-      .select(`
-        *,
-        colaboradores (
-          nombre
-        ),
-        empresas (
-          nombre
-        ),
-        tareas (
-          titulo
-        )
-      `)
-      .lte("fecha", finMes);
-
-    if (estadoFacturacion !== "disponibles") {
-      query = query.gte("fecha", inicioMes)
-    }
+let query = supabase
+  .from("actividades_realizadas")
+  .select(`
+    *,
+    colaboradores (
+      nombre
+    ),
+    empresas (
+      nombre
+    ),
+    tareas (
+      titulo
+    )
+  `)
+  .gte("fecha", inicioMes)
+  .lte("fecha", finMes);
 
     // FILTRO EMPRESA
 

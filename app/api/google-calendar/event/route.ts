@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { actualizarEventoGoogleCalendar } from "@/lib/google-calendar-events";
 
 import {
   accessTokenFromRefreshToken,
@@ -202,29 +203,14 @@ if (!accessToken) {
   );
 }
 
-const response = await fetch(
-  `https://www.googleapis.com/calendar/v3/calendars/primary/events/${event.eventId}`,
-  {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      summary: event.title,
-      description: event.description,
-      location: event.location,
-      ...calendarTimes(event),
-    }),
-  }
-);
-
-if (!response.ok) {
-  const googleError = await response.text();
-  console.error("GOOGLE API ERROR:", googleError);
-
-  throw new Error(googleError);
-}
+await actualizarEventoGoogleCalendar({
+  eventId: event.eventId,
+  colaboradorId: event.colaboradorId,
+  title: event.title,
+  description: event.description,
+  date: event.date,
+  location: event.location,
+});
 
 return NextResponse.json({
   updated: true,

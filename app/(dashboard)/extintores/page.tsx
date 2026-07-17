@@ -251,38 +251,89 @@ export default function ExtintoresPage() {
 
   // ELIMINAR
 
-  async function eliminarExtintor(
-    id: string
-  ) {
+async function eliminarExtintor(id: string) {
 
-    const confirmar = confirm(
-      "¿Eliminar este extintor?"
-    );
+  const confirmar = confirm(
+    "¿Eliminar este extintor?"
+  );
 
-    if (!confirmar) return;
+  if (!confirmar) return;
 
-    const { error } =
-      await supabase
-        .from("extintores")
-        .delete()
-        .eq("id", id);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    if (error) {
-
-      alert(
-        "Error eliminando extintor"
-      );
-
-      return;
-    }
-
-    setExtintores((prev) =>
-      prev.filter(
-        (extintor) =>
-          extintor.id !== id
-      )
-    );
+  if (!session) {
+    alert("No hay una sesión activa.");
+    return;
   }
+
+  const respuesta = await fetch(
+    "/api/extintores/eliminar",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        extintorId: id,
+      }),
+    }
+  );
+
+  const resultado = await respuesta.json();
+
+  if (!respuesta.ok) {
+    alert(resultado.error);
+    return;
+  }
+
+  await cargarExtintores();
+}
+
+  async function recargarExtintor(extintor: Extintor) {
+
+  const confirmar = confirm(
+    `¿Confirmar la recarga del extintor ${extintor.codigo}?`
+  );
+
+  if (!confirmar) return;
+
+  const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (!session) {
+  alert("No hay una sesión activa.");
+  return;
+}
+
+const respuesta = await fetch("/api/extintores/recarga", {
+  method: "POST",
+headers: {
+  Authorization: `Bearer ${session.access_token}`,
+  "Content-Type": "application/json",
+},
+  body: JSON.stringify({
+    extintorId: extintor.id,
+  }),
+});
+
+const resultado = await respuesta.json();
+
+console.log(resultado);
+
+if (!respuesta.ok) {
+  alert(resultado.error);
+  return;
+}
+
+alert("La API respondió correctamente.");
+
+await cargarExtintores();
+
+}
 
   // AGRUPAR
 
@@ -550,6 +601,7 @@ const nombre =
                         extintor.fecha_recarga
                       );
 
+
                     return (
 
                       <div
@@ -724,6 +776,25 @@ const nombre =
 
                             </div>
 
+{estado.texto !== "Vigente" && (
+  <button
+    onClick={() => recargarExtintor(extintor)}
+    className="
+      bg-green-600
+      hover:bg-green-700
+      transition
+      px-4
+      py-2
+      rounded-lg
+      text-sm
+      text-white
+      font-semibold
+    "
+  >
+    Recargar
+  </button>
+)}
+
                             <Link
                               href={`/extintores/${extintor.id}?empresa=${extintor.empresa_id}`}
                               className="
@@ -738,6 +809,7 @@ const nombre =
                                 font-semibold
                               "
                             >
+
 
                               Editar
 

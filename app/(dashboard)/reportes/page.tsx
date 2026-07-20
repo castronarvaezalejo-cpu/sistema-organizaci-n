@@ -1,7 +1,15 @@
 "use client"
 
 import jsPDF from "jspdf"
-import autoTable from "jspdf-autotable"
+
+
+
+import {
+  ActividadPDF,
+  dibujarTablaActividadesAutoTable,
+  obtenerFinalAutoTable,
+  obtenerNumeroCuenta,
+} from "@/lib/pdf/cuenta-cobro";
 
 import { useEffect, useState } from "react"
 
@@ -331,7 +339,7 @@ doc.setFontSize(20)
 doc.setTextColor(20,70,140)
 
 doc.text(
-  "CUENTA DE COBRO",
+  `CUENTA DE COBRO ${obtenerNumeroCuenta(mesInicio)}`,
   105,
   40,
   { align: "center" }
@@ -474,66 +482,25 @@ doc.text(
 100,
 150
 )
-        autoTable(doc, {
 
-          startY: 158,
+const actividadesPDF: ActividadPDF[] =
+  actividadesParaCuenta.map((actividad) => ({
+    fecha: actividad.fecha,
+    colaborador:
+      actividad.colaboradores?.nombre || "-",
+    descripcion:
+      actividad.descripcion || "",
+    horas: actividad.horas,
+  }));
 
-          head: [[
-            "Fecha",
-            "Colaborador",
-            "Actividad",
-            "Horas",
-          ]],
-
-          body: actividadesParaCuenta.map(
-            (actividad) => [
-
-              actividad.fecha,
-
-              actividad.colaboradores?.nombre || "-",
-
-              actividad.descripcion,
-
-              `${actividad.horas}h`,
-            ]
-          ),
-
-          theme: "grid",
-
-styles: {
-  fillColor: [255, 255, 255],
-  textColor: [35, 35, 35],
-  lineColor: [195,215,240],
-  lineWidth: 0.2,
-  fontSize: 10,
-},
-
-headStyles: {
-  fillColor: [28, 86, 170],
-  textColor: [255,255,255],
-  fontStyle: "bold",
-},
-
-alternateRowStyles: {
-  fillColor: [247, 251, 255],
-},
-
-columnStyles:{
-0:{cellWidth:20},
-
-1:{cellWidth:32},
-
-2:{cellWidth:102},
-
-3:{
-cellWidth:20,
-halign:"center"
-}
-},
-        })
+dibujarTablaActividadesAutoTable(
+  doc,
+  actividadesPDF,
+  158
+);
 
 const finalY =
-  (doc as any).lastAutoTable.finalY;
+  obtenerFinalAutoTable(doc);
 
 let firmaY = finalY + 20;
 

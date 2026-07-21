@@ -829,76 +829,7 @@ if (
   </div>
 )}
 
-      {/* GRAFICA */}
-      {/* SOLO ADMIN */}
 
-      {esAdmin && (
-
-        <div className="
-          mt-8
-          rounded-2xl
-          border
-          border-slate-200
-          bg-white
-          p-5
-          shadow-sm
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-6
-          ">
-
-            Productividad
-
-          </h2>
-
-          <div className="
-            h-[300px]
-          ">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <BarChart
-                data={
-                  horasPorColaborador
-                }
-              >
-
-                <XAxis
-                  dataKey="nombre"
-                  stroke="#a1a1aa"
-                />
-
-                <YAxis
-                  stroke="#a1a1aa"
-                />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="horas"
-                  fill="#3b82f6"
-                  radius={[
-                    10,
-                    10,
-                    0,
-                    0,
-                  ]}
-                />
-
-              </BarChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-      )}
 
     </div>
   );

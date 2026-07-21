@@ -12,6 +12,7 @@ import {
 
 import { supabase }
 from "@/lib/supabase"
+import EmpresaSearchSelect from "@/components/ui/EmpresaSearchSelect"
 
 export default function CapacitacionesPage() {
   
@@ -564,42 +565,13 @@ async function eliminarCapacitacion(id: string) {
 
         {/* EMPRESA */}
 
-        <select
+        <EmpresaSearchSelect
+          empresas={empresas}
           value={empresaId}
-          onChange={(e) =>
-            setEmpresaId(
-              e.target.value
-            )
-          }
-          className="
-            bg-white
-            border
-            border-slate-200
-            rounded-2xl
-            px-4
-            py-3
-            outline-none
-          "
-        >
-
-          <option value="">
-            Empresa
-          </option>
-
-          {empresas.map(
-            (empresa) => (
-
-            <option
-              key={empresa.id}
-              value={empresa.id}
-            >
-
-              {empresa.nombre}
-
-            </option>
-          ))}
-
-        </select>
+          onChange={setEmpresaId}
+          placeholder="Empresa"
+          className="rounded-2xl"
+        />
 
         {/* RESPONSABLE */}
 
@@ -732,6 +704,34 @@ async function eliminarCapacitacion(id: string) {
 
           <option>
             Capacitación al Vigía de SST o COPASST
+          </option>
+
+          <option>
+            Riesgo Biológico
+          </option>
+
+          <option>
+            Riesgo Físico
+          </option>
+
+          <option>
+            Riesgo Químico
+          </option>
+
+          <option>
+            Riesgo Psicosocial
+          </option>
+
+          <option>
+            Riesgo Biomecánico
+          </option>
+
+          <option>
+            Condiciones de seguridad
+          </option>
+
+          <option>
+            Fenómenos naturales 
           </option>
 
 

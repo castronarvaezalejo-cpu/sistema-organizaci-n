@@ -5,6 +5,7 @@
   import { useRouter } from "next/navigation";
 
   import { supabase } from "@/lib/supabase";
+  import EmpresaSearchSelect from "@/components/ui/EmpresaSearchSelect";
 
   
 
@@ -323,40 +324,12 @@ const { error } =
       Empresa
     </label>
 
-    <select
+    <EmpresaSearchSelect
+      empresas={empresas}
       value={empresaId}
-      onChange={(e) =>
-        setEmpresaId(e.target.value)
-      }
-      className="
-        w-full
-        bg-white
-        border
-        border-slate-200
-        rounded-xl
-        px-4
-        py-3
-        outline-none
-        focus:border-blue-500
-      "
-    >
-
-      <option value="">
-        Seleccione una empresa
-      </option>
-
-      {empresas.map((empresa) => (
-
-        <option
-          key={empresa.id}
-          value={empresa.id}
-        >
-          {empresa.nombre}
-        </option>
-
-      ))}
-
-    </select>
+      onChange={setEmpresaId}
+      placeholder="Seleccione una empresa"
+    />
 
   </div>
 

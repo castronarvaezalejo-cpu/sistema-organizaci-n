@@ -7,6 +7,7 @@ import {
   Cake,
   ClipboardList,
   CalendarDays,
+  CalendarClock,
   GraduationCap,
   BarChart3,
   ShieldAlert,
@@ -49,6 +50,11 @@ export const menuItems = [
     title: "Calendario",
     href: "/calendario",
     icon: CalendarDays,
+  },
+  {
+    title: "Planeación",
+    href: "/planeacion",
+    icon: CalendarClock,
   },
   {
     title: "Capacitaciones",

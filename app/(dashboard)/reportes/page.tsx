@@ -16,6 +16,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
 import PageHeader from "@/components/ui/PageHeader"
+import EmpresaSearchSelect from "@/components/ui/EmpresaSearchSelect"
 
 export default function ReportesPage() {
 
@@ -759,44 +760,18 @@ doc.save(
     Empresa
   </label>
 
-  <select
+  <EmpresaSearchSelect
+    empresas={[
+      {
+        id: "",
+        nombre: "Todas las empresas",
+      },
+      ...empresas,
+    ]}
     value={empresaSeleccionada}
-    onChange={(e) =>
-      setEmpresaSeleccionada(
-        e.target.value
-      )
-    }
-    className="
-      bg-white
-      border
-      border-slate-200
-      rounded-xl
-      px-4
-      py-2.5
-      outline-none
-      text-sm
-      text-slate-800
-      shadow-sm
-    "
-  >
-          <option value="">
-            Todas las empresas
-          </option>
-
-          {empresas.map((empresa) => (
-
-            <option
-              key={empresa.id}
-              value={empresa.id}
-            >
-
-              {empresa.nombre}
-
-            </option>
-
-          ))}
-
-        </select>
+    onChange={setEmpresaSeleccionada}
+    placeholder="Todas las empresas"
+  />
 
         </div>
 

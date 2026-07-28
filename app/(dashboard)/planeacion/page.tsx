@@ -320,11 +320,11 @@ export default function PlaneacionPage() {
           .from("planeacion_actividades")
           .insert(payload);
 
-    if (respuesta.error) {
-      console.error(respuesta.error);
-      alert("No fue posible guardar la planeación.");
-      return;
-    }
+if (respuesta.error) {
+  console.error(respuesta.error);
+  alert(JSON.stringify(respuesta.error, null, 2));
+  return;
+}
 
     setModalAbierto(false);
     cargarDatos();

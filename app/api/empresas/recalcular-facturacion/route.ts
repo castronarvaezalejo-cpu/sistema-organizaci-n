@@ -59,20 +59,107 @@ console.log("=== RECALCULANDO FACTURACIÓN ===");
       throw actividadesError;
     }
 
-    // Actualizar una por una
-    for (const actividad of actividades || []) {
+    const actividadesCalculadas =
+      (actividades || []).map((actividad) => {
 
       const totalFacturado =
         (tarifaHora / horasContratadas) *
         Number(actividad.horas || 0);
 
-      await supabase
+      return {
+        id: actividad.id,
+        total_facturado:
+          Math.round(totalFacturado),
+      };
+    });
+
+    const sumaTotal =
+      actividadesCalculadas.reduce(
+        (total, actividad) =>
+          total + actividad.total_facturado,
+        0
+      );
+
+    const diferencia =
+      tarifaHora - sumaTotal;
+
+    const ultimaActividad =
+      actividadesCalculadas[
+        actividadesCalculadas.length - 1
+      ];
+
+    console.log({
+      tarifaHora,
+      sumaTotal,
+      diferencia,
+      ultimaActividad,
+    });
+
+    if (
+      diferencia !== 0 &&
+      Math.abs(diferencia) <=
+        actividadesCalculadas.length
+    ) {
+      console.log(
+        "ENTRA AL AJUSTE DE REDONDEO"
+      );
+
+      if (ultimaActividad) {
+        console.log({
+          ultimaActividadAntes:
+            ultimaActividad.total_facturado,
+        });
+
+        ultimaActividad.total_facturado +=
+          diferencia;
+
+        console.log({
+          ultimaActividadDespues:
+            ultimaActividad.total_facturado,
+        });
+      }
+    } else {
+      console.log(
+        "NO ENTRA AL AJUSTE DE REDONDEO",
+        {
+          diferencia,
+          cantidadActividades:
+            actividadesCalculadas.length,
+        }
+      );
+    }
+
+    // Actualizar una por una
+    for (const actividad of actividadesCalculadas) {
+
+      const { error: updateError } =
+        await supabase
         .from("actividades_realizadas")
         .update({
           total_facturado:
-            Math.round(totalFacturado),
+            actividad.total_facturado,
         })
         .eq("id", actividad.id);
+
+      if (actividad.id === ultimaActividad?.id) {
+        console.log({
+          updateUltimaActividadEjecutado: true,
+          ultimaActividadId: actividad.id,
+          totalFacturadoGuardado:
+            actividad.total_facturado,
+          updateError,
+        });
+      }
+
+      if (updateError) {
+        console.error(
+          "Error actualizando total_facturado",
+          {
+            actividadId: actividad.id,
+            updateError,
+          }
+        );
+      }
     }
 
     return NextResponse.json({

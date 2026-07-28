@@ -236,6 +236,91 @@ const periodoTexto =
     ? formatearMes(mesInicio)
     : `${formatearMes(mesInicio)} - ${formatearMes(mesFin)}`;
 
+  async function ajustarRedondeoCuentaCobro() {
+    const actividadesAjustadas =
+      actividadesParaCuenta.map((actividad) => ({
+        ...actividad,
+        total_facturado: Math.round(
+          Number(actividad.total_facturado || 0)
+        ),
+      }))
+
+    if (
+      !empresaSeleccionada ||
+      actividadesAjustadas.length === 0
+    ) {
+      return actividadesAjustadas
+    }
+
+    const empresa =
+      empresas.find(
+        (item) =>
+          item.id === empresaSeleccionada
+      )
+
+    const valorEsperado =
+      Math.round(
+        Number(empresa?.tarifa_hora || 0)
+      )
+
+    if (!valorEsperado) {
+      return actividadesAjustadas
+    }
+
+    const sumaTotal =
+      actividadesAjustadas.reduce(
+        (acc, actividad) =>
+          acc + Number(actividad.total_facturado || 0),
+        0
+      )
+
+    const diferencia =
+      valorEsperado - sumaTotal
+
+    if (
+      diferencia !== 0 &&
+      Math.abs(diferencia) <=
+        actividadesAjustadas.length
+    ) {
+      const ultimaActividad =
+        actividadesAjustadas[
+          actividadesAjustadas.length - 1
+        ]
+
+      if (ultimaActividad) {
+        ultimaActividad.total_facturado =
+          Number(
+            ultimaActividad.total_facturado || 0
+          ) + diferencia
+      }
+    }
+
+    await Promise.all(
+      actividadesAjustadas.map((actividad) =>
+        supabase
+          .from("actividades_realizadas")
+          .update({
+            total_facturado:
+              actividad.total_facturado,
+          })
+          .eq("id", actividad.id)
+      )
+    )
+
+    setActividades((actuales) =>
+      actuales.map((actividad) => {
+        const ajustada =
+          actividadesAjustadas.find(
+            (item) => item.id === actividad.id
+          )
+
+        return ajustada || actividad
+      })
+    )
+
+    return actividadesAjustadas
+  }
+
   async function marcarActividadesFacturadas(
     cuentaCobroId: string
   ) {
@@ -297,6 +382,16 @@ const periodoTexto =
       alert("Selecciona al menos una actividad para generar la cuenta de cobro.")
       return
     }
+
+    const actividadesCuentaPDF =
+      await ajustarRedondeoCuentaCobro()
+
+    const totalFacturadoPDF =
+      actividadesCuentaPDF.reduce(
+        (acc, actividad) =>
+          acc + Number(actividad.total_facturado || 0),
+        0
+      )
 
     const cuentaCobroId =
       crypto.randomUUID()
@@ -465,7 +560,7 @@ doc.setFont("helvetica","normal")
 doc.setFontSize(10)
 
 doc.text(
-`Actividades: ${actividadesParaCuenta.length}`,
+`Actividades: ${actividadesCuentaPDF.length}`,
 24,
 145
 )
@@ -479,13 +574,13 @@ doc.text(
 )
 
 doc.text(
-`Valor a cobrar: $${totalFacturado.toLocaleString("es-CO")}`,
+`Valor a cobrar: $${totalFacturadoPDF.toLocaleString("es-CO")}`,
 100,
 150
 )
 
 const actividadesPDF: ActividadPDF[] =
-  actividadesParaCuenta.map((actividad) => ({
+  actividadesCuentaPDF.map((actividad) => ({
     fecha: actividad.fecha,
     colaborador:
       actividad.colaboradores?.nombre || "-",

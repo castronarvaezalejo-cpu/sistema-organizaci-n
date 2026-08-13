@@ -17,13 +17,38 @@ import { supabase } from "@/lib/supabase"
 import PageHeader from "@/components/ui/PageHeader"
 import EmpresaSearchSelect from "@/components/ui/EmpresaSearchSelect"
 
+type EmpresaReporte = {
+  id: string
+  nombre: string
+  nit?: string | null
+  tarifa_hora?: number | string | null
+}
+
+type ActividadReporte = {
+  id: string
+  fecha: string
+  descripcion?: string | null
+  horas?: number | string | null
+  total_facturado?: number | string | null
+  facturada?: boolean | null
+  colaboradores?: {
+    nombre?: string | null
+  } | null
+  empresas?: {
+    nombre?: string | null
+  } | null
+  tareas?: {
+    titulo?: string | null
+  } | null
+}
+
 export default function ReportesPage() {
 
-  const [actividades, setActividades] = useState<any[]>([])
+  const [actividades, setActividades] = useState<ActividadReporte[]>([])
   const [actividadesSeleccionadas, setActividadesSeleccionadas] =
     useState<string[]>([])
   const [empresas, setEmpresas] =
-    useState<any[]>([])
+    useState<EmpresaReporte[]>([])
 
   const [empresaSeleccionada, setEmpresaSeleccionada] =
     useState("")
@@ -37,7 +62,7 @@ const mesActual =
 const [mesInicio, setMesInicio] =
   useState(mesActual)
 
-const [mesFin, setMesFin] =
+  const [mesFin, setMesFin] =
   useState(mesActual)
 
   useEffect(() => {
@@ -45,6 +70,7 @@ const [mesFin, setMesFin] =
     obtenerEmpresas()
     cargarReporte()
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [mesInicio, mesFin, empresaSeleccionada, estadoFacturacion])
 
   // OBTENER EMPRESAS
@@ -57,7 +83,7 @@ const [mesFin, setMesFin] =
       .order("nombre")
 
     if (data) {
-      setEmpresas(data)
+      setEmpresas(data as EmpresaReporte[])
     }
   }
 
@@ -122,9 +148,9 @@ let query = supabase
 
     if (!data) return
 
-    setActividades(data)
+    setActividades(data as ActividadReporte[])
     setActividadesSeleccionadas(
-      data.map((actividad: any) => actividad.id)
+      (data as ActividadReporte[]).map((actividad) => actividad.id)
     )
     
   }
@@ -141,7 +167,7 @@ let query = supabase
       actividadesParaCuenta.reduce(
         (
           acc: Record<string, number>,
-          actividad: any
+          actividad: ActividadReporte
         ) => {
           const nombre =
             actividad.colaboradores?.nombre ||
@@ -205,11 +231,6 @@ let query = supabase
     (empresa) =>
       empresa.id === empresaSeleccionada
   )?.nit || ""
-
-    const totalFacturado = actividadesParaCuenta.reduce(
-  (acc, actividad) => acc + Number(actividad.total_facturado || 0),
-  0
-)
 
 const fechaGeneracion = new Date().toLocaleString("es-CO")
 
@@ -585,7 +606,7 @@ const actividadesPDF: ActividadPDF[] =
       actividad.colaboradores?.nombre || "-",
     descripcion:
       actividad.descripcion || "",
-    horas: actividad.horas,
+    horas: Number(actividad.horas || 0),
   }));
 
 dibujarTablaActividadesAutoTable(

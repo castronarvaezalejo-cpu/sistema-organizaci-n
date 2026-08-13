@@ -14,12 +14,6 @@ type DocConAutoTable = jsPDF & {
   };
 };
 
-export function obtenerNumeroCuenta(periodo: string) {
-  const numeroMes = Number(periodo.split("-")[1] || 1);
-
-  return String(numeroMes).padStart(3, "0");
-}
-
 export function dibujarTablaActividadesAutoTable(
   doc: jsPDF,
   actividades: ActividadPDF[],

@@ -606,7 +606,7 @@ const actividadesPDF: ActividadPDF[] =
       actividad.colaboradores?.nombre || "-",
     descripcion:
       actividad.descripcion || "",
-    horas: Number(actividad.horas || 0),
+    horas: actividad.horas as number,
   }));
 
 dibujarTablaActividadesAutoTable(

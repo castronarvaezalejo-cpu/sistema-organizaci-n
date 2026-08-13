@@ -413,6 +413,65 @@ if (editando) {
   horaCreada = respuesta.data;
   error = respuesta.error;
 
+  if (!error) {
+
+    const respuestaActividad = await supabase
+      .from("actividades_realizadas")
+      .update({
+
+        colaborador_id: colaboradorId,
+
+        empresa_id: empresaId,
+
+        descripcion: actividad,
+
+        horas: Number(horas),
+
+        fecha,
+
+        total_facturado: totalFacturado,
+
+      })
+      .eq("horas_trabajo_id", editandoId)
+      .select("id");
+
+    if (respuestaActividad.error) {
+
+      error = respuestaActividad.error;
+
+    } else if (
+      !respuestaActividad.data ||
+      respuestaActividad.data.length === 0
+    ) {
+
+      const insertarActividad = await supabase
+        .from("actividades_realizadas")
+        .insert([
+          {
+
+            colaborador_id: colaboradorId,
+
+            empresa_id: empresaId,
+
+            descripcion: actividad,
+
+            horas: Number(horas),
+
+            fecha,
+
+            horas_trabajo_id: editandoId,
+
+            total_facturado: totalFacturado,
+
+          },
+        ]);
+
+      if (insertarActividad.error) {
+        error = insertarActividad.error;
+      }
+    }
+  }
+
 } else {
 
   for (const empresaSeleccionada of listaEmpresas) {

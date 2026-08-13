@@ -8,7 +8,6 @@ import {
   ActividadPDF,
   dibujarTablaActividadesAutoTable,
   obtenerFinalAutoTable,
-  obtenerNumeroCuenta,
 } from "@/lib/pdf/cuenta-cobro";
 
 import { useEffect, useState } from "react"
@@ -435,7 +434,7 @@ doc.setFontSize(20)
 doc.setTextColor(20,70,140)
 
 doc.text(
-  `CUENTA DE COBRO ${obtenerNumeroCuenta(mesInicio)}`,
+  "CUENTA DE COBRO",
   105,
   40,
   { align: "center" }

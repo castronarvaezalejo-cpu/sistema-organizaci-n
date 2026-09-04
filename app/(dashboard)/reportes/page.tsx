@@ -496,22 +496,28 @@ nitEmpresa || "-",
 )
 
 doc.text(
+  "Debe a: JULLY DAYÁM NARVÁEZ BENAVIDES C.C. 59.314.290 de Pasto",
+  18,
+  85
+)
+
+doc.text(
 "Período",
 18,
-86
+94
 )
 
 doc.text(
 periodoTexto.charAt(0).toUpperCase() +
 periodoTexto.slice(1),
 18,
-93
+101
 )
 
 doc.text(
 "Fecha de generación",
 18,
-103
+111
 )
 
 doc.text(
@@ -524,7 +530,7 @@ new Date().toLocaleDateString(
 }
 ),
 18,
-110
+117
 )
 
 doc.setDrawColor(40)

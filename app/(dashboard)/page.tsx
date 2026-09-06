@@ -17,26 +17,89 @@ import {
 
 } from "lucide-react";
 
-import {
-
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-
-} from "recharts";
-
 import { supabase }
 from "@/lib/supabase";
+
+type ColaboradorDashboard = {
+  id: string
+  email?: string | null
+  rol?: string | null
+}
+
+type TrabajadorCumpleanosDashboard = {
+  fecha_nacimiento?: string | null
+}
+
+type EmpresaHorasDashboard = {
+  id: string
+  nombre: string
+  horas_contratadas?: number | string | null
+}
+
+type ActividadEmpresaDashboard = {
+  empresa_id?: string | null
+  horas?: number | string | null
+}
+
+type ActividadDashboard = {
+  horas?: number | string | null
+  total_facturado?: number | string | null
+  colaborador_id?: string | null
+  fecha?: string | null
+  colaboradores?: {
+    nombre?: string | null
+  } | null
+}
+
+type HorasEmpresaDashboard = {
+  nombre: string
+  usadas: number
+  contratadas: number
+  porcentaje: number
+}
+
+function obtenerFechaLocalISO(fecha = new Date()) {
+  const local =
+    new Date(
+      fecha.getTime() -
+      fecha.getTimezoneOffset() * 60000
+    );
+
+  return local
+    .toISOString()
+    .split("T")[0];
+}
+
+function obtenerRangoMesActual() {
+  const hoy = new Date();
+  const inicio =
+    new Date(
+      hoy.getFullYear(),
+      hoy.getMonth(),
+      1
+    );
+
+  const fin =
+    new Date(
+      hoy.getFullYear(),
+      hoy.getMonth() + 1,
+      0
+    );
+
+  return {
+    inicioMes:
+      obtenerFechaLocalISO(inicio),
+    finMes:
+      obtenerFechaLocalISO(fin),
+  };
+}
 
 export default function Home() {
 
   const [
     colaborador,
     setColaborador,
-  ] = useState<any>(null);
+  ] = useState<ColaboradorDashboard | null>(null);
 
   const [
     empresas,
@@ -59,14 +122,14 @@ export default function Home() {
   ] = useState(0);
 
   const [
-    cumpleanosHoy,
-    setCumpleanosHoy,
+    vencenHoy,
+    setVencenHoy,
   ] = useState(0);
 
   const [
-    horasPorColaborador,
-    setHorasPorColaborador,
-  ] = useState<any[]>([]);
+    cumpleanosHoy,
+    setCumpleanosHoy,
+  ] = useState(0);
 
   const [
     horasMes,
@@ -86,13 +149,7 @@ export default function Home() {
   const [
   horasEmpresas,
   setHorasEmpresas,
-] = useState<any[]>([]);
-
-  useEffect(() => {
-
-    cargarDashboard();
-
-  }, []);
+] = useState<HorasEmpresaDashboard[]>([]);
 
   async function cargarDashboard() {
 
@@ -152,53 +209,72 @@ export default function Home() {
     // TAREAS
     // ===================================
 
-    const {
-      count: pendientesCount,
-    } = await supabase
+    let tareasPendientesQuery = supabase
       .from("tareas")
       .select("*", {
         count: "exact",
         head: true,
       })
+      .eq("archivada", false)
       .neq(
         "estado",
         "completada"
       );
 
+    if (colaboradorData.rol !== "admin") {
+      tareasPendientesQuery =
+        tareasPendientesQuery.eq(
+          "colaborador_id",
+          colaboradorData.id
+        );
+    }
+
+    const {
+      count: pendientesCount,
+    } = await tareasPendientesQuery;
+
     setPendientes(
       pendientesCount || 0
     );
 
-    const {
-      count: completadasCount,
-    } = await supabase
+    let tareasCompletadasQuery = supabase
       .from("tareas")
       .select("*", {
         count: "exact",
         head: true,
       })
+      .eq("archivada", false)
       .eq(
         "estado",
         "completada"
       );
+
+    if (colaboradorData.rol !== "admin") {
+      tareasCompletadasQuery =
+        tareasCompletadasQuery.eq(
+          "colaborador_id",
+          colaboradorData.id
+        );
+    }
+
+    const {
+      count: completadasCount,
+    } = await tareasCompletadasQuery;
 
     setCompletadas(
       completadasCount || 0
     );
 
     const hoy =
-      new Date()
-      .toISOString()
-      .split("T")[0];
+      obtenerFechaLocalISO();
 
-    const {
-      count: vencidasCount,
-    } = await supabase
+    let tareasVencidasQuery = supabase
       .from("tareas")
       .select("*", {
         count: "exact",
         head: true,
       })
+      .eq("archivada", false)
       .lt(
         "fecha_limite",
         hoy
@@ -208,8 +284,52 @@ export default function Home() {
         "completada"
       );
 
+    if (colaboradorData.rol !== "admin") {
+      tareasVencidasQuery =
+        tareasVencidasQuery.eq(
+          "colaborador_id",
+          colaboradorData.id
+        );
+    }
+
+    const {
+      count: vencidasCount,
+    } = await tareasVencidasQuery;
+
     setVencidas(
       vencidasCount || 0
+    );
+
+    let tareasHoyQuery = supabase
+      .from("tareas")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("archivada", false)
+      .eq(
+        "fecha_limite",
+        hoy
+      )
+      .neq(
+        "estado",
+        "completada"
+      );
+
+    if (colaboradorData.rol !== "admin") {
+      tareasHoyQuery =
+        tareasHoyQuery.eq(
+          "colaborador_id",
+          colaboradorData.id
+        );
+    }
+
+    const {
+      count: vencenHoyCount,
+    } = await tareasHoyQuery;
+
+    setVencenHoy(
+      vencenHoyCount || 0
     );
 
     const { data: trabajadoresCumpleanos } =
@@ -220,7 +340,8 @@ export default function Home() {
 
     const hoyFecha = new Date();
     const totalCumpleanosHoy =
-      trabajadoresCumpleanos?.filter((trabajador: any) => {
+      (trabajadoresCumpleanos as TrabajadorCumpleanosDashboard[] | null)
+        ?.filter((trabajador) => {
         const fecha = new Date(
           `${trabajador.fecha_nacimiento}T00:00:00`
         );
@@ -243,14 +364,10 @@ if (
   "admin"
 ) {
 
-  const inicioMes =
-    new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    )
-    .toISOString()
-    .split("T")[0];
+  const {
+    inicioMes,
+    finMes,
+  } = obtenerRangoMesActual();
 
   const {
     data: empresasData,
@@ -277,6 +394,10 @@ if (
     .gte(
       "fecha",
       inicioMes
+    )
+    .lte(
+      "fecha",
+      finMes
     );
 
   if (
@@ -285,14 +406,14 @@ if (
   ) {
 
     const resultado =
-      empresasData.map(
-        (empresa: any) => {
+      (empresasData as EmpresaHorasDashboard[]).map(
+        (empresa) => {
 
           const horasUsadas =
-            actividadesEmpresa
+            (actividadesEmpresa as ActividadEmpresaDashboard[])
               .filter(
                 (
-                  actividad: any
+                  actividad
                 ) =>
 
                   actividad
@@ -302,7 +423,7 @@ if (
               .reduce(
                 (
                   acc: number,
-                  actividad: any
+                  actividad
                 ) =>
 
                   acc +
@@ -352,14 +473,10 @@ if (
     // ACTIVIDADES
     // ===================================
 
-    const inicioMes =
-      new Date(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        1
-      )
-      .toISOString()
-      .split("T")[0];
+    const {
+      inicioMes,
+      finMes,
+    } = obtenerRangoMesActual();
 
     let query =
       supabase
@@ -378,6 +495,10 @@ if (
         .gte(
           "fecha",
           inicioMes
+        )
+        .lte(
+          "fecha",
+          finMes
         );
 
     // ===================================
@@ -402,6 +523,8 @@ if (
     } = await query;
 
     if (actividadesData) {
+      const actividadesDashboard =
+        actividadesData as unknown as ActividadDashboard[];
 
       const agrupadas:
         Record<
@@ -411,8 +534,8 @@ if (
 
       let totalHoras = 0;
 
-      actividadesData.forEach(
-        (actividad: any) => {
+      actividadesDashboard.forEach(
+        (actividad) => {
 
           const nombre =
             actividad
@@ -445,10 +568,6 @@ if (
           })
         );
 
-      setHorasPorColaborador(
-        resultado
-      );
-
       setHorasMes(
         totalHoras
       );
@@ -461,10 +580,10 @@ if (
       ) {
 
         const totalFacturacion =
-          actividadesData.reduce(
+          actividadesDashboard.reduce(
             (
               acc: number,
-              actividad: any
+              actividad
             ) =>
 
               acc +
@@ -498,6 +617,18 @@ if (
       }
     }
   }
+
+  useEffect(() => {
+
+    const frame =
+      window.requestAnimationFrame(() => {
+        cargarDashboard();
+      });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   const esAdmin =
     colaborador?.rol ===
@@ -567,6 +698,17 @@ if (
           value={pendientes}
           subtitle="tareas pendientes"
           href="/tareas?filtro=pendientes"
+          color="yellow"
+          icon={
+            <Clock3 size={22} />
+          }
+        />
+
+        <PremiumCard
+          title="Hoy"
+          value={vencenHoy}
+          subtitle="tareas que vencen hoy"
+          href="/alertas?filtro=hoy"
           color="yellow"
           icon={
             <Clock3 size={22} />

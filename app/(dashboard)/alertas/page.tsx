@@ -36,14 +36,85 @@ type Alerta = {
   empresa?: string;
 };
 
-function calcularEstadoExtintor(
-  fechaRecarga: string
-) {
+type TareaAlerta = {
+  id: string
+  titulo?: string | null
+  fecha_limite?: string | null
+  empresas?: {
+    nombre?: string | null
+    telefono?: string | null
+  } | null
+}
 
-  const hoy = new Date();
+type ExtintorAlerta = {
+  id: string
+  codigo?: string | null
+  fecha_recarga?: string | null
+  empresas?: {
+    nombre?: string | null
+    telefono?: string | null
+    administrador_telefono?: string | null
+  } | null
+}
+
+type TrabajadorCumpleanosAlerta = {
+  id: string
+  nombre?: string | null
+  fecha_nacimiento?: string | null
+  empresas?: {
+    nombre?: string | null
+  } | null
+}
+
+function obtenerFechaLocalISO(fecha = new Date()) {
+  const local =
+    new Date(
+      fecha.getTime() -
+      fecha.getTimezoneOffset() * 60000
+    );
+
+  return local
+    .toISOString()
+    .split("T")[0];
+}
+
+function crearFechaLocal(fechaISO: string) {
+  const [
+    anio,
+    mes,
+    dia,
+  ] = fechaISO
+    .split("T")[0]
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    anio,
+    mes - 1,
+    dia
+  );
+}
+
+function inicioDia(fecha: Date) {
+  return new Date(
+    fecha.getFullYear(),
+    fecha.getMonth(),
+    fecha.getDate()
+  );
+}
+
+function calcularEstadoExtintor(
+  fechaRecarga?: string | null
+) {
+  if (!fechaRecarga) {
+    return null;
+  }
+
+  const hoy =
+    inicioDia(new Date());
 
   const vencimiento =
-    new Date(fechaRecarga);
+    crearFechaLocal(fechaRecarga);
 
   // +1 año
 
@@ -115,36 +186,6 @@ export default function AlertasPage() {
     "todas"
   );
 
-  useEffect(() => {
-
-    const filtroUrl =
-      new URLSearchParams(
-        window.location.search
-      ).get("filtro");
-
-    let frame: number | undefined;
-
-    if (
-      filtroUrl === "vencidas" ||
-      filtroUrl === "hoy" ||
-      filtroUrl === "proximas" ||
-      filtroUrl === "extintores"
-    ) {
-      frame = window.requestAnimationFrame(() => {
-        setFiltroResumen(filtroUrl);
-      });
-    }
-
-    obtenerAlertas();
-
-    return () => {
-      if (frame !== undefined) {
-        window.cancelAnimationFrame(frame);
-      }
-    };
-
-  }, []);
-
   // ===================================
   // WHATSAPP
   // ===================================
@@ -209,9 +250,23 @@ SEITON`;
     const hoy =
       new Date();
 
+    const hoyTexto =
+      obtenerFechaLocalISO(hoy);
+
     const {
-      data: tareas,
-    } = await supabase
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const { data: colaboradorActual } =
+      session?.user?.email
+        ? await supabase
+            .from("colaboradores")
+            .select("id, rol")
+            .eq("email", session.user.email)
+            .single()
+        : { data: null };
+
+    let tareasQuery = supabase
       .from("tareas")
       .select(`
         *,
@@ -227,6 +282,10 @@ SEITON`;
         "estado",
         "completada"
       )
+      .eq(
+        "archivada",
+        false
+      )
       .order(
         "fecha_limite",
         {
@@ -234,15 +293,30 @@ SEITON`;
         }
       );
 
+    if (
+      colaboradorActual &&
+      colaboradorActual.rol !== "admin"
+    ) {
+      tareasQuery =
+        tareasQuery.eq(
+          "colaborador_id",
+          colaboradorActual.id
+        );
+    }
+
+    const {
+      data: tareas,
+    } = await tareasQuery;
+
     if (tareas) {
 
       tareas.forEach(
-        (tarea: any) => {
+        (tarea: TareaAlerta) => {
 
         const fecha =
-          new Date(
-            tarea.fecha_limite
-          );
+          String(
+            tarea.fecha_limite || ""
+          ).split("T")[0];
 
         let tipo =
           "proxima";
@@ -255,7 +329,7 @@ SEITON`;
 
         // VENCIDA
 
-        if (fecha < hoy) {
+        if (fecha < hoyTexto) {
 
           tipo =
             "vencida";
@@ -270,8 +344,7 @@ SEITON`;
         // HOY
 
         else if (
-          fecha.toDateString() ===
-          hoy.toDateString()
+          fecha === hoyTexto
         ) {
 
           tipo = "hoy";
@@ -292,21 +365,21 @@ SEITON`;
           tipo,
 
           titulo:
-            tarea.titulo,
+            tarea.titulo || "Tarea sin título",
 
           descripcion:
             `${descripcion} • ${tarea.empresas?.nombre || "-"}`,
 
           fecha:
-            tarea.fecha_limite,
+            fecha,
 
           color,
 
           telefono:
-            tarea.empresas?.telefono,
+            tarea.empresas?.telefono || undefined,
 
           empresa:
-            tarea.empresas?.nombre,
+            tarea.empresas?.nombre || undefined,
         });
       });
     }
@@ -333,18 +406,21 @@ SEITON`;
 
       extintores.forEach(
         (
-          extintor: any
+          extintor: ExtintorAlerta
         ) => {
+
+        const fechaRecarga =
+          extintor.fecha_recarga;
 
         const estado =
           calcularEstadoExtintor(
-            extintor.fecha_recarga
+            fechaRecarga
           );
 
         // SOLO MOSTRAR
         // próximos o vencidos
 
-        if (!estado) return;
+        if (!estado || !fechaRecarga) return;
 
         resultado.push({
 
@@ -362,17 +438,18 @@ SEITON`;
             `${estado.texto} • ${extintor.empresas?.nombre || "Sin empresa"}`,
 
           fecha:
-            extintor.fecha_recarga,
+            fechaRecarga,
 
           color:
             estado.color,
 
           telefono:
   extintor.empresas?.administrador_telefono ||
-  extintor.empresas?.telefono,
+  extintor.empresas?.telefono ||
+  undefined,
 
           empresa:
-            extintor.empresas?.nombre,
+            extintor.empresas?.nombre || undefined,
         });
       });
     }
@@ -397,7 +474,9 @@ SEITON`;
       .not("fecha_nacimiento", "is", null);
 
     if (trabajadoresCumpleanos) {
-      trabajadoresCumpleanos.forEach((trabajador: any) => {
+      (
+        trabajadoresCumpleanos as unknown as TrabajadorCumpleanosAlerta[]
+      ).forEach((trabajador) => {
         const info = obtenerInfoCumpleanos(
           trabajador.fecha_nacimiento,
           hoy
@@ -418,7 +497,7 @@ SEITON`;
           color:
             "border-blue-200 bg-blue-50 text-blue-700",
           empresa:
-            trabajador.empresas?.nombre,
+            trabajador.empresas?.nombre || undefined,
         });
       });
     }
@@ -464,6 +543,41 @@ setEstadisticas(estadisticas);
 
     setLoading(false);
   }
+
+  useEffect(() => {
+
+    const filtroUrl =
+      new URLSearchParams(
+        window.location.search
+      ).get("filtro");
+
+    let filtroFrame: number | undefined;
+
+    if (
+      filtroUrl === "vencidas" ||
+      filtroUrl === "hoy" ||
+      filtroUrl === "proximas" ||
+      filtroUrl === "extintores"
+    ) {
+      filtroFrame = window.requestAnimationFrame(() => {
+        setFiltroResumen(filtroUrl);
+      });
+    }
+
+    const cargaFrame =
+      window.requestAnimationFrame(() => {
+        obtenerAlertas();
+      });
+
+    return () => {
+      if (filtroFrame !== undefined) {
+        window.cancelAnimationFrame(filtroFrame);
+      }
+
+      window.cancelAnimationFrame(cargaFrame);
+    };
+
+  }, []);
 
   // ===================================
   // LOADING
